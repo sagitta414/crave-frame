@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useCallback,useEffect,useRef,useState} from 'react';
-import {AccessibilityInfo,Platform,Text,View,useWindowDimensions} from 'react-native';
+import {AccessibilityInfo,Platform,View,useWindowDimensions} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAudioPlayer} from 'expo-audio';
 import {playCue} from './Sonic';

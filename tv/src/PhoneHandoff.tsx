@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React from 'react';
-import {ScrollView,StyleSheet,Text,View,useWindowDimensions} from 'react-native';
+import {ScrollView,StyleSheet,View,useWindowDimensions} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import {TVButton as Button} from './TVButton';
 import {mealById,showById} from './catalog/catalog';

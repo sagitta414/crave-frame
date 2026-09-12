@@ -21,8 +21,11 @@ export function diverseFinalists(candidates,pairs){
  const selected=[],multipleMeals=new Set(pairs.map(p=>p.meal.id)).size>1,multipleShows=new Set(pairs.map(p=>p.show.id)).size>1;
  const quality=p=>(p.pairingType==='story'?12:p.pairingType==='setting'?6:0)+(p.meal.familiar?2:0);
  while(selected.length<3){
-  const eligible=candidates.filter(p=>!selected.some(x=>x.id===p.id||(multipleMeals&&x.meal.id===p.meal.id)||(multipleShows&&x.show.id===p.show.id)));
+  let eligible=candidates.filter(p=>!selected.some(x=>x.id===p.id||(multipleMeals&&x.meal.id===p.meal.id)||(multipleShows&&x.show.id===p.show.id)));
   if(!eligible.length)break;
+  // Reserve enough remaining places for two familiar dinners when available.
+  const familiar=eligible.filter(p=>p.meal.familiar===true),needed=2-selected.filter(p=>p.meal.familiar===true).length;
+  if(multipleMeals&&needed>0&&3-selected.length<=needed&&familiar.length)eligible=familiar;
   const score=p=>quality(p)-(selected.some(x=>x.meal.category&&x.meal.category===p.meal.category)?8:0)-(selected.some(x=>ingredientOverlap(x.meal,p.meal)>=.6)?10:0);
   eligible.sort((a,b)=>score(b)-score(a));selected.push(eligible[0]);
  }

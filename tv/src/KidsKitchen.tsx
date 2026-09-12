@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useEffect,useState} from 'react';
-import {View,Text,TextInput,ScrollView,Image,StyleSheet} from 'react-native';
+import {View,TextInput,ScrollView,Image,StyleSheet} from 'react-native';
 import {TVButton as Button} from './TVButton';
 import {BrandMark} from './Brand';
 import {RecipeArt} from './RecipeArt';

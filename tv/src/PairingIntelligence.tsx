@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useContext,useEffect,useMemo,useRef,useState} from 'react';
-import {Animated,Platform,StyleSheet,Text,View} from 'react-native';
+import {Animated,Platform,StyleSheet,View} from 'react-native';
 import {MotionContext} from './Motion';
 import {TVButton as Button} from './TVButton';
 

@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useContext,useEffect,useRef,useState} from 'react';
-import {Animated,Easing,Image,Text,View,useWindowDimensions} from 'react-native';
+import {Animated,Easing,Image,View,useWindowDimensions} from 'react-native';
 import {MotionContext} from './Motion';
 const lines=[['Tonight deserves a plot twist.','Dinner. A good story. Your kind of evening.'],['Cue the cravings.','A little inspiration for your next big bite.'],['Give your sofa a supporting cast.','Something delicious belongs in this scene.'],['Less “what’s for dinner?”','More “let’s make a night of it.”']];
 export function MatchingStage({compact=false}:{compact?:boolean}){

@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useMemo,useState} from 'react';
-import {Image,ScrollView,StyleSheet,Text,View} from 'react-native';
+import {Image,ScrollView,StyleSheet,View} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {TVButton as Button} from './TVButton';
 import {RecipeArt} from './RecipeArt';

@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useState} from 'react';
-import {ScrollView,View,Text} from 'react-native';
+import {ScrollView,View} from 'react-native';
 import {TVButton as Button} from './TVButton';
 import {RecipeArt} from './RecipeArt';
 import {mealById,showById} from './catalog/catalog';

@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useEffect,useRef} from 'react';
-import {Animated,Easing,Image,StyleSheet,Text,View,useWindowDimensions} from 'react-native';
+import {Animated,Easing,Image,StyleSheet,View,useWindowDimensions} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {BrandMark} from './Brand';
 

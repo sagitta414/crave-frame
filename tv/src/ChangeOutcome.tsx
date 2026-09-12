@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React from 'react';
-import {View,Text,StyleSheet} from 'react-native';
+import {View,StyleSheet} from 'react-native';
 import {RecipeArt} from './RecipeArt';
 import {TVButton as Button} from './TVButton';
 import {Reveal} from './Extras';

@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useEffect,useRef,useState} from 'react';
-import {View,Text,ScrollView,StyleSheet,Linking,useWindowDimensions} from 'react-native';
+import {View,ScrollView,StyleSheet,Linking,useWindowDimensions} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import {TVButton as Button} from './TVButton';
 import {api,API_ORIGIN} from './api';

@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useState} from 'react';
-import {ScrollView,View,Text} from 'react-native';
+import {ScrollView,View} from 'react-native';
 import {TVButton as Button} from './TVButton';
 const choices=[{title:'Absolutely. Do this again.',meal:'again',pairing:'great',detail:'Favor this dinner and remember that the pairing worked.'},{title:'Loved dinner. Different story.',meal:'again',pairing:'miss',detail:'Keep this dinner as a favorite; avoid this exact pairing.'},{title:'A different dinner next time.',meal:'skip',pairing:'okay',detail:'Keep this meal out of future suggestions.'},{title:'It was okay.',meal:'okay',pairing:'okay',detail:'Record the evening without favoring or excluding the meal.'}];
 export function EveningFeedback({night,mealName,onSave,onBack,busy,preferShorter}:any){

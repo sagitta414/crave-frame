@@ -1,6 +1,7 @@
+import {Text} from './TVText';
 import {MatchingStage} from './MatchingStage';
 import React,{useEffect,useRef,useState} from 'react';
-import {Animated,Easing,Platform,StyleSheet,Text,View,useWindowDimensions} from 'react-native';
+import {Animated,Easing,Platform,StyleSheet,View,useWindowDimensions} from 'react-native';
 import {MotionContext} from './Motion';
 import {TVButton,FocusScope} from './TVButton';
 import {StoryBackdrop,StoryBrand,StoryCaption,storyStyles as s} from './EveningStory';
@@ -19,10 +20,10 @@ export function PremiereLoading({reduced=false,boot=false,onCancel}:{reduced?:bo
    <View style={[s.row,{justifyContent:'space-between'}]}><StoryBrand/>{!small&&<Text style={[s.label,{letterSpacing:2}]}>DINNER + A STORY · THE EVENING EDIT</Text>}</View>
    {boot?<StoryCaption step={step} reduced={reduced||paused} loading/>:<View style={{backgroundColor:'#060B16B8',borderRadius:28,padding:small?12:24}}><MatchingStage/></View>}
    <View style={{gap:14,maxWidth:700}}>
-    <Text accessibilityLiveRegion="polite" style={{fontSize:small?25:32,lineHeight:small?34:42,fontWeight:'800',color:'#FFF'}}>{seconds>=30?'Still working. You can cancel and try again.':boot?'Opening your Crave Frame household…':'Working on your request…'}</Text>
+    <Text accessibilityLiveRegion="polite" style={{fontSize:small?25:32,lineHeight:small?34:42,fontWeight:'800',color:'#FFF'}}>{seconds>=30?'Still working. You can cancel and try again.':boot?'Opening your Crave Frame household…':'Waiting for your result…'}</Text>
     <View accessibilityRole="progressbar" accessibilityLabel={boot?'Opening Crave Frame':'Request in progress'} style={{width:260,height:5,overflow:'hidden',borderRadius:4,backgroundColor:'#465168'}}><Animated.View style={{width:90,height:5,backgroundColor:'#FFD1AE',transform:[{translateX:travel.interpolate({inputRange:[0,1],outputRange:[-90,260]})}]}}/></View>
    </View>
   </View>
-  <View style={[s.footer,s.row,{justifyContent:'space-between',paddingHorizontal:small?24:56}]}><Text style={[s.label,{maxWidth:small?400:660}]}>{seconds>=15?'Taking a little longer than usual.':'Your result opens as soon as it is ready.'}</Text><View style={s.row}>{!reduced&&<TVButton quiet onPress={()=>setPaused(!paused)}>{paused?'Resume motion':'Pause motion'}</TVButton>}{onCancel&&<TVButton primary preferred onPress={onCancel}>Cancel request</TVButton>}</View></View>
+  <View style={[s.footer,s.row,{justifyContent:'space-between',paddingHorizontal:small?24:56}]}><Text style={[s.label,{maxWidth:small?400:660}]}>{seconds>=15?`${seconds}s elapsed · You can cancel and retry.`:'Your result opens as soon as it is ready.'}</Text><View style={s.row}>{!reduced&&<TVButton quiet onPress={()=>setPaused(!paused)}>{paused?'Resume motion':'Pause motion'}</TVButton>}{onCancel&&<TVButton primary preferred onPress={onCancel}>Cancel request</TVButton>}</View></View>
  </View></FocusScope.Provider></MotionContext.Provider>;
 }

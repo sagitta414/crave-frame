@@ -1,8 +1,9 @@
+import {Text} from './TVText';
 import {RecipeArt} from './RecipeArt';
 import {GroupStage} from './Experience';
 import {MotionContext} from './Motion';
 import React,{useContext,useEffect,useState,useRef} from 'react';
-import {View,Text,TextInput,ScrollView,Image,StyleSheet,Linking,Platform,Animated,AccessibilityInfo} from 'react-native';
+import {View,TextInput,ScrollView,Image,StyleSheet,Linking,Platform,Animated,AccessibilityInfo} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import QRCode from 'react-native-qrcode-svg';
 import {TVButton as Button} from './TVButton';

@@ -1,5 +1,6 @@
+import {Text} from './TVText';
 import React,{useContext,useEffect,useId,useMemo,useRef,useState} from 'react';
-import {Animated,Image,Platform,StyleSheet,Text,View,useWindowDimensions} from 'react-native';
+import {Animated,Image,Platform,StyleSheet,View,useWindowDimensions} from 'react-native';
 import Svg,{Defs,ClipPath,Path,Image as SvgImage,Line} from 'react-native-svg';
 import {LinearGradient} from 'expo-linear-gradient';
 import {delayChoices,delayEvening,eveningTimeline,orderBrief,orderOutChoices,orderOutEvening,readyTogetherPlan} from './catalog/evening';

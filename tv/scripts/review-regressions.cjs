@@ -13,3 +13,8 @@ panel.scrollTop=1000;assert.equal(exportsObject.pageDown(doc),true);assert.equal
 assert.equal(exportsObject.pageDown(doc),false);
 modal=true;panel.scrollTop=0;assert.equal(exportsObject.pageDown(doc),false);assert.equal(panel.scrollTop,0);
 console.log('PASS: page down from top, bounded bottom, modal isolation');
+
+modal=false;panel.scrollTop=600;focused='dock';doc.activeElement={closest:()=>({})};
+exportsObject.pageUp(doc);assert.equal(focused,'dock');
+exportsObject.pageDown(doc);assert.equal(focused,'dock');
+console.log('PASS: both paging controls retain dock focus');

@@ -1,4 +1,4 @@
-import {backToTop,pageUp,pageDown} from './SilkScrollAssist';
+import {backToTop,pageUp,pageDown,mainPanel} from './SilkScrollAssist';
 import {useEffect} from 'react';
 import {Platform} from 'react-native';
 
@@ -15,8 +15,15 @@ export function useWebRemote(){useEffect(()=>{
   const active=document.activeElement as HTMLElement;
   if(active?.matches('input,textarea,select,[contenteditable="true"]'))return;
   const scope=document.querySelector('[aria-modal="true"], [data-testid="phone-dialog"]')||document;
-  const candidates=[...scope.querySelectorAll<HTMLElement>('[role="button"],input,textarea,select,a[href]')].filter(el=>el.getAttribute('aria-disabled')!=='true'&&!el.hasAttribute('disabled')&&el.getBoundingClientRect().width>0);
+  let candidates=[...scope.querySelectorAll<HTMLElement>('[role="button"],input,textarea,select,a[href]')].filter(el=>el.getAttribute('aria-disabled')!=='true'&&!el.hasAttribute('disabled')&&el.getBoundingClientRect().width>0);
   if(!candidates.length)return;
+  // Keep vertical navigation in the content before considering the paging dock.
+  const panel=mainPanel(),vertical=e.key==='ArrowUp'||e.key==='ArrowDown';
+  if(vertical&&panel?.contains(active)){
+   const r=active.getBoundingClientRect(),sign=e.key==='ArrowDown'?1:-1;
+   const content=candidates.filter(el=>panel.contains(el));
+   if(content.some(el=>el!==active&&(el.getBoundingClientRect().top-r.top)*sign>4))candidates=content;
+  }
  const rowOf=(el:HTMLElement)=>el.closest('[data-testid^="remote-row-"]');
  const currentRow=rowOf(active);if(currentRow)rowMemory.set(currentRow,active);
   const r=active?.getBoundingClientRect();let target:HTMLElement|undefined;
