@@ -33,3 +33,7 @@ The frontend can cancel waiting requests. Cancellation is not a guarantee that s
 ## Evaluation before submission
 
 Use at least ten distinct titles, including specific food stories, broad action titles, family titles, exact TV episodes and sparse descriptions. Record raw returned recipe names, labels, quoted evidence, repeated meal formats, latency and constraints. Score the relevance of each explanation independently from its fluency. Keep poor results in the log and fix systematic problems; do not present a curated success as average performance.
+
+## Evaluated matching revision
+
+The speculative title-context generation step has been removed. The model now selects from up to 80 eligible recipes, preserving familiar and reference-relevant options. A separate food-and-film review checks concrete ingredient links before final validation. Three curated source records support specific food inspirations; unknown sources, irrelevant recipe formats, and invented ingredients cannot qualify through that path. Ranking also penalizes overlapping fillings. Summaries are assembled from validated finalists. Read [the eight-title live evaluation](AI-EVALUATION.md), including weak outcomes.

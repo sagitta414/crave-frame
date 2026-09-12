@@ -1,0 +1,395 @@
+{
+  "date": "2026-09-12T06:51:32.350Z",
+  "model": "gemini-2.5-flash",
+  "scope": "One live sequential pass; not a benchmark or user study",
+  "results": [
+    {
+      "title": "grand-budapest",
+      "seconds": 7.1,
+      "calls": 2,
+      "answer": "These dinners fit your limits, but no strong food connection survived review. They are practical alternatives, not claimed story matches.",
+      "picks": [
+        {
+          "id": "margherita|grand-budapest",
+          "meal": "Margherita pizza",
+          "category": "Flatbreads",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Margherita pizza is a 30-minute dinner. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "chicken-potatoes|grand-budapest",
+          "meal": "Chicken & roasted potatoes",
+          "category": "Tray bakes",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Chicken & roasted potatoes is a 40-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "tomato-pasta|grand-budapest",
+          "meal": "Tomato & basil pasta",
+          "category": "Pasta",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Tomato & basil pasta is a 25-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        }
+      ]
+    },
+    {
+      "title": "avengers",
+      "seconds": 5,
+      "calls": 2,
+      "answer": "Compare the story-inspired dinners and practical alternatives below. Each label describes the connection that survived review.",
+      "picks": [
+        {
+          "id": "turkey-pita-pockets|avengers",
+          "meal": "Turkey & pepper pita pockets",
+          "category": "Tacos & wraps",
+          "familiar": true,
+          "type": "setting",
+          "quote": "Marvel Entertainment published an official Avengers clip featuring a shawarma meal.",
+          "source": "https://www.youtube.com/watch?v=7W68Utbku5I",
+          "connection": "Turkey & pepper pita pockets use pita bread and turkey as a familiar filled pita dinner.",
+          "mealEvidence": [
+            "Pita breads",
+            "Ready-cooked turkey strips"
+          ],
+          "reviewed": true,
+          "repeated": false
+        },
+        {
+          "id": "pepperoni-pizza|avengers",
+          "meal": "Pepperoni pizza",
+          "category": "Pizza",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Pepperoni pizza is a 20-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "spaghetti-meatballs|avengers",
+          "meal": "Spaghetti & meatballs",
+          "category": "Pasta",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Spaghetti & meatballs is a 30-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        }
+      ]
+    },
+    {
+      "title": "ratatouille",
+      "seconds": 7.5,
+      "calls": 2,
+      "answer": "Compare the story-inspired dinners and practical alternatives below. Each label describes the connection that survived review.",
+      "picks": [
+        {
+          "id": "story-ratatouille|ratatouille",
+          "meal": "Rustic vegetable ratatouille",
+          "category": "Toast & sandwiches",
+          "familiar": false,
+          "type": "story",
+          "quote": "",
+          "source": "",
+          "connection": "Making our rustic vegetable version turns watching into a small act of cooking along, while staying clear that it is not Remy’s confit byaldi recipe.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "roasted-pasta|ratatouille",
+          "meal": "Slow-roasted tomato pasta",
+          "category": "Pasta",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Slow-roasted tomato pasta is a 40-minute dinner. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "flatbread|ratatouille",
+          "meal": "Basil & tomato flatbreads",
+          "category": "Flatbreads",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Basil & tomato flatbreads is a 15-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        }
+      ]
+    },
+    {
+      "title": "chef",
+      "seconds": 6.2,
+      "calls": 2,
+      "answer": "Compare the story-inspired dinners and practical alternatives below. Each label describes the connection that survived review.",
+      "picks": [
+        {
+          "id": "cheeseburgers-fries|chef",
+          "meal": "Cheeseburgers & oven fries",
+          "category": "Burgers",
+          "familiar": true,
+          "type": "setting",
+          "quote": "Finding himself in Miami, he teams up with his ex-wife, his friend and his son to launch a food truck.",
+          "source": "",
+          "connection": "Cheeseburgers & oven fries are a classic food truck item, made with beef burger patties, buns, fries, and cheese.",
+          "mealEvidence": [
+            "Fully cooked beef burger patties",
+            "Burger buns"
+          ],
+          "reviewed": true,
+          "repeated": false
+        },
+        {
+          "id": "recipe-smoky-black-bean-tacos|chef",
+          "meal": "Smoky black bean tacos",
+          "category": "Tacos & wraps",
+          "familiar": true,
+          "type": "setting",
+          "quote": "Finding himself in Miami, he teams up with his ex-wife, his friend and his son to launch a food truck.",
+          "source": "",
+          "connection": "Smoky black bean tacos are a popular food truck offering, featuring tortillas, black beans, bell pepper, and avocado.",
+          "mealEvidence": [
+            "Small flour tortillas",
+            "Canned black beans, drained"
+          ],
+          "reviewed": true,
+          "repeated": false
+        },
+        {
+          "id": "grilled-cheese-soup|chef",
+          "meal": "Grilled cheese & tomato soup",
+          "category": "Soup & sandwiches",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Grilled cheese & tomato soup is a 20-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        }
+      ]
+    },
+    {
+      "title": "paddington",
+      "seconds": 7.1,
+      "calls": 2,
+      "answer": "Compare the story-inspired dinners and practical alternatives below. Each label describes the connection that survived review.",
+      "picks": [
+        {
+          "id": "expanded-thyme-white-bean-and-mushroom-toasted-sandwiches|paddington",
+          "meal": "Thyme white bean & mushroom toasted sandwiches",
+          "category": "Toasted sandwiches",
+          "familiar": false,
+          "type": "setting",
+          "quote": "The official Paddington store describes marmalade sandwiches as a favorite of the character.",
+          "source": "https://store.paddington.com/blogs/news/its-marmalade-may-paddingtons-favourite-marmalade-gifts-treats",
+          "connection": "These Thyme white bean & mushroom toasted sandwiches offer a savory take on Paddington's beloved sandwich format, using bread as the base.",
+          "mealEvidence": [
+            "Dairy-free sandwich bread",
+            "Cooked mushrooms"
+          ],
+          "reviewed": true,
+          "repeated": false
+        },
+        {
+          "id": "loaded-baked-potatoes|paddington",
+          "meal": "Loaded baked potatoes",
+          "category": "Baked potatoes",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Loaded baked potatoes is a 45-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "mac-cheese-peas|paddington",
+          "meal": "Mac & cheese with peas",
+          "category": "Pasta",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Mac & cheese with peas is a 25-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        }
+      ]
+    },
+    {
+      "title": "before-sunrise",
+      "seconds": 4.5,
+      "calls": 2,
+      "answer": "These dinners fit your limits, but no strong food connection survived review. They are practical alternatives, not claimed story matches.",
+      "picks": [
+        {
+          "id": "pepper-pasta|before-sunrise",
+          "meal": "Roasted pepper & basil pasta",
+          "category": "Pasta",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Roasted pepper & basil pasta is a 20-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "recipe-sweetcorn-and-potato-chowder|before-sunrise",
+          "meal": "Sweetcorn & potato chowder",
+          "category": "Soups",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Sweetcorn & potato chowder is a 35-minute dinner. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "expanded-thyme-white-bean-and-mushroom-puff-pastry-pot-pies|before-sunrise",
+          "meal": "Thyme white bean & mushroom puff-pastry pot pies",
+          "category": "Savory pies",
+          "familiar": false,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Thyme white bean & mushroom puff-pastry pot pies is a 45-minute dinner. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        }
+      ]
+    },
+    {
+      "title": "detectorists",
+      "seconds": 3.8,
+      "calls": 2,
+      "answer": "These dinners fit your limits, but no strong food connection survived review. They are practical alternatives, not claimed story matches.",
+      "picks": [
+        {
+          "id": "recipe-broccoli-and-garlic-pasta|detectorists",
+          "meal": "Broccoli & garlic pasta",
+          "category": "Pasta",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Broccoli & garlic pasta is a 30-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "recipe-garden-minestrone|detectorists",
+          "meal": "Garden minestrone",
+          "category": "Soups",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Garden minestrone is a 35-minute dinner. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "expanded-thyme-white-bean-and-leek-stuffed-baked-potatoes|detectorists",
+          "meal": "Thyme white bean & leek stuffed baked potatoes",
+          "category": "Stuffed potatoes",
+          "familiar": false,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Thyme white bean & leek stuffed baked potatoes is a 35-minute dinner. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        }
+      ]
+    },
+    {
+      "title": "only-murders",
+      "seconds": 4.8,
+      "calls": 1,
+      "answer": "These dinners fit your limits, but no strong food connection survived review. They are practical alternatives, not claimed story matches.",
+      "picks": [
+        {
+          "id": "recipe-three-bean-chili|only-murders",
+          "meal": "Three-bean chili",
+          "category": "One-pot",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Three-bean chili is a 35-minute dinner. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "chicken-quesadillas|only-murders",
+          "meal": "Chicken quesadillas",
+          "category": "Tacos & wraps",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Chicken quesadillas is a 20-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        },
+        {
+          "id": "recipe-mediterranean-pasta-salad|only-murders",
+          "meal": "Mediterranean pasta salad",
+          "category": "Salads",
+          "familiar": true,
+          "type": "practical",
+          "quote": "",
+          "source": "",
+          "connection": "Mediterranean pasta salad is a 15-minute dinner with an easy recipe. There is no supported food connection to this title.",
+          "mealEvidence": [],
+          "reviewed": false,
+          "repeated": false
+        }
+      ]
+    }
+  ]
+}

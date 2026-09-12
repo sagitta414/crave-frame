@@ -184,7 +184,7 @@ export default function App(){
     {!!pair.pantryMatches?.length&&<Text style={s.body}>From your pantry: {pair.pantryMatches.join(', ')}. Confirm quantities before cooking.</Text>}
     <Meta>{pair.meal.minutes}m cooking · {pair.show.minutes}m viewing · about {pair.meal.minutes+pair.show.minutes+25}m including dinner</Meta>
     <AvailabilityBadge show={pair.show} region={options.region}/>
-    {c.source&&<Button onPress={()=>Linking.openURL(c.source)}>Read the food reference ↗</Button>}
+    {(pair.evidenceSource||c.source)&&<Button onPress={()=>Linking.openURL(pair.evidenceSource||c.source)}>Read the food reference ↗</Button>}
     <Text style={s.footnote}>{pair.meal.recipeNote} Meal artwork illustrates the base recipe; review adaptations separately.</Text>
    </View>}
    <Button focusKey="pair-info-back" style={{alignSelf:'flex-start',marginTop:24}} onPress={back}>Back to choices</Button>

@@ -110,7 +110,7 @@ npm run check:secrets
 npm run build
 ~~~
 
-The current backend suite contains **64 tests**. Tests cover filtering, IDs, source excerpts, variety, planning, persistence, sharing, family constraints, and mocked provider behavior. They do not establish real-world recipe safety, model taste, production reliability, or smooth Fire TV performance. See the [manual device and live AI checklist](docs/TESTING.md).
+The current backend suite contains **71 tests**. Tests cover filtering, IDs, source excerpts, variety, planning, persistence, sharing, family constraints, and mocked provider behavior. They do not establish real-world recipe safety, model taste, production reliability, or smooth Fire TV performance. See the [manual device and live AI checklist](docs/TESTING.md).
 
 Known limitations:
 
@@ -133,3 +133,7 @@ A public repository alone is not a completed submission. The entry still needs a
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before editing shared catalog logic. Do not commit service-account JSON, household keys, cooking links, API tokens, or native signing files. Read [SECURITY.md](SECURITY.md) for reporting guidance and [security architecture](docs/SECURITY.md) for known boundaries.
 
 Project-authored source is available under the [MIT License](LICENSE). Third-party dependencies and marks retain their own terms. Generated artwork provenance and exclusions are documented in [ASSETS.md](docs/ASSETS.md).
+
+## Latest AI evaluation
+
+See the [live eight-title evaluation](docs/AI-EVALUATION.md): 24 distinct recipes, 20 catalog-familiar choices, and remaining weak links disclosed. A separate model review now checks proposed connections; factual validation and household limits still bind.

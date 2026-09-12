@@ -2,7 +2,7 @@
 
 ## Automated
 
-Run npm run setup, then npm test, npm run check:secrets and npm run build from the root. CI repeats these checks on pushes and pull requests. The backend currently has 64 regression tests; the TV app is type-checked. Tests use in-memory/local SQLite and mocked model/catalog responses. No external credentials are required for this suite.
+Run npm run setup, then npm test, npm run check:secrets and npm run build from the root. CI repeats these checks on pushes and pull requests. The backend currently has 71 regression tests; the TV app is type-checked. Tests use in-memory/local SQLite and mocked model/catalog responses. No external credentials are required for this suite.
 
 Coverage includes deterministic filtering, candidate IDs, source-excerpt checks, variety, timing, ingredient scaling, feedback, persistence, sharing, parental controls, group planning and ordering handoffs. A passing suite does not establish live model quality or device usability.
 
@@ -25,4 +25,4 @@ Use the matrix in AI.md. Record provider/model, date, preferences, selected titl
 
 ## Current evidence
 
-The source snapshot derives from a deployed app with 64 passing backend tests and successful TV type-check/export. Real Fire TV use is visible in development photos, but that is not a final device regression pass. The demo script is drafted, not recorded. Document subsequent results explicitly rather than marking this checklist complete by assumption.
+The source snapshot derives from a deployed app with 71 passing backend tests and successful TV type-check/export. Real Fire TV use is visible in development photos, but that is not a final device regression pass. The demo script is drafted, not recorded. Document subsequent results explicitly rather than marking this checklist complete by assumption.

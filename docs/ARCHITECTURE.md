@@ -64,7 +64,7 @@ sequenceDiagram
   API->>DB: Persist approved plan
 ~~~
 
-A fixed-title primary request may first ask Gemini for title context. Other planning requests may parse natural-language preferences. These are distinct model calls; quota counts user AI actions rather than tokens or individual calls.
+A planning request selects candidate dinners and reviews proposed story-food links in a separate model call. The earlier speculative title-context step has been removed. Conversational planning requests may also parse natural-language preferences. These are distinct model calls; quota counts user AI actions rather than tokens or individual calls.
 
 ## Persistence model
 
