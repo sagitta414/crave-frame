@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {meals,shows,defaults} from '../src/catalog/catalog.js';
 import {recommend,ingredients,recipeSteps} from '../src/catalog/engine.js';
 test('native catalog preserves complete recipes and both planning directions',()=>{
- assert.equal(meals.length,519);
+ assert.equal(meals.length,527);
  for(const m of meals){assert.ok(ingredients(m,4,true).length);assert.ok(recipeSteps(m,true).every(s=>!/[{}]/.test(s.instruction)));}
  assert.equal(recommend({mode:'meal',sourceId:'mushroom-toast',prefs:defaults}).length,3);
  assert.equal(recommend({mode:'watch',sourceId:'avengers',prefs:{...defaults,watchTime:180}}).length,3);

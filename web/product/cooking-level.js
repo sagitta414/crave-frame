@@ -16,7 +16,7 @@ export function instructionForLevel(instruction,level='Regular',context={}){
  const specific=[];
  if(/pasta|spaghetti/i.test(meal?.name||'')&&/boil|simmer|drain/i.test(instruction))specific.push('For this pasta, taste a piece near the end of the recipe’s cooking time: it should be tender with a little bite. Keep the sauce ready so the drained pasta can go straight into it.');
  if(/taco|wrap|pita/i.test(meal?.name||'')&&/fill|assemble|serve/i.test(instruction))specific.push('For '+meal.name+', divide the filling between the wraps before adding toppings. Leave space around the edges so each portion is easy to hold.');
- if(/pizza|flatbread/i.test(meal?.name||'')&&/top|spread/i.test(instruction))specific.push('Spread this recipe’s sauce in a thin layer, leaving a small clear rim. Distribute the toppings evenly so the center is not overloaded.');
+ if(/pizza|flatbread/i.test(meal?.name||'')&&/\b(top|spread)\b/i.test(instruction))specific.push('Spread this recipe’s sauce in a thin layer, leaving a small clear rim. Distribute the toppings evenly so the center is not overloaded.');
  if(/rice bowl/i.test(meal?.name||'')&&/serve|divide|bowl/i.test(instruction))specific.push('For '+meal.name+', divide the rice between the serving bowls first, then divide the prepared topping equally.');
  const detail=specific[0]||'';
  const matches=cues.filter(([pattern])=>pattern.test(instruction));

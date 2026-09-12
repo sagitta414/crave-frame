@@ -138,7 +138,7 @@ export async function api(request,env){try{
  }catch(error){return json({error:error.status?error.message:'Unable to save right now. Please try again.'},error.status||500);}}
 function applyCooking(night,b){const max=mealById(night.mealId).steps.length-1;
  if(b.mealId!==undefined&&b.mealId!==night.mealId)fail('The recipe changed. Refresh the cooking steps before continuing.',409);
- if(b.step!==undefined){if(!Number.isInteger(b.step)||b.step<0||b.step>max)fail('Invalid cooking step.');night.step=b.step;night.status='cooking';night.timer=null;night.progressAt=Date.now();}
+ if(b.step!==undefined){if(!Number.isInteger(b.step)||b.step<0||b.step>max)fail('Invalid cooking step.');night.cookingStartedAt=night.cookingStartedAt||Date.now();night.step=b.step;night.status='cooking';night.timer=null;night.progressAt=Date.now();}
  if(b.timer!==undefined){if(b.timer!==null&&(!Number.isFinite(b.timer)||b.timer<Date.now()-1000||b.timer>Date.now()+7200000))fail('Invalid timer.');night.timer=b.timer;if(b.timer!==null)night.status='cooking';}
  if(b.complete===true){night.status='ready';night.timer=null;night.readyAt=Date.now();}
 }

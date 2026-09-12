@@ -3,8 +3,8 @@ export function eveningTimeline(night,meal,show){
   const order=night.orderPlan,dinner=night.dinnerMinutes||25,watch=night.watchStarted||order.watchAt;
   return [{label:'Order marked placed',at:order.orderAt,minutes:5},{label:'Estimated delivery window',at:order.orderAt+5*60000,minutes:Math.max(0,order.etaMinutes-5)},{label:'Sit down to dinner',at:order.arrivalAt,minutes:dinner},{label:'Start watching',at:watch,minutes:show.minutes},{label:'Evening finishes',at:watch+show.minutes*60000,minutes:0}];
  }
- const start=night.planStart||Date.parse(night.created),prep=Math.min(10,Math.max(3,Math.round(meal.minutes/4))),dinner=night.dinnerMinutes||25;
- return [{label:'Prep your ingredients',at:start,minutes:prep},{label:'Cook supper',at:start+prep*60000,minutes:meal.minutes-prep},{label:'Sit down to dinner',at:start+meal.minutes*60000,minutes:dinner},{label:'Start watching',at:night.watchStarted||start+(meal.minutes+dinner)*60000,minutes:show.minutes},{label:'Evening finishes',at:(night.watchStarted||start+(meal.minutes+dinner)*60000)+show.minutes*60000,minutes:0}];
+ const plannedStart=night.planStart||Date.parse(night.created),start=Number(night.cookingStartedAt)||Math.min(plannedStart,Number(night.readyAt)||plannedStart),prep=Math.min(10,Math.max(3,Math.round(meal.minutes/4))),dinner=night.dinnerMinutes||25;
+ return [{label:'Prep your ingredients',at:start,minutes:prep},{label:'Cook supper',at:Math.min(start+prep*60000,Number(night.readyAt)||Infinity),minutes:meal.minutes-prep},{label:'Sit down to dinner',at:Number(night.readyAt)||start+meal.minutes*60000,minutes:dinner},{label:'Start watching',at:night.watchStarted||start+(meal.minutes+dinner)*60000,minutes:show.minutes},{label:'Evening finishes',at:(night.watchStarted||start+(meal.minutes+dinner)*60000)+show.minutes*60000,minutes:0}];
 }
 export const orderOutChoices=[25,35,50];
 export function orderBrief(meal,prefs={}){
