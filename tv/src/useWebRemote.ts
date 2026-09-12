@@ -1,3 +1,4 @@
+import {isSilk,enableSilkPage} from './SilkPage';
 import {backToTop,pageUp,pageDown,mainPanel} from './SilkScrollAssist';
 import {useEffect} from 'react';
 import {Platform} from 'react-native';
@@ -5,12 +6,14 @@ import {Platform} from 'react-native';
 /** Laptop preview of the TV's directional remote; native uses Fire OS focus. */
 export function useWebRemote(){useEffect(()=>{
  if(Platform.OS!=='web')return;
+ const silk=isSilk(navigator.userAgent),restorePage=silk?enableSilkPage(document):()=>{};
  const rowMemory=new WeakMap<Element,HTMLElement>();
  const move=(e:KeyboardEvent)=>{
   if((e.key==='PageUp'||e.key==='Home')&&document.querySelector('[aria-modal="true"], [data-testid="phone-dialog"]'))return;
   if(e.key==='PageDown'&&!(document.activeElement as HTMLElement)?.matches('input,textarea,select,[contenteditable="true"]')){if(pageDown())e.preventDefault();return;}
   if(e.key==='PageUp'){if(pageUp()){e.preventDefault();}return;}
   if(e.key==='Home'&&!(document.activeElement as HTMLElement)?.matches('input,textarea')){if(backToTop())e.preventDefault();return;}
+  if(silk)return; // Silk owns cursor movement and scrolling; do not hijack its arrows.
   if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;
   const active=document.activeElement as HTMLElement;
   if(active?.matches('input,textarea,select,[contenteditable="true"]'))return;
@@ -38,5 +41,5 @@ export function useWebRemote(){useEffect(()=>{
   if(!target&&e.key==='ArrowUp'&&pageUp()){e.preventDefault();return;}
   if(target){e.preventDefault();target.focus();target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});}
  };
- window.addEventListener('keydown',move);return()=>window.removeEventListener('keydown',move);
+ window.addEventListener('keydown',move);return()=>{window.removeEventListener('keydown',move);restorePage();};
 },[]);}
