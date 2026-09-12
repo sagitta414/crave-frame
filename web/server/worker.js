@@ -56,7 +56,7 @@ export async function api(request,env){try{
  if(parts[1]==='companion'&&method==='POST'){const handoff=await createCompanion(env,id,row,await body(request));if(handoff.changed)await saveHouse(db,id,row);delete handoff.changed;return json(handoff);}
  if(['browse','curate','options','rooms','schedule','collections'].includes(parts[1])){const response=await social(request,env,{id,row,save:()=>saveHouse(db,id,row)});if(response)return response;}
  if(parts[1]==='memory'&&method==='PATCH'){
-  const b=await body(request),arrays=['favoriteMeals','favoriteCuisines','dislikedIngredients','dislikedPairs','watched'],scalars=['shorter','preferredMood','preferredEffort'];
+  const b=await body(request),arrays=['dislikedMeals','favoriteMeals','favoriteCuisines','dislikedIngredients','dislikedPairs','watched'],scalars=['shorter','preferredMood','preferredEffort'];
   if(!arrays.includes(b.field)&&!scalars.includes(b.field))fail('Choose a saved preference to remove.');
   if(arrays.includes(b.field)){if(typeof b.value!=='string')fail('Choose an item to remove.');row.data.memory[b.field]=(row.data.memory[b.field]||[]).filter(x=>x!==(b.field==='watched'?titleKey(b.value):b.field==='dislikedPairs'?canonicalPair(b.value):b.value));}else row.data.memory[b.field]=b.field==='shorter'?false:b.field==='preferredEffort'?'Any':null;
   row.data.aiHistory=[];delete row.data.recommendationCache;await saveHouse(db,id,row);return json(row.data);

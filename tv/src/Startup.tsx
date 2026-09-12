@@ -1,3 +1,4 @@
+import {isSilk} from './SilkPage';
 import {Text} from './TVText';
 import React,{useCallback,useEffect,useRef,useState} from 'react';
 import {AccessibilityInfo,Platform,View,useWindowDimensions} from 'react-native';
@@ -9,7 +10,7 @@ import {MotionContext} from './Motion';
 import {StoryBackdrop,StoryBrand,StoryCaption,eveningStory,storyStyles as s} from './EveningStory';
 
 export function Startup({onComplete,soundEnabled=true}:{onComplete:()=>void,soundEnabled?:boolean}){
- const {width,height}=useWindowDimensions(),small=width<900;
+ const {width,height}=useWindowDimensions(),small=width<900;const help=Platform.OS==='web'&&isSilk(navigator.userAgent)?'Move the cursor with arrows · Center clicks · Move down to scroll':'Arrows move · Center selects · Back returns';
  const [step,setStep]=useState(0),[reduced,setReduced]=useState(true),[ready,setReady]=useState(false),[paused,setPaused]=useState(false);
  const ended=useRef(false),callback=useRef(onComplete);callback.current=onComplete;
  const ident=useAudioPlayer(require('../assets/audio/ident.wav'));
@@ -28,9 +29,9 @@ export function Startup({onComplete,soundEnabled=true}:{onComplete:()=>void,soun
   <View style={[s.footer,{paddingHorizontal:small?24:56}]}>
    <View testID="intro-actions" style={[s.row,{justifyContent:'space-between'}]}>
     <View style={s.row}><TVButton primary preferred onPress={finish}>Start my evening →</TVButton><TVButton onPress={()=>{if(reduced||paused){if(step===2)finish();else setStep(step+1);}else setPaused(true);}}>{reduced||paused?step===2?'Finish story':'Next scene →':'Pause story'}</TVButton>{(paused||reduced)&&step>0&&<TVButton quiet onPress={()=>setStep(step-1)}>Previous</TVButton>}</View>
-    {!small&&<Text style={[s.label,{maxWidth:400}]}>Arrows move · Center selects{'\n'}Back returns</Text>}
+    {!small&&<Text style={[s.label,{maxWidth:400}]}>{help}</Text>}
    </View>
-   {small&&<Text style={s.label}>Arrows move · Center selects · Back returns</Text>}
+   {small&&<Text style={s.label}>{help}</Text>}
   </View>
  </View></FocusScope.Provider></MotionContext.Provider>;
 }

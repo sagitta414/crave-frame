@@ -47,6 +47,9 @@ test('household persistence, ingredient gate, private sharing, phone progress an
  const disconnected=await call('nights/'+id+'/share','DELETE');assert.equal(disconnected.status,200);assert.equal(disconnected.data.phoneOpenedAt,undefined);assert.equal((await call('shared/'+token,'GET',null,'')).status,404);
  const nextLink=await call('nights/'+id+'/share','POST');const nextToken=nextLink.data.key;
  const feedback=await call('nights/'+id+'/feedback','POST',{meal:'again',pairing:'great',shorter:true,rememberMood:true});assert.equal(feedback.status,200);assert.equal((await call('household')).data.memory.shorter,true);
+ await call('nights/'+id+'/feedback','POST',{meal:'skip',pairing:'okay',shorter:false,rememberMood:false});
+ assert.ok((await call('household')).data.memory.dislikedMeals.includes(payload.mealId));
+ const unblocked=await call('memory','PATCH',{field:'dislikedMeals',value:payload.mealId});assert.equal(unblocked.status,200);assert.ok(!unblocked.data.memory.dislikedMeals.includes(payload.mealId));
  assert.equal((await call('household','GET',null,'wrong-key')).status,401);
  await call('nights/'+id,'DELETE');assert.equal((await call('shared/'+nextToken,'GET',null,'')).status,404);
  }finally{DB.close();}
