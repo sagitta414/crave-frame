@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validatePicks} from '../server/ai.js';
+import {connection} from '../product/curation.js';
+const show={id:'test',name:'A Paris story',description:'A young chef opens a restaurant in Paris with her sister.',minutes:90,kind:'Movie',mood:'Cozy',cuisine:'Any'};
+const meal=(id,category='Pasta')=>({id,name:id,category,minutes:20,familiar:true,moods:['Cozy'],ingredients:[['tomatoes']],cuisine:'Italian'});
+const pair=(id,category)=>({id:id+'|test',meal:meal(id,category),show});
+const response=(p,quote)=>({id:p.id,pairingType:'setting',evidenceQuote:quote,storyCue:'A young chef works in Paris.',tableEcho:'This dinner takes inspiration from the Paris setting.'});
+test('setting evidence must occur in this exact title synopsis',()=>{const p=pair('pasta');const good=validatePicks({picks:[response(p,'opens a restaurant in Paris')]},[p])[0];assert.equal(good.pairingType,'setting');assert.equal(good.evidenceQuote,'opens a restaurant in Paris');for(const q of ['A diner in New York City','Paris','']){const result=validatePicks({picks:[response(p,q)]},[p])[0];assert.equal(result.pairingType,'practical');assert.equal(result.evidenceQuote,'');assert.ok(!result.reason.includes('Paris setting'));}});
+test('finalists prefer different dinner formats and preserve selected title',()=>{const pairs=[pair('pasta1'),pair('pasta2'),pair('pasta3'),pair('tacos','Tacos'),pair('rice','Rice')];const result=validatePicks({picks:pairs.map(p=>({id:p.id,pairingType:'practical'}))},pairs);assert.equal(result.length,3);assert.equal(new Set(result.map(p=>p.meal.category)).size,3);assert.ok(result.every(p=>p.show.id==='test'));});
+test('fixed dinner permits different titles without inventing new recipes',()=>{const pairs=['a','b','c'].map(id=>({id:'pasta|'+id,meal:meal('pasta'),show:{...show,id}}));const result=validatePicks({picks:[null,{id:'invented'},...pairs.map(p=>({id:p.id}))]},pairs);assert.equal(result.length,3);assert.ok(result.every(p=>p.meal.id==='pasta'));assert.equal(new Set(result.map(p=>p.show.id)).size,3);});
+test('cooking and viewing metrics cannot be invented by the model',()=>{const p=pair('pasta');const result=validatePicks({picks:[{id:p.id,practicalFit:'Ready in 2 minutes'}]},[p])[0];assert.match(result.practicalFit,/20 minutes cooking/);assert.match(result.practicalFit,/90 minutes watching/);});
+test('fallback does not turn teamwork into a food explanation',()=>{const c=connection(meal('pasta'),{...show,id:'avengers'});assert.equal(c.pairingType,'practical');assert.ok(!c.text.includes('carries that idea'));});

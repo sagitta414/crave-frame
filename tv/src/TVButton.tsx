@@ -1,0 +1,17 @@
+import {MotionContext} from './Motion';
+import React,{createContext,useContext,useEffect,useRef,useState} from 'react';
+import {Animated,Pressable,StyleSheet,Text,View,AccessibilityInfo,Platform,useWindowDimensions} from 'react-native';
+export const FocusScope=createContext('global');
+const remembered:Record<string,string>={};
+export function TVButton({children,onPress,onFocus,onBlur,primary=false,quiet=false,selected=false,style,textStyle,preferred=false,disabled=false,card=false,focusKey}:any){
+ const {width}=useWindowDimensions();const tv=width>=900;
+ const scope=useContext(FocusScope),buttonRef=useRef<any>(null),restore=useRef(!!focusKey&&remembered[scope]===focusKey);
+ useEffect(()=>{if(!restore.current)return;const id=requestAnimationFrame(()=>{if(Platform.OS==='web'){buttonRef.current?.focus({preventScroll:true});}else buttonRef.current?.setNativeProps({hasTVPreferredFocus:true});});return()=>cancelAnimationFrame(id);},[]);
+ const preference=useContext(MotionContext);
+ const [focused,setFocused]=useState(false),scale=useRef(new Animated.Value(1)).current,lift=useRef(new Animated.Value(0)).current,reduced=useRef(false);
+ useEffect(()=>{AccessibilityInfo.isReduceMotionEnabled().then(v=>reduced.current=v);const sub=AccessibilityInfo.addEventListener('reduceMotionChanged',v=>reduced.current=v);return()=>sub.remove();},[]);
+ function focus(value:boolean){if(value&&focusKey)remembered[scope]=focusKey;setFocused(value);if(reduced.current||preference){scale.setValue(1);lift.setValue(0);if(value)onFocus?.();else onBlur?.();return;}Animated.parallel([Animated.spring(scale,{toValue:value?(card?1.055:1.035):1,useNativeDriver:true,speed:25,bounciness:4,overshootClamping:reduced.current}),Animated.spring(lift,{toValue:value?-4:0,useNativeDriver:true,speed:28,bounciness:3})]).start();if(value)onFocus?.();else onBlur?.();}
+ return <Animated.View style={[{transform:[{translateY:lift},{scale}],zIndex:focused?5:1},style]}><Pressable ref={buttonRef} hasTVPreferredFocus={restore.current||(preferred&&!remembered[scope])} disabled={disabled} focusable={!disabled} onFocus={()=>focus(true)} onBlur={()=>focus(false)} onPress={onPress} accessibilityRole="button" accessibilityState={{disabled,selected}} style={[styles.base,tv&&{minHeight:78,paddingVertical:20},quiet&&styles.quiet,card&&styles.card,primary&&styles.primary,selected&&styles.selected,quiet&&selected&&styles.quietSelected,focused&&styles.focus,disabled&&{opacity:.4}]}>{focused&&<View pointerEvents="none" style={styles.focusGlow}/>}{typeof children==='string'?<Text style={[styles.label,tv&&{fontSize:28,lineHeight:36},primary&&{color:'#11141b'},focused&&!primary&&{color:'#fff'},textStyle]}>{children}</Text>:children}</Pressable></Animated.View>;
+}
+const styles=StyleSheet.create({base:{minHeight:64,paddingHorizontal:25,paddingVertical:15,borderWidth:3,borderColor:'transparent',backgroundColor:'#232833',borderRadius:9,justifyContent:'center',alignItems:'center',overflow:'hidden'},quiet:{backgroundColor:'transparent',paddingHorizontal:16},quietSelected:{backgroundColor:'transparent',borderColor:'transparent',borderBottomColor:'#FFA47E'},card:{padding:0,borderRadius:12,alignItems:'stretch'},primary:{backgroundColor:'#FFA47E'},selected:{borderColor:'#6E8EFF',backgroundColor:'#23365b'},focus:{borderColor:'#F7FAFF',elevation:15,shadowColor:'#315CFF',shadowOpacity:.72,shadowRadius:24},focusGlow:{position:'absolute',left:-20,right:-20,top:-22,height:42,backgroundColor:'#6E8EFF33',borderRadius:40},label:{fontSize:20,lineHeight:26,fontWeight:'700',color:'#F0F3F8'}});
+

@@ -1,0 +1,12 @@
+import {mkdirSync,copyFileSync,writeFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+const require=createRequire(new URL('../../screen-to-supper-gallery-source/package.json',import.meta.url));
+const sharp=require('sharp');
+const origin=new URL('../../screen-to-supper-gallery-source/product/',import.meta.url);
+mkdirSync('src/catalog',{recursive:true});mkdirSync('assets/food',{recursive:true});
+for(const name of ['curation','story-recipes','catalog','diets','engine','extra-meals','recipe-library','expanded-recipes','protein-recipes','movie-nights','evening','planning','artwork'])copyFileSync(new URL(name+'.js',origin),'src/catalog/'+name+'.js');
+for(const name of ['toast','pasta','pizza','bowl','burgers','curry','fritters','noodles','peppers','potatoes','risotto','salad','soup','tacos','bake','manor','coast','lake'])await sharp(new URL('images/'+name+'.png',origin).pathname.replace(/^\/(.:)/,'$1')).resize(1280,720,{fit:'cover'}).jpeg({quality:85}).toFile('assets/food/'+name+'.jpg');
+await sharp(new URL('images/crave-frame-logo-v2.png',origin).pathname.replace(/^\/(.:)/,'$1')).resize(512,512,{fit:'contain',background:'#090b10'}).png().toFile('assets/icon.png');
+await sharp('assets/food/pasta.jpg').resize(320,180).png().toFile('assets/banner.png');
+writeFileSync('src/assets.ts',"export const foodAssets:Record<string,any>={\n"+['toast','pasta','pizza','bowl','burgers','curry','fritters','noodles','peppers','potatoes','risotto','salad','soup','tacos','bake','manor','coast','lake'].map(n=>"'"+n+"':require('../assets/food/"+n+".jpg')").join(',\n')+'\n};\n');
+console.log('Shared catalog and optimized TV artwork ready.');

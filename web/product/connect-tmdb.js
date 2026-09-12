@@ -1,0 +1,7 @@
+let capability=location.hash.slice(1);history.replaceState(null,'',location.pathname);
+const form=document.querySelector('#connect'),statusLabel=document.querySelector('#status'),input=document.querySelector('#token'),button=document.querySelector('#submit');
+async function request(method,token){const r=await fetch('/api/setup/tmdb',{method,headers:{Authorization:'Bearer '+capability,'Content-Type':'application/json'},...(token?{body:JSON.stringify({token})}:{})});const d=await r.json();if(!r.ok)throw Error(d.error||'Connection unavailable.');return d;}
+function done(){input.value='';capability='';form.hidden=true;statusLabel.textContent='TMDB is connected. Your movie and TV catalog is ready.';document.querySelector('#done').hidden=false;}
+document.querySelector('#show-token').addEventListener('change',e=>{input.style.webkitTextSecurity=e.target.checked?'none':'disc';});
+form.addEventListener('submit',async e=>{e.preventDefault();button.disabled=true;statusLabel.textContent='Verifying your token with TMDB…';try{await request('POST',input.value.trim());done();}catch(error){statusLabel.textContent=error.message;button.disabled=false;}});
+if(!/^[a-f0-9]{64}$/.test(capability)){statusLabel.textContent='Open the complete setup link provided in your chat.';form.hidden=true;}else request('GET').then(d=>{if(d.connected)done();else{statusLabel.textContent='Your setup link is ready.';button.disabled=false;}}).catch(e=>{statusLabel.textContent=e.message;form.hidden=true;});

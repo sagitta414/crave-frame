@@ -1,0 +1,21 @@
+export const foodAssets:Record<string,any>={
+'chicken-pepper-tacos':require('../assets/food/chicken-pepper-tacos.png'),
+'toast':require('../assets/food/toast.jpg'),
+'pasta':require('../assets/food/pasta.jpg'),
+'pizza':require('../assets/food/pizza.jpg'),
+'bowl':require('../assets/food/bowl.jpg'),
+'burgers':require('../assets/food/burgers.jpg'),
+'curry':require('../assets/food/curry.jpg'),
+'fritters':require('../assets/food/fritters.jpg'),
+'noodles':require('../assets/food/noodles.jpg'),
+'peppers':require('../assets/food/peppers.jpg'),
+'potatoes':require('../assets/food/potatoes.jpg'),
+'risotto':require('../assets/food/risotto.jpg'),
+'salad':require('../assets/food/salad.jpg'),
+'soup':require('../assets/food/soup.jpg'),
+'tacos':require('../assets/food/tacos.jpg'),
+'bake':require('../assets/food/bake.jpg'),
+'manor':require('../assets/food/manor.jpg'),
+'coast':require('../assets/food/coast.jpg'),
+'lake':require('../assets/food/lake.jpg')
+};

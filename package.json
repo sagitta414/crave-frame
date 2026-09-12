@@ -1,0 +1,16 @@
+{
+  "name": "crave-frame",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dinner and a story, planned together for Fire TV and the web.",
+  "scripts": {
+    "setup": "node scripts/project.mjs setup",
+    "build": "node scripts/project.mjs build",
+    "test": "node scripts/project.mjs test",
+    "dev": "npm --prefix web run dev",
+    "check:secrets": "node scripts/check-secrets.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

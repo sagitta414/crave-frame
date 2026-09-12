@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1788990595951,
+      "tag": "0000_cultured_magdalene",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788995194529,
+      "tag": "0001_tiresome_whirlwind",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789042348198,
+      "tag": "0002_demonic_titanium_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789045859694,
+      "tag": "0003_flimsy_thanos",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789183307227,
+      "tag": "0004_parent_controls",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1789183308227,
+      "tag": "0005_kids_sessions",
+      "breakpoints": true
+    }
+  ]
+}

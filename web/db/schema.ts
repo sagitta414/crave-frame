@@ -1,0 +1,9 @@
+import {sqliteTable,text,integer,index} from 'drizzle-orm/sqlite-core';
+export const rooms=sqliteTable('rooms',{id:text('id').primaryKey(),household:text('household').notNull(),data:text('data').notNull(),revision:integer('revision').notNull().default(0),expires:integer('expires').notNull()},t=>[index('rooms_household').on(t.household)]);
+export const collections=sqliteTable('collections',{id:text('id').primaryKey(),household:text('household').notNull(),data:text('data').notNull(),revision:integer('revision').notNull().default(0)},t=>[index('collections_household').on(t.household)]);
+export const aiUsage=sqliteTable('ai_usage',{id:text('id').primaryKey(),count:integer('count').notNull().default(0)});
+export const integrations=sqliteTable('integrations',{id:text('id').primaryKey(),ciphertext:text('ciphertext').notNull(),iv:text('iv').notNull(),updated:text('updated').notNull()});
+export const households=sqliteTable('households',{id:text('id').primaryKey(),data:text('data').notNull(),revision:integer('revision').notNull().default(0),updated:text('updated').notNull()});
+export const shares=sqliteTable('shares',{id:text('id').primaryKey(),household:text('household').notNull(),night:text('night').notNull(),expires:integer('expires').notNull()},t=>[index('shares_household').on(t.household)]);
+
+export const parentControls=sqliteTable('parent_controls',{household:text('household').primaryKey(),salt:text('salt').notNull(),pinHash:text('pin_hash').notNull(),enabled:integer('enabled').notNull().default(0),approved:text('approved').notNull().default('[]'),attempts:integer('attempts').notNull().default(0),lockedUntil:integer('locked_until').notNull().default(0),recoveryHash:text('recovery_hash'),helperLevel:text('helper_level').notNull().default('Little helper'),session:text('session')});

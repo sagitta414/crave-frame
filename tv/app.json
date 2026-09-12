@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Crave Frame",
+    "slug": "supper-scene-tv",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/brand/crave-frame-3d-v5.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "android": {
+      "package": "com.supperandscene.tv",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET"
+      ]
+    },
+    "plugins": [
+      [
+        "@react-native-tvos/config-tv",
+        {
+          "isTV": true,
+          "androidTVBanner": "./assets/brand/crave-frame-banner-3d-v5.png"
+        }
+      ]
+    ],
+    "experiments": {
+      "baseUrl": "/tv"
+    },
+    "web": {
+      "bundler": "metro",
+      "name": "Crave Frame",
+      "description": "Plan dinner and a movie with Crave Frame."
+    }
+  }
+}

@@ -1,0 +1,22 @@
+import React,{useEffect,useRef,useState} from 'react';
+import {View,Text,ScrollView,StyleSheet,Linking,useWindowDimensions} from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import {TVButton as Button} from './TVButton';
+import {api,API_ORIGIN} from './api';
+import {BrandMark} from './Brand';
+
+export function Companion({handoff,onBack,onPantryReady}:any){
+ const {width}=useWindowDimensions(),[message,setMessage]=useState(''),[phase,setPhase]=useState('waiting');
+ const callback=useRef(onPantryReady),handled=useRef(false);callback.current=onPantryReady;
+ const url=API_ORIGIN+'/app/companion.html?key='+handoff.key;
+ async function complete(h:any){setPhase('planning');handled.current=true;const ok=await callback.current(h);if(!ok){setPhase('retry');setMessage('Your pantry is saved. Try finding pairings again.');}}
+ useEffect(()=>{if(handoff.kind!=='pantry')return;let active=true,timer:any;
+  async function poll(){if(!active||handled.current)return;if(Date.now()>handoff.expires){setMessage('This scan link expired. Go back and create another.');return;}
+   try{const h=await api('household');if(!active)return;if(h.pantryConfirmedSession===handoff.session){await complete(h);return;}setMessage('Waiting for you to confirm ingredients on your phone.');}catch(e){if(active)setMessage('Connection interrupted. Reconnecting to your pantry…');}
+   if(active)timer=setTimeout(poll,5000);
+  }poll();return()=>{active=false;clearTimeout(timer);};
+ },[handoff.key]);
+ const pantry=handoff.kind==='pantry';
+ return <ScrollView testID="main-scroll" contentContainerStyle={s.page}><Button style={{alignSelf:'flex-start'}} onPress={onBack}>← Back</Button><View style={[s.layout,{flexDirection:width>=900?'row':'column'}]}><View style={{flex:1}}><Text style={s.kicker}>{pantry?'FROM YOUR KITCHEN TO THE BIG SCREEN':'YOUR LIST, READY TO GO'}</Text><Text style={s.title}>{pantry?'Scan the pantry.\nSet the evening.':'Take only what’s\nmissing.'}</Text><Text style={s.body}>{pantry?'Use your phone camera or enter ingredients. Confirm the names and three evenings will appear here, within your food and time limits.':'Check what you have enough of on your phone. Your missing ingredients are grouped for shopping and scaled to the approved guest count.'}</Text><View style={s.steps}>{(pantry?['01  Scan or type on your phone','02  Review ingredient names','03  Choose an evening on TV']:['01  Check quantities in your kitchen','02  Approve the missing ingredients','03  Shop with a grouped checklist']).map(t=><Text key={t} style={s.step}>{t}</Text>)}</View><Text accessibilityLiveRegion="polite" style={s.message}>{phase==='planning'?'Your pantry is confirmed. Choosing your evenings…':message||'Scan the code to continue on your phone.'}</Text>{phase==='retry'&&<Button primary onPress={async()=>{try{await complete(await api('household'));}catch(e){setMessage(e.message);}}}>Find my evenings again</Button>}</View><View style={s.card}><BrandMark size={54}/><View style={s.qr}><QRCode value={url} size={210}/></View><Text style={s.label}>{pantry?'YOUR PANTRY CONNECTION':'YOUR SHOPPING COMPANION'}</Text><Button onPress={()=>Linking.openURL(url).catch(()=>setMessage('Scan the code with your phone camera.'))}>Open phone link ↗</Button><Text selectable style={s.link}>{url}</Text><Text style={s.note}>{pantry?'Private link · expires in one hour. Anyone with it can update your pantry. Keep this screen open for the result.':'Private link · expires in seven days. Anyone with it can review this evening’s shopping list.'}</Text></View></View></ScrollView>;
+}
+const s=StyleSheet.create({page:{padding:36,paddingBottom:70},layout:{gap:36,marginTop:30,alignItems:'center'},kicker:{fontSize:14,fontWeight:'800',letterSpacing:2,color:'#9fb3ff',marginBottom:16},title:{color:'#fff',fontSize:42,fontWeight:'800',letterSpacing:-1.1,lineHeight:48},body:{fontSize:19,lineHeight:29,color:'#c5cee0',maxWidth:620,marginVertical:20},steps:{borderLeftWidth:3,borderLeftColor:'#ffa47e',paddingLeft:22,marginVertical:16},step:{fontSize:18,color:'#dce6fa',marginVertical:9},card:{width:340,maxWidth:'100%',padding:24,borderRadius:24,backgroundColor:'#16213a',borderWidth:1,borderColor:'#3e557e',alignItems:'center',gap:14},qr:{padding:16,backgroundColor:'#fff',borderRadius:16},label:{color:'#ffa47e',fontSize:13,fontWeight:'800',letterSpacing:1.3},link:{color:'#a8bbdc',fontSize:12,lineHeight:17},note:{color:'#a8b8d0',fontSize:14,lineHeight:22},message:{color:'#ffbf9f',fontSize:17,lineHeight:26,marginTop:15}});

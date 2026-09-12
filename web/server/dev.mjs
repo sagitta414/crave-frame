@@ -1,0 +1,12 @@
+import '../build-app.mjs';
+import {readFileSync,existsSync} from 'node:fs';
+const aiEnv=existsSync('.local/vertex-account.json')?{GCP_SERVICE_ACCOUNT_JSON:readFileSync('.local/vertex-account.json','utf8')}:{};
+import {createServer} from 'node:http';
+import {readFile} from 'node:fs/promises';
+import {resolve,extname,sep} from 'node:path';
+import {openDb} from './local-db.js';
+import worker from './worker.js';
+const root=resolve('dist/client'),DB=openDb('.local/supper.sqlite');
+const mime={'.jpg':'image/jpeg','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.html':'text/html; charset=utf-8','.json':'application/json'};
+const ASSETS={async fetch(req){try{let p=decodeURIComponent(new URL(req.url).pathname);if(p.endsWith('/'))p+='index.html';const file=resolve(root,'.'+p);if(!file.startsWith(root+sep))return new Response('Forbidden',{status:403});return new Response(await readFile(file),{headers:{'content-type':mime[extname(file)]||'application/octet-stream'}});}catch{return new Response('Not found',{status:404});}}};
+createServer(async(req,res)=>{try{const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>1500000){res.writeHead(413);res.end();return;}chunks.push(chunk);}const request=new Request('http://'+(req.headers.host||'127.0.0.1:4178')+req.url,{method:req.method,headers:req.headers,...(!['GET','HEAD'].includes(req.method)?{body:Buffer.concat(chunks)}:{})});const result=await worker.fetch(request,{DB,ASSETS,...aiEnv,TMDB_ACCESS_TOKEN:process.env.TMDB_ACCESS_TOKEN,GCP_PROJECT_ID:process.env.GCP_PROJECT_ID,GCP_MODEL:process.env.GCP_MODEL,INTEGRATION_ENCRYPTION_KEY:process.env.INTEGRATION_ENCRYPTION_KEY});res.writeHead(result.status,Object.fromEntries(result.headers));res.end(Buffer.from(await result.arrayBuffer()));}catch{res.writeHead(500);res.end('Server error');}}).listen(4178,'127.0.0.1',()=>console.log('Working app: http://127.0.0.1:4178/app/'));
