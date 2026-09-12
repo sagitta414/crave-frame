@@ -11,7 +11,7 @@ export function enableSilkPage(doc:Document){
  html[data-silk-page] [data-testid="main-scroll"]{flex:none!important;height:auto!important;max-height:none!important;overflow-y:visible!important;overflow-x:visible!important}
  html[data-silk-page][data-silk-modal],html[data-silk-page][data-silk-modal] body{overflow:hidden!important}
  html[data-silk-page] [data-testid="premiere-loading"]{position:fixed!important}
- html[data-silk-page] [data-testid="silk-scroll-assist"]{position:fixed!important;bottom:0;left:0;right:0;z-index:45}
+ html[data-silk-page] [data-testid="silk-scroll-assist"]{position:fixed!important;bottom:12px;left:24px;right:24px;max-width:640px;margin:0 auto;z-index:45}
  `;
  doc.head.appendChild(style);
  const lock=()=>doc.documentElement.toggleAttribute('data-silk-modal',!!doc.querySelector('[aria-modal="true"], [data-testid="phone-dialog"]'));
