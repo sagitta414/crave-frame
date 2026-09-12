@@ -1,4 +1,4 @@
-import {backToTop,pageUp} from './SilkScrollAssist';
+import {backToTop,pageUp,pageDown} from './SilkScrollAssist';
 import {useEffect} from 'react';
 import {Platform} from 'react-native';
 
@@ -8,6 +8,7 @@ export function useWebRemote(){useEffect(()=>{
  const rowMemory=new WeakMap<Element,HTMLElement>();
  const move=(e:KeyboardEvent)=>{
   if((e.key==='PageUp'||e.key==='Home')&&document.querySelector('[aria-modal="true"], [data-testid="phone-dialog"]'))return;
+  if(e.key==='PageDown'&&!(document.activeElement as HTMLElement)?.matches('input,textarea,select,[contenteditable="true"]')){if(pageDown())e.preventDefault();return;}
   if(e.key==='PageUp'){if(pageUp()){e.preventDefault();}return;}
   if(e.key==='Home'&&!(document.activeElement as HTMLElement)?.matches('input,textarea')){if(backToTop())e.preventDefault();return;}
   if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;
@@ -26,6 +27,7 @@ export function useWebRemote(){useEffect(()=>{
    if(!horizontal&&currentRow){const rows=[...new Set(candidates.map(rowOf).filter(Boolean))] as Element[];const next=rows.filter(row=>row!==currentRow).map(row=>({row,dy:(row.getBoundingClientRect().top-currentRow.getBoundingClientRect().top)*sign})).filter(x=>x.dy>4).sort((a,b)=>a.dy-b.dy)[0]?.row;if(next){const members=candidates.filter(el=>rowOf(el)===next),remembered=rowMemory.get(next);target=remembered&&members.includes(remembered)?remembered:members.sort((a,b)=>Math.abs(a.getBoundingClientRect().x-cx)-Math.abs(b.getBoundingClientRect().x-cx))[0];}}
    if(!target)target=pool.filter(el=>el!==active).map(el=>{const b=el.getBoundingClientRect(),dx=b.x+b.width/2-cx,dy=b.y+b.height/2-cy;return {el,forward:(horizontal?dx:dy)*sign,cross:Math.abs(horizontal?dy:dx)};}).filter(x=>x.forward>4).sort((a,b)=>(a.forward+a.cross*3)-(b.forward+b.cross*3))[0]?.el;
   }
+  if(!target&&e.key==='ArrowDown'&&pageDown()){e.preventDefault();return;}
   if(!target&&e.key==='ArrowUp'&&pageUp()){e.preventDefault();return;}
   if(target){e.preventDefault();target.focus();target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});}
  };
