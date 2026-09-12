@@ -4,7 +4,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {Animated,Easing,Platform,StyleSheet,View,useWindowDimensions} from 'react-native';
 import {MotionContext} from './Motion';
 import {TVButton,FocusScope} from './TVButton';
-import {StoryBackdrop,StoryBrand,StoryCaption,storyStyles as s} from './EveningStory';
+import {StoryBackdrop,StoryBrand,StoryCaption,STORY_SCENE_MS,storyStyles as s} from './EveningStory';
 
 export function PremiereLoading({reduced=false,boot=false,onCancel}:{reduced?:boolean,boot?:boolean,onCancel?:()=>void}){
  const [seconds,setSeconds]=useState(0),[shown,setShown]=useState(boot),[paused,setPaused]=useState(false),travel=useRef(new Animated.Value(0)).current;

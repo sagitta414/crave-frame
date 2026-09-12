@@ -65,7 +65,7 @@ export default function App(){
  const cookKey=entry.get('cook');
  const [showIntro,setShowIntro]=useState<boolean|null>(!cookKey&&!entry.has('join')&&!entry.has('collection')&&!entry.has('editCollection')?null:false);
  const finishIntro=useCallback(()=>{setShowIntro(false);AsyncStorage.setItem('cf-intro-seen','true').catch(()=>{});},[]);
- useEffect(()=>{let active=true;if(showIntro===null)AsyncStorage.getItem('cf-intro-seen').then(v=>{if(active)setShowIntro(v!=='true');}).catch(()=>{if(active)setShowIntro(true);});return()=>{active=false;};},[]);
+ useEffect(()=>{let active=true;if(showIntro===null)AsyncStorage.getItem('cf-intro-seen').then(v=>{if(active)setShowIntro(entry.get('intro')==='1'||v!=='true');}).catch(()=>{if(active)setShowIntro(true);});return()=>{active=false;};},[]);
  const [house,setHouse]=useState<any>(null),[stack,setStack]=useState(['home']),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [hero,setHero]=useState<any>(featured[0]),[mode,setMode]=useState('watch'),[source,setSource]=useState<any>(featured[0]),[prefs,setPrefs]=useState<any>({...defaults,watchTime:180}),[picks,setPicks]=useState<any[]>([]),[pair,setPair]=useState<any>(null),[confirmed,setConfirmed]=useState<string[]>([]),[adapted,setAdapted]=useState(false);
  const [searched,setSearched]=useState<string|null>(null),[recentSearches,setRecentSearches]=useState<string[]>([]),[reviewSettings,setReviewSettings]=useState(false),[cookDetails,setCookDetails]=useState(false);

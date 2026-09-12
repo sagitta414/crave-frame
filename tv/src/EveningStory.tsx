@@ -5,16 +5,17 @@ import {LinearGradient} from 'expo-linear-gradient';
 import {BrandMark} from './Brand';
 
 // An illustrative everyday evening, not a customer testimonial or live request progress.
+export const STORY_SCENE_MS=8000;
 export const eveningStory=[
- {time:'6:15 PM',chapter:'HOME AT LAST',title:'Long day.\nTwo big questions.',detail:'What’s for dinner? What’s worth watching?',instruction:'Pick a movie or show.',image:require('../assets/story/arrival-v1.jpg'),accent:'#B5CCFF'},
- {time:'6:18 PM',chapter:'A PLAN COMES TOGETHER',title:'Pick the story.\nFind your dinner.',detail:'Something familiar. A little more inspired.',instruction:'Choose a pairing. See why it fits.',image:require('../assets/story/dinner-v1.jpg'),accent:'#FFCAA5'},
- {time:'7:00 PM',chapter:'THIS IS THE GOOD PART',title:'Dinner sorted.\nFeet up.',detail:'An ordinary Tuesday. A night worth keeping.',instruction:'Cook or order in. Then settle in.',image:require('../assets/story/together-v1.jpg'),accent:'#B2EDD6'}
+ {time:'6:15 PM',chapter:'HOME AT LAST',title:'Long day.\nTwo big questions.',detail:'You drop your keys. Everyone’s hungry. Nobody can agree on what to watch.',instruction:'Pick a movie or show.',image:require('../assets/story/arrival-v1.jpg'),accent:'#B5CCFF'},
+ {time:'6:18 PM',chapter:'A PLAN COMES TOGETHER',title:'Pick the story.\nFind your dinner.',detail:'One movie sparks an idea for dinner. You choose a meal that fits your time and cooking confidence.',instruction:'Choose a pairing. See why it fits.',image:require('../assets/story/dinner-v1.jpg'),accent:'#FFCAA5'},
+ {time:'7:00 PM',chapter:'THIS IS THE GOOD PART',title:'Dinner sorted.\nFeet up.',detail:'The food hits the table. The opening credits roll. An ordinary Tuesday becomes your kind of night.',instruction:'Cook or order in. Then settle in.',image:require('../assets/story/together-v1.jpg'),accent:'#B2EDD6'}
 ];
 
 export function StoryBackdrop({step,reduced=false}:{step:number,reduced?:boolean}){
  const {width}=useWindowDimensions();
  const motion=useRef(new Animated.Value(0)).current,fade=useRef(new Animated.Value(1)).current;
- useEffect(()=>{if(reduced){motion.setValue(0);fade.setValue(1);return;}motion.setValue(0);fade.setValue(.45);const animation=Animated.parallel([Animated.timing(motion,{toValue:1,duration:7000,easing:Easing.out(Easing.quad),useNativeDriver:true}),Animated.timing(fade,{toValue:1,duration:500,useNativeDriver:true})]);animation.start();return()=>animation.stop();},[step,reduced]);
+ useEffect(()=>{if(reduced){motion.setValue(0);fade.setValue(1);return;}motion.setValue(0);fade.setValue(.45);const animation=Animated.parallel([Animated.timing(motion,{toValue:1,duration:STORY_SCENE_MS,easing:Easing.out(Easing.quad),useNativeDriver:true}),Animated.timing(fade,{toValue:1,duration:500,useNativeDriver:true})]);animation.start();return()=>animation.stop();},[step,reduced]);
  return <View pointerEvents="none" accessible={false} style={StyleSheet.absoluteFill}>
   <Image source={eveningStory[Math.min(2,step+1)].image} style={{position:'absolute',width:1,height:1,opacity:0}}/>
   <Animated.Image source={eveningStory[step].image} resizeMode="cover" style={[StyleSheet.absoluteFill,{opacity:fade,transform:[{scale:motion.interpolate({inputRange:[0,1],outputRange:[1,1.055]})}]}]}/>
