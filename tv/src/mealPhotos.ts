@@ -1,4 +1,6 @@
+import {generatedMealPhotos} from './generatedMealPhotos';
 export const mealPhotos:Record<string,any>={
+...generatedMealPhotos,
 "spaghetti-meatballs":require('../assets/food/pasta.jpg'),
 "cheeseburgers-fries":require('../assets/food/burgers.jpg'),
 "chicken-potatoes":require('../assets/food/bake.jpg'),
