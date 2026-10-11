@@ -41,7 +41,7 @@ export async function publicCompanion(req,env,{getHouse,saveHouse}){
   if(req.method==='GET')return reply({revision:await digest(JSON.stringify(house.pantry||[])),kind:'pantry',items:house.pantry||[],expires:share.expires,confirmed:house.pantryConfirmedSession===share.night});
   if(req.method!=='POST')fail('Method not allowed.',405);
   const raw=await req.text();if(raw.length>1450000)fail('Choose a smaller photo.',413);let b;try{b=JSON.parse(raw);}catch{fail('Invalid request.');}
-  if(a[3]==='identify')return reply(await aiRequest(new Request(req,{body:JSON.stringify({mode:'pantry',image:b.image})}),env,house,share.household,row.revision));
+  if(a[3]==='identify')return reply(await aiRequest(new Request(req.url,{method:req.method,headers:req.headers,body:JSON.stringify({mode:'pantry',image:b.image})}),env,house,share.household,row.revision));
   if(a[3]!=='confirm')fail('Not found.',404);
   if(!Array.isArray(b.items)||b.items.length>60||b.items.some(s=>typeof s!=='string'||!s.trim()||s.length>80))fail('Review up to 60 ingredient names.');
   if(b.revision!==await digest(JSON.stringify(house.pantry||[])))fail('The pantry changed on another screen. Reload the latest pantry before confirming.',409);

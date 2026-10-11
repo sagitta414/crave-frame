@@ -1,0 +1,47 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {api} from '../server/worker.js';
+import {curated} from '../server/social.js';
+import {openDb} from '../server/local-db.js';
+import {defaults} from '../product/catalog.js';
+const prefs={...defaults,cookTime:45,watchTime:180};
+
+test('catalog mode skips configured AI, caches results and avoids earlier suggestions on refresh',async()=>{
+ const DB=openDb();let calls=0;
+ const env={DB,AI_PROVIDER:'catalog',GCP_SERVICE_ACCOUNT_JSON:'obsolete',AI_GENERATE:()=>{calls++;throw Error('Must not call AI');}};
+ try{
+  const house=await (await api(new Request('https://test/api/household',{method:'POST'}),env)).json();
+  assert.equal(house.capabilities.matchingMode,'catalog');
+  const request=async(path,body)=>{const r=await api(new Request('https://test/api/'+path,{method:body?'POST':'GET',headers:{'x-household-key':house.key,'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})}),env);assert.equal(r.status,200);return r.json();};
+  assert.equal((await request('ai')).connected,false);
+  const input={mode:'watch',sourceId:'avengers',prefs};
+  const first=await request('recommendations',input);
+  assert.equal(first.recommendationSource,'catalog');assert.equal(first.aiEnabled,false);assert.equal(first.failureCode,null);
+  assert.equal(first.picks.length,3);assert.ok(first.picks.every(p=>!p.aiExplained));
+  assert.match(first.answer,/no live AI was used/);
+  const cached=await request('recommendations',input);assert.deepEqual(cached.picks,first.picks);
+  const next=await request('recommendations',{...input,refresh:true});
+  assert.ok(next.picks.length);assert.ok(next.picks.every(p=>!first.picks.some(old=>old.meal.id===p.meal.id)));
+  assert.equal(calls,0);
+ }finally{DB.close();}
+});
+
+test('documented titles get different ingredient-grounded dinners plus familiar alternatives',async()=>{
+ const first=[];
+ for(const sourceId of ['avengers','paddington','grand-budapest']){
+  const result=await curated({}, {memory:{}},{mode:'watch',sourceId,prefs,personalized:true});
+  assert.equal(result.picks[0].connection.kind,'Story inspiration');
+  assert.ok(result.picks[0].evidenceSource.startsWith('https://'));
+  assert.ok(result.picks.filter(p=>p.meal.familiar).length>=2);
+  first.push(result.picks[0].meal.id);
+ }
+ assert.equal(new Set(first).size,3);
+});
+
+test('catalog refinements honor exclusions, familiar meals and explicit revisit',async()=>{
+ const base=await curated({}, {memory:{}},{mode:'watch',sourceId:'avengers',prefs,personalized:true});
+ const rejected=base.picks[0].meal.id;
+ const house={memory:{dislikedMeals:[rejected],dislikedIngredients:['peanut']},recentPairings:base.picks.map(p=>({mealId:p.meal.id}))};
+ const result=await curated({},house,{mode:'watch',sourceId:'avengers',prefs,personalized:true,refinement:'familiar',allowRecent:true});
+ assert.ok(result.picks.length);assert.ok(result.picks.every(p=>p.meal.familiar&&p.meal.id!==rejected&&!p.meal.ingredients.some(i=>/peanut/i.test(i[0]))));
+});

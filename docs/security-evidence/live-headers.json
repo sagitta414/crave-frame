@@ -1,0 +1,47 @@
+[
+  {
+    "Path": "/",
+    "Status": 200,
+    "CSP": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    "Frame": "DENY",
+    "HSTS": "max-age=31536000",
+    "NoSniff": "nosniff",
+    "Referrer": "no-referrer"
+  },
+  {
+    "Path": "/app/",
+    "Status": 200,
+    "CSP": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    "Frame": "DENY",
+    "HSTS": "max-age=31536000",
+    "NoSniff": "nosniff",
+    "Referrer": "no-referrer"
+  },
+  {
+    "Path": "/tv/",
+    "Status": 200,
+    "CSP": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    "Frame": "DENY",
+    "HSTS": "max-age=31536000",
+    "NoSniff": "nosniff",
+    "Referrer": "no-referrer"
+  },
+  {
+    "Path": "/app/companion.html",
+    "Status": 200,
+    "CSP": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    "Frame": "DENY",
+    "HSTS": "max-age=31536000",
+    "NoSniff": "nosniff",
+    "Referrer": "no-referrer"
+  },
+  {
+    "Path": "/api/household",
+    "Status": 401,
+    "CSP": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    "Frame": "DENY",
+    "HSTS": "max-age=31536000",
+    "NoSniff": "nosniff",
+    "Referrer": "no-referrer"
+  }
+]

@@ -1,6 +1,9 @@
+import {resolveTwoAppetites} from './two-appetites.js';
+import {resolveThreeAct} from './three-act.js';
+import {illustratedRecipes} from './illustrated-recipes.js';
 import {titleKey,canonicalShow,distinctShows} from './identity.js';
 import {storyRecipes} from './story-recipes.js';
-import {proteinRecipes} from './protein-recipes.js';
+import {proteinRecipes,proteinVariations} from './protein-recipes.js';
 import {extraMeals} from './extra-meals.js';
 import {recipeLibrary} from './recipe-library.js';
 import {expandedRecipes} from './expanded-recipes.js';
@@ -38,9 +41,10 @@ shows.push(
  {id:'paddington',name:'Paddington',kind:'Movie',minutes:96,mood:'Lighthearted',genre:'Family adventure',scene:'manor',family:true,description:'A young bear arrives in London and finds a new home with the Brown family. Warmth and gentle chaos set the tone.',tags:['Family night','Warmhearted'],pairing:'Easy food to share complements its welcoming, family-centered atmosphere.',source:'https://tv.apple.com/gb/movie/paddington/umc.cmc.759zk34s47omthqjyvc9i6pgo',rating:'PG'},
  {id:'before-sunrise',name:'Before Sunrise',kind:'Movie',minutes:101,mood:'Romantic',genre:'Romantic drama',scene:'coast',family:false,description:'Two travelers spend an evening walking and talking in Vienna. An intimate, conversation-led choice for date night.',tags:['Date night','Slow conversation'],pairing:'A leisurely pasta supper leaves room for the kind of conversation at the heart of the film.',source:'https://tv.apple.com/us/movie/before-sunrise/umc.cmc.65m3n3lrca1e6nljfyvhn76u0',rating:'R'}
 );
-export const mealById=id=>meals.find(x=>x.id===id);
+const plainMeal=id=>meals.find(x=>x.id===id)||proteinVariations.find(x=>x.id===id);
+export const mealById=id=>plainMeal(id)||resolveThreeAct(id,plainMeal)||resolveTwoAppetites(id,plainMeal)||undefined;
 export const showById=id=>shows.find(x=>titleKey(x)===titleKey(id));
-export const defaults={people:2,cookLevel:'Regular',mood:'Cozy',watchTime:120,cookTime:30,effort:'Any',diet:'No preference',family:false,format:'Any',catalog:'Real titles',pairingStyle:'Atmosphere'};
+export const defaults={people:2,cookLevel:'Regular',mood:'Cozy',watchTime:120,cookTime:30,effort:'Any',diet:'No preference',family:false,format:'Any',catalog:'Real titles',pairingStyle:'Atmosphere',energy:'Any',viewingStyle:'Any',specialTouch:false};
 
 shows.push({id:'avengers',name:'The Avengers',kind:'Movie',minutes:143,mood:'Adventure',genre:'Superhero action',scene:'lake',family:false,description:'Earth’s heroes assemble to defend New York. A full-length action night after a relaxed sharing supper.',tags:['Teamwork','Action'],pairing:'Sharing tacos fit the ensemble spirit.',source:'https://www.themoviedb.org/movie/24428',rating:'Not verified',releaseYear:'2012',posterPath:'/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg',provider:{type:'movie',id:24428}});
 export function registerShows(items=[]){for(const original of items){if(!original)continue;const item=canonicalShow(original);const index=shows.findIndex(s=>titleKey(s)===item.id);if(index<0)shows.push(item);else if(item.provider)shows[index]=item;}}
@@ -62,7 +66,8 @@ for(const m of meals){m.catalogTier=expandedRecipes.includes(m)?'variation':'cor
 const shelf=[];
 for(const m of [...everydayRecipes,...proteinRecipes,...storyRecipes,...meals.filter(m=>m.catalogTier==='core')]){if(shelf.includes(m))continue;const family=m.foodType||m.category||m.image;if(shelf.filter(x=>(x.foodType||x.category||x.image)===family).length>=8)continue;shelf.push(m);if(shelf.length===48)break;}
 for(const m of meals.filter(m=>m.catalogTier==='core')){if(shelf.length>=48)break;if(!shelf.includes(m))shelf.push(m);}
-for(const m of meals)m.featuredRecipe=shelf.includes(m);
+for(const m of meals){m.featuredRecipe=shelf.includes(m);m.hasDishPhoto=illustratedRecipes.has(m.id);}
+
 
 const chickenPhoto=meals.find(m=>m.id==='chicken-pepper-tacos');if(chickenPhoto)chickenPhoto.image='chicken-pepper-tacos';
 

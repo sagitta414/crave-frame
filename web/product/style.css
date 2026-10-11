@@ -31,3 +31,36 @@
 .featured-evenings{margin:64px 0}.featured-evenings .saved-card{display:flex;flex-direction:column}.feature-poster{width:100%;height:260px;object-fit:cover}.featured-evenings .card-body{display:flex;flex-direction:column;flex:1}.featured-evenings .btn{margin-top:auto}.evening-schedule{margin:24px 0 32px}.schedule-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin:28px 0}.schedule-grid>div{border-top:1px solid #a8b49a;padding-top:16px}.schedule-grid strong{display:block;font-size:22px;margin-top:12px}.schedule-grid p{margin:8px 0}.schedule-dot{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#c5a96a;color:#20241f}.evening-schedule input,#disliked-ingredients{width:100%;padding:12px;margin:8px 0 18px;background:#252b25;color:#f3eee3;border:1px solid #68745e;border-radius:8px}.evening-schedule details{max-width:500px}.page-phone .schedule-grid,.page-cook .schedule-grid{grid-template-columns:repeat(5,1fr)}@media(max-width:700px){.schedule-grid,.page-phone .schedule-grid,.page-cook .schedule-grid{grid-template-columns:1fr 1fr}.schedule-grid strong{font-size:19px}.feature-poster{height:220px}}
 
 .voting-box,.connection-note{padding:20px;margin:20px 0;border:1px solid #667359;border-radius:12px;background:#aebd9308}.voting-box select,.rescue-option input,#dialog input:not([type=checkbox]){width:100%;padding:12px;background:#242b24;color:#f4efdf;border:1px solid #69775b;border-radius:8px;margin:8px 0 16px}.connection-note p{font-size:14px;line-height:1.65}.connection-note a{font-size:13px;color:#c4d1b3}.rescue-option{padding:20px 0;border-bottom:1px solid #53604c}.rescue-option .meta{margin:12px 0}.veto-panel{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.veto-panel small{flex-basis:100%;color:#bbc7ae}.veto-panel .btn{font-size:12px;padding:8px}.voting-box select{display:block}.rescue-option h3{margin:8px 0}
+
+/* Phone cooking: warm food, clear steps, quiet encouragement. */
+.page-phone,.page-cook{--gold:#ffca9f;--line:#344355;color:#f6f1ea;max-width:1080px;padding-bottom:calc(40px + env(safe-area-inset-bottom));font-family:system-ui,sans-serif}
+body:has(.page-phone){background:#0b111c;color:#f6f1ea}
+body:has(.page-phone) .topbar{background:#0b111cf5;border-bottom:1px solid #293748;padding:14px 5vw}
+body:has(.page-phone) .brand{font-family:system-ui,sans-serif;font-size:21px;font-weight:800}
+body:has(.page-phone) .topbar .badge{font-size:11px}
+.page-phone .cook-top,.page-cook .cook-top{gap:16px;margin:26px 0 18px;align-items:center}
+.page-phone h2,.page-cook .cook-top h2{font-family:system-ui,sans-serif;font-weight:750;letter-spacing:-.8px;font-size:clamp(27px,5vw,40px);line-height:1.16}
+.page-phone .eyebrow,.page-cook .cook-moment{color:#ffca9f}
+.phone-timeline{border:1px solid #344355;background:#131e2e;border-radius:16px;margin:0 0 22px;padding:0 18px}
+.phone-timeline>summary{cursor:pointer;min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px;font-weight:650;color:#e1e9f2}
+.phone-timeline>summary span{color:#ffca9f;font-size:13px}.phone-timeline[open]>summary span{display:none}
+.phone-timeline .evening-schedule{margin:0 0 18px;background:#131e2e;border:0;padding:12px 0}.phone-timeline h2{font-size:24px}
+.page-phone .cooking-photo,.page-cook .cooking-photo{border-radius:22px;overflow:hidden;background:#131e2e}
+.page-phone .cooking-photo img,.page-cook .cooking-photo img{width:100%;object-fit:cover}
+.page-phone .cooking-photo>div,.page-cook .cooking-photo>div{background:linear-gradient(transparent,#080f1af5);padding:28px 18px 16px;color:#fff}
+.cooking-photo small{font-size:11px;color:#d7e0eb}.cooking-photo p{font-size:15px;margin:8px 0}
+.page-phone .cooking-panel,.page-cook .cooking-panel{border:1px solid #344355;border-radius:24px;background:linear-gradient(145deg,#1b293b,#111c2b);box-shadow:0 16px 45px #0003;padding:26px}
+.cook-moment{font-size:15px;color:#ffca9f;margin:0 0 22px;font-weight:650}
+.page-phone .cooking-panel h1,.page-cook .cooking-panel h1{font-family:system-ui,sans-serif;font-size:clamp(28px,6vw,42px);font-weight:750;line-height:1.15;letter-spacing:-.8px}
+.page-phone .instruction,.page-cook .instruction{font-size:19px;line-height:1.7;color:#edf2f8}
+.page-phone .step-count,.page-cook .step-count{font-size:13px;color:#bccedf}
+.page-phone progress,.page-cook progress{height:7px;width:100%;accent-color:#ffca9f;border:0;border-radius:8px;overflow:hidden;background:#344355}
+.page-phone progress::-webkit-progress-bar,.page-cook progress::-webkit-progress-bar{background:#344355}.page-phone progress::-webkit-progress-value,.page-cook progress::-webkit-progress-value{background:#ffca9f}
+.page-phone .btn,.page-cook .btn{min-height:52px;border-radius:14px;font:650 15px system-ui;border-color:#506078;background:#223248;color:#f7f2eb;white-space:normal}
+.page-phone .btn.primary,.page-cook .btn.primary{background:#ffca9f;color:#1b2330;border-color:#ffca9f}
+.page-phone .btn:focus-visible,.page-cook .btn:focus-visible,.phone-timeline summary:focus-visible{outline:3px solid #b0d9ff;outline-offset:4px}
+.page-phone .timer-box,.page-cook .timer-box{background:#0b1624;border:1px solid #415670;border-radius:18px}.timer-box strong{font-variant-numeric:tabular-nums}
+.page-phone .success-note,.page-cook .success-note{background:#14382f;border:1px solid #5aab8b;border-radius:18px;padding:20px;color:#d9ffeb;line-height:1.5}.success-note strong{display:block;font-size:22px}.success-note p{margin:8px 0 0;font-size:15px}.ready-spark{display:block;font-size:38px;color:#ffd29b}
+.page-phone .catalog-note{color:#bdcbdc}.page-phone details:not(.phone-timeline){margin-top:22px;color:#dce6f0}.page-phone details summary{min-height:48px;padding:12px 0;cursor:pointer}
+@media(max-width:800px){.page-phone .cooking-photo,.page-cook .cooking-photo{display:block;height:190px;position:relative}.page-phone .cooking-photo img,.page-cook .cooking-photo img{height:100%}.page-phone .cooking-photo>div,.page-cook .cooking-photo>div{position:absolute;inset:auto 0 0}.page-phone .cooking-layout,.page-cook .cooking-layout{gap:18px}.page-phone .cook-top .badge{display:inline-block;font-size:12px}.page-phone .cooking-panel,.page-cook .cooking-panel{padding:22px 18px}.page-phone .cook-buttons,.page-cook .cook-buttons{position:sticky;bottom:0;background:#111c2bf5;padding:12px 0 calc(12px + env(safe-area-inset-bottom));z-index:2;display:grid;grid-template-columns:1fr 1.4fr}.page-phone .cook-buttons .btn{font-size:15px;padding:14px 10px}.page-phone .cooking-panel{min-width:0}.page-phone .cook-top>div{min-width:0}.page-phone .cook-top h2{overflow-wrap:anywhere}}
+@media(prefers-reduced-motion:no-preference){.ready-spark{animation:phone-ready .6s ease-out both}@keyframes phone-ready{from{transform:scale(.6) rotate(-25deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}.page-phone .btn:active{transform:scale(.98)}}

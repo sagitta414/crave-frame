@@ -12,7 +12,8 @@
       "versionCode": 1,
       "permissions": [
         "INTERNET"
-      ]
+      ],
+      "allowBackup": false
     },
     "plugins": [
       [
@@ -21,7 +22,8 @@
           "isTV": true,
           "androidTVBanner": "./assets/brand/crave-frame-banner-3d-v5.png"
         }
-      ]
+      ],
+      "./plugins/with-security.cjs"
     ],
     "experiments": {
       "baseUrl": "/tv"

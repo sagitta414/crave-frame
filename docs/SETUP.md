@@ -44,7 +44,7 @@ The simplest full-stack TV test is the exported web app served at /tv/. For Expo
 
 The checked-in Android project is a prototype Fire OS/Android TV wrapper. Install a compatible Android SDK and JDK for the Expo/React Native versions in tv/package.json. The optional tv/scripts/build-tv.ps1 helper expects JAVA_HOME and ANDROID_HOME or locally provisioned tools; SDKs are not supplied. Its local tool-directory conventions may need adjustment on a new machine.
 
-No signing keystore is included. The prototype Gradle configuration refers to android/app/debug.keystore, including for its demo release variant. Generate a local debug keystore for development, or configure your own release signing before distribution. Do not interpret a debug-signed demo APK as an Appstore-ready release. Native builds and sideloading must be tested separately from the web export.
+No signing keystore is included. The prototype Gradle configuration refers to android/app/debug.keystore, including for its demo release variant. The Windows build helper generates an ignored local debug key if missing; configure your own release signing before Appstore distribution. Do not interpret a debug-signed demo APK as an Appstore-ready release. Native builds and sideloading must be tested separately from the web export. See [installed Fire TV and phone cooking](FIRE-TV-INSTALL.md) for build parameters and the device walkthrough.
 
 On a native device, set EXPO_PUBLIC_API_ORIGIN to your own reachable HTTPS backend before building. Without an override, native source retains the existing public demonstration endpoint; this is not suitable for an independent production deployment.
 

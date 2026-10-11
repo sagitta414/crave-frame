@@ -1,7 +1,7 @@
 # Crave Frame: one evening, fewer decisions
 
 ## The pitch
-“Crave Frame turns two nightly decisions—what to eat and what to watch—into one coordinated evening.”
+“Crave Frame helps you agree on tonight: dinner that fits your energy and something good to watch, planned together.”
 
 ## A 90-second demo
 
@@ -24,7 +24,7 @@ Replace the delay segment with Something changed? Adjust this evening. Select a 
 ## Operator preparation
 - Open the current live TV page in Silk and keep a phone camera ready.
 - Use a demonstration household with ordinary preferences and an unfinished plan. Prepare one completed favorite for the closing segment; disclose that it is an earlier example.
-- Check the title identity, real AI response, QR readability, and phone-to-TV update beforehand. AI timing varies; a recorded walkthrough can include a clearly labeled time cut while it loads.
+- Check title identity, returned recipe choices, QR readability, and phone-to-TV updates beforehand. The current deployment uses catalog matching; do not present it as a live AI response. A recorded walkthrough can include a clearly labeled time cut while it loads.
 - Do not claim that Crave Frame streams movies, places delivery orders itself, or has verified on-screen food evidence unless the shown result supports it.
 - Keep the private cooking link within the demonstration group. Disconnect it after a recorded demo.
 - This script is drafted, not recorded or rehearsed. Confirm the event’s official video length and submission requirements before recording.

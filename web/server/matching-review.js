@@ -4,6 +4,12 @@ import {connection} from '../product/curation.js';
 import {ingredients} from '../product/engine.js';
 import {resolvePick} from './pairing-quality.js';
 export function shortlistPairs(pairs,limit=80){
+ // Keep eligibility broad for explicit recipe selection; present a smaller editorial menu by default.
+ const core=pairs.filter(p=>p.meal.catalogTier==='core');
+ if(new Set(core.map(p=>p.meal.id)).size>=3)pairs=core;
+ const pictured=pairs.filter(p=>p.meal.hasDishPhoto||connection(p.meal,p.show).kind==='On-screen food'||p.meal.familiar);
+ if(new Set(pictured.map(p=>p.meal.id)).size>=3)pairs=pictured;
+ pairs=[...pairs].sort((a,b)=>Number(b.meal.hasDishPhoto)-Number(a.meal.hasDishPhoto));
  const meals=[...new Map(pairs.map(p=>[p.meal.id,p.meal])).values()];if(meals.length<=limit)return pairs;
  const selected=new Set(pairs.filter(p=>connection(p.meal,p.show).kind==='On-screen food').map(p=>p.meal.id));
  for(const p of pairs){if(selected.size>=12)break;if(foodReferences(p.show).some(r=>referenceFits(r,p.meal)))selected.add(p.meal.id);}

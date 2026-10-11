@@ -1,0 +1,66 @@
+(node:13024) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Jeffl/OneDrive/Documents/play/crave-frame/tv/src/catalog/catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Jeffl\OneDrive\Documents\play\crave-frame\tv\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ native catalog preserves complete recipes and both planning directions (14.0103ms)
+✔ native candidate limits preserve food preference and available time (5.8609ms)
+✔ Android launcher is TV-capable and requires no touchscreen (1.3001ms)
+(node:16264) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Jeffl/OneDrive/Documents/play/crave-frame/tv/src/cinema-model.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Jeffl\OneDrive\Documents\play\crave-frame\tv\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ evening shelves retain complete pairs, avoid duplicate titles, and separate episodes (2.937ms)
+✔ refinement preserves dietary and audience limits and never raises a short cook limit (0.3318ms)
+✔ shelves choose diverse existing dinners without inventing pairs or dropping a title (0.3857ms)
+(node:6444) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Jeffl/OneDrive/Documents/play/crave-frame/tv/src/evening-sync.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Jeffl\OneDrive\Documents\play\crave-frame\tv\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ slow reads never overlap, and a local delay change wins over an older read (1.8309ms)
+✔ leaving a session discards its pending result (0.2729ms)
+✔ background pauses requests and resume immediately refreshes (4.1747ms)
+✔ connection failure schedules recovery and a later read succeeds (0.302ms)
+(node:22428) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Jeffl/OneDrive/Documents/play/crave-frame/tv/src/experience-model.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Jeffl\OneDrive\Documents\play\crave-frame\tv\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ timeline uses saved actions, never elapsed planning estimates (2.2355ms)
+✔ constellation groups actual evenings and counts positive feedback only (0.3754ms)
+✔ group reveal reports ties and counts votes without mutating the shortlist (0.2663ms)
+✔ delay shifts the schedule while preserving the selected dinner and watch (1.5032ms)
+✔ order out preserves the pairing and rebuilds the timeline around delivery (0.3679ms)
+✔ ready together moves serving and watch estimates when cooking runs late (0.4047ms)
+(node:6796) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Jeffl/OneDrive/Documents/play/crave-frame/tv/src/catalog/evening.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Jeffl\OneDrive\Documents\play\crave-frame\tv\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ early cooking completion and viewing use actual times in chronological order (1.7082ms)
+✔ baking a topping does not trigger topping preparation instructions (1.5315ms)
+✔ release cannot silently fall back to the debug signing identity (2.9813ms)
+✔ cloud backup and device transfer exclude household credentials (1.2359ms)
+(node:2588) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Jeffl/OneDrive/Documents/play/crave-frame/tv/src/planning-ux.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Jeffl\OneDrive\Documents\play\crave-frame\tv\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ choice labels distinguish saved favorites, documented links and estimated effort (2.4956ms)
+✔ brief pairing explanation keeps the interpretation honest (0.2617ms)
+✔ return visits resume a current unfinished evening and exclude completed feedback (0.5408ms)
+(node:5068) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Jeffl/OneDrive/Documents/play/crave-frame/tv/src/request-policy.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Jeffl\OneDrive\Documents\play\crave-frame\tv\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Back cancels suggestions but cannot cancel a timer stop or saved-plan write (0.7411ms)
+(node:14192) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Jeffl/OneDrive/Documents/play/crave-frame/tv/src/tonight-cache.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Jeffl\OneDrive\Documents\play\crave-frame\tv\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Tonight survives remounts, remembers selection and refreshes explicitly (1.3908ms)
+✔ failed Tonight request can retry and an obsolete response cannot replace a refresh (0.4325ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 133.642

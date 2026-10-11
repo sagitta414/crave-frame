@@ -5,7 +5,7 @@ import {LinearGradient} from 'expo-linear-gradient';
 import {BrandMark} from './Brand';
 
 // An illustrative everyday evening, not a customer testimonial or live request progress.
-export const STORY_SCENE_MS=8000;
+export const STORY_SCENE_MS=15000;
 export const eveningStory=[
  {time:'6:15 PM',chapter:'HOME AT LAST',title:'Long day.\nTwo big questions.',detail:'Keys down. Everyone’s hungry. What should we watch?',instruction:'Pick a movie or show.',image:require('../assets/story/arrival-v1.jpg'),accent:'#B5CCFF'},
  {time:'6:18 PM',chapter:'A PLAN COMES TOGETHER',title:'Ratatouille tonight.\nPasta on the table.',detail:'For example: tomato pasta echoes the film’s love of simple, comforting food.',instruction:'Choose a pairing. See why it fits.',image:require('../assets/story/dinner-v1.jpg'),accent:'#FFCAA5'},

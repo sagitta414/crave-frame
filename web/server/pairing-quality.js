@@ -13,16 +13,18 @@ export function groundPair(p,match,fallback,{requireReview=false}={}){
  const supported=p.pairingType==='setting'&&(!requireReview||p.connectionReviewed===true)&&quote.length>=16&&(reference||description.includes(normalize(quote)));
  const pairingType=documented?'story':supported?'setting':'practical';
  const practicalFit=match.meal.minutes+' minutes cooking · '+match.show.minutes+' minutes watching. Allow extra time to eat.';
- const tableEcho=pairingType==='practical'?match.meal.name+' is a '+match.meal.minutes+'-minute dinner'+(match.meal.effort==='Easy'?' with an easy recipe':'')+'. There is no supported food connection to this title.':documented?fallback.tableEcho:clean(p.tableEcho).slice(0,320);
+ const tableEcho=pairingType==='practical'?match.meal.name+' fits the cooking limit'+(match.meal.effort==='Easy'?' with straightforward cooking':'')+'.':documented?fallback.tableEcho:clean(p.tableEcho).slice(0,320);
  return {pairingType,evidenceQuote:supported?quote:'',evidenceSource:supported&&reference?reference.source:'',mealEvidence:supported?(p.mealEvidence||[]):[],connectionReviewed:supported&&p.connectionReviewed===true,evidenceBasis:documented?'Documented food reference':supported?(reference?'Inspired by a documented food reference':'Inspired by the supplied synopsis'):'Practical dinner choice',storyCue:documented?fallback.storyCue:supported?clean(p.storyCue).slice(0,280):'',tableEcho,practicalFit,reason:[tableEcho,practicalFit].join(' ')};
 }
 export function ingredientOverlap(a,b){const core=m=>new Set(m.ingredients.map(i=>i[0].toLowerCase().replace(/\b(canned|cooked|ready|drained|sliced|chopped|dairy.free)\b/g,'').replace(/[^a-z ]/g,'').replace(/\s+/g,' ').trim()).filter(n=>!/(oil|salt|water|pepper$|garlic|juice|yogurt|butter|paprika|cumin|oregano|basil|thyme)/.test(n)));const x=core(a),y=core(b);if(!x.size||!y.size)return 0;return [...x].filter(n=>y.has(n)).length/Math.min(x.size,y.size);}
 export function diverseFinalists(candidates,pairs){
  const selected=[],multipleMeals=new Set(pairs.map(p=>p.meal.id)).size>1,multipleShows=new Set(pairs.map(p=>p.show.id)).size>1;
- const quality=p=>(p.pairingType==='story'?12:p.pairingType==='setting'?6:0)+(p.meal.familiar?2:0);
+ const quality=p=>(p.pairingType==='story'?12:p.pairingType==='setting'?6:0)+(p.meal.familiar?2:0)+(p.meal.hasDishPhoto?3:0)+(p.meal.catalogTier==='core'?2:0);
  while(selected.length<3){
   let eligible=candidates.filter(p=>!selected.some(x=>x.id===p.id||(multipleMeals&&x.meal.id===p.meal.id)||(multipleShows&&x.show.id===p.show.id)));
   if(!eligible.length)break;
+  const newFormats=eligible.filter(p=>!selected.some(x=>x.meal.category===p.meal.category));
+  if(selected.length&&newFormats.length)eligible=newFormats;
   // Reserve enough remaining places for two familiar dinners when available.
   const familiar=eligible.filter(p=>p.meal.familiar===true),needed=2-selected.filter(p=>p.meal.familiar===true).length;
   if(multipleMeals&&needed>0&&3-selected.length<=needed&&familiar.length)eligible=familiar;

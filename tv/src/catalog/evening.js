@@ -9,13 +9,14 @@ export function eveningTimeline(night,meal,show){
 export const orderOutChoices=[25,35,50];
 export function orderBrief(meal,prefs={}){
  const people=Math.max(1,Math.min(8,Number(prefs.people)||1)),diet=prefs.diet||'Any',name=meal.name,cuisine=meal.cuisine||meal.category||'Local';
- let alternatives=/taco|quesadilla/i.test(name)?['tacos','burrito bowls','quesadillas']:/pasta|spaghetti|noodle/i.test(name)?['pasta','Italian bowls','noodle dishes']:/pizza|flatbread/i.test(name)?['pizza','flatbread','shareable Italian']:/mushroom|toast/i.test(name)?['mushroom flatbread','truffle pizza','vegetarian bistro']:/curry|rice/i.test(name)?['curry','rice bowls','family meals']:/soup/i.test(name)?['soup','noodle soup','comfort food']:[name,`${cuisine} bowls`,`${cuisine} family meal`];
+ const protein=/tuna/i.test(name)?'tuna':/salmon/i.test(name)?'salmon':/chicken/i.test(name)?'chicken':/beef/i.test(name)?'beef':/tofu/i.test(name)?'tofu':'';
+ let alternatives=/quesadilla/i.test(name)?[name,'quesadillas','Mexican family meals']:/taco/i.test(name)?[name,'tacos','taco platters']:/curry/i.test(name)?[name,'curry','curry family meals']:/rice|grain|couscous|quinoa.*bowl/i.test(name)?[(protein?protein+' ':'')+'rice bowls','rice bowls','rice bowl platters']:/pizza|flatbread/i.test(name)?[name,'pizza and flatbread','pizza bundles']:/pasta|spaghetti/i.test(name)?[name,'pasta','pasta trays']:/noodle/i.test(name)?[name,'noodle dishes','noodle platters']:/soup|chowder/i.test(name)?[name,'soup','soup and sandwiches']:[name,meal.category||name,(meal.category||name)+' platters'];
  alternatives=[...new Set(alternatives)];
  const low=Math.max(24,people*14),high=Math.max(40,people*24);
  return {people,diet,budget:`$${low}–$${high}`,strategies:[
-  {id:'closest',label:'Closest match',query:alternatives[0],detail:`Preserves the strongest flavor and format connection to ${name}.`},
-  {id:'fastest',label:'Fastest arrival',query:alternatives[1]||alternatives[0],detail:'A broader search that is easier to find nearby. Compare the provider’s real ETA.'},
-  {id:'group',label:'Best for the group',query:alternatives[2]||alternatives[0],detail:`Look for shareable portions that can feed ${people} without rebuilding the pairing.`}
+  {id:'closest',label:'Similar dish search',query:alternatives[0],detail:`Search terms based on ${name}. Check the actual menu before choosing.`},
+  {id:'fastest',label:'Broader search',query:alternatives[1]||alternatives[0],detail:'Explore a broader category. Compare availability and delivery times in the provider app.'},
+  {id:'group',label:'Sharing search',query:alternatives[2]||alternatives[0],detail:`Search for shareable portions for ${people}; confirm portion sizes with the restaurant.`}
  ]};
 }
 export function orderOutEvening(night,meal,show,etaMinutes=35,now=Date.now()){
@@ -33,14 +34,16 @@ export function readyTogetherPlan(night,meal,show,steps=[],now=Date.now()){
   const projected=night.timer&&night.timer>now?night.timer+later:anchor+durations.slice(current).reduce((sum,value)=>sum+value,0);
   dinnerAt=Math.max(dinnerAt,projected,now);
  }else if(night.status==='ready'||night.status==='complete')dinnerAt=Number(night.readyAt)||now;
+ if(night.status==='cooking')dinnerAt=Math.max(dinnerAt,Number(night.servingNotBefore)||0);
  const watchAt=Math.max(base[3].at,dinnerAt+(night.dinnerMinutes||25)*60000),shift=Math.max(0,watchAt-base[3].at);
  schedule[2].at=dinnerAt;schedule[3].at=watchAt;schedule[4].at=watchAt+show.minutes*60000;
  return {schedule,shiftMinutes:Math.ceil(shift/60000),state:night.status==='planned'?'waiting':night.status==='cooking'?'cooking':'ready'};
 }
 export const delayChoices=[15,30,45,60];
-export function delayEvening(night,minutes,now=Date.now()){
- if(night.status!=='planned'||night.watchStarted)throw Error('Delay changes are available before cooking or viewing begins.');
+export function delayEvening(night,minutes,now=Date.now(),servingAt=now){
+ if(!['planned','cooking'].includes(night.status)||night.watchStarted)throw Error('Delay changes are available before dinner is ready or viewing begins.');
  if(!delayChoices.includes(minutes))throw Error('Choose a 15, 30, 45, or 60 minute delay.');
+ if(night.status==='cooking')return {...night,servingNotBefore:Math.max(Number(night.servingNotBefore)||0,servingAt,now)+minutes*60000,scheduleChange:{kind:'cooking-delay',minutes,at:new Date(now).toISOString()}};
  const savedStart=Number(night.planStart||Date.parse(night.created)),previousStart=Number.isFinite(savedStart)?savedStart:now,planStart=Math.max(previousStart,now)+minutes*60000;
  return {...night,planStart,scheduleChange:{kind:'delay',minutes,previousStart,planStart,at:new Date(now).toISOString()}};
 }
@@ -49,3 +52,9 @@ export const featuredEvenings=[
  {id:'paris',title:'A little Paris in your kitchen',showId:'ratatouille',mealId:'pepper-pasta',mode:'meal',reason:'Roasted peppers, basil and a hands-on sauce bring cooking to the center of the evening, echoing Ratatouille’s love of making food. This is an inspired pairing, not a dish from the film.'},
  {id:'quiet',title:'A quieter kind of treasure',showId:'detectorists',mealId:'mushroom-toast',mode:'watch',reason:'Earthy mushroom toast suits Detectorists’ gentle countryside atmosphere. Its 29-minute first episode leaves room for an unhurried dinner on a weeknight.'}
 ];
+
+export function isStaleEvening(night,now=Date.now()){
+ if(night.feedback||night.status==='complete'||night.watchStarted||night.fulfillment==='delivery')return false;
+ const last=Number(night.progressAt||night.cookingStartedAt||night.planStart||Date.parse(night.created));
+ return Number.isFinite(last)&&now-last>6*60*60000;
+}

@@ -92,7 +92,23 @@ const noodleVariants=[
  ['Edamame sesame noodles',[I('Frozen shelled edamame',180)], [I('Sesame seeds',1,'tbsp')]],
  ['Sweetcorn & snow pea noodles',[I('Frozen sweetcorn',100),I('Snow peas',120)], [I('Rice vinegar',1,'tbsp')]]
 ];
-for(const [name,veg,sauce] of noodleVariants)recipes.push(recipe(name,'Noodles','noodles','Asian',30,['Adventure','Lighthearted'],[I('Egg-free noodles',180),I('Firm tofu',200),...veg,...sauce,I('Soy sauce',1,'tbsp'),I('Sesame oil',1,'tbsp'),garlic()],honey,[['Prepare','Pat tofu dry and cut into small cubes. Mince garlic, thinly slice carrots or peppers, shred cabbage, slice mushrooms and trim green beans when listed. Cut broccoli into small florets.',0],['Mix the sauce',`Mix soy sauce with ${names(sauce)}, {finish}, and 3 tablespoons water. Finely grate fresh ginger if listed. Whisk peanut butter or miso until smooth if used.`,0],['Cook noodles','Cook egg-free noodles following their package directions; drain and set aside. Cook frozen edamame according to its package instructions if listed.',0],['Stir-fry',`Heat sesame oil over medium heat. Cook tofu and ${names(veg)} for 8–12 minutes until vegetables are tender and tofu is hot throughout. Add spinach only in the last 2 minutes if listed. Stir in garlic for the final 30 seconds. Add noodles and sauce and toss for 2 minutes; loosen with water if needed.`,600]],'Noodles, tofu, vegetables, and a sauce mixed from scratch.'));
+const noodlePrep={
+ Broccoli:'cut the broccoli into small florets',Carrot:'peel and thinly slice the carrot',Mushrooms:'thinly slice the mushrooms',
+ 'Bell pepper':'remove the seeds and thinly slice the bell pepper',Cabbage:'finely shred the cabbage','Green beans':'trim and halve the green beans',
+ Spinach:'wash the spinach','Frozen shelled edamame':'measure the frozen edamame','Frozen sweetcorn':'measure the frozen sweetcorn','Snow peas':'trim the snow peas'
+};
+for(const [name,veg,sauce] of noodleVariants){
+ const prep=['Pat the tofu dry and cut it into small cubes','mince the garlic',...veg.map(([item])=>noodlePrep[item]||`prepare the ${item.toLowerCase()}`)];
+ const spinach=veg.some(([item])=>item==='Spinach'),firstVeg=veg.filter(([item])=>item!=='Spinach');
+ const fryBase=firstVeg.length?`Cook the tofu and ${names(firstVeg)}`:'Cook the tofu';
+ const addSpinach=spinach?' Add the spinach for the final 2 minutes.':'';
+ recipes.push(recipe(name,'Noodles','noodles','Asian',30,['Adventure','Lighthearted'],[I('Egg-free noodles',180),I('Firm tofu',200),...veg,...sauce,I('Soy sauce',1,'tbsp'),I('Sesame oil',1,'tbsp'),garlic()],honey,[
+  ['Prepare',prep.join(', then ')+'.',0],
+  ['Mix the sauce',`Mix soy sauce with ${names(sauce)}, {finish}, and 3 tablespoons water. Stir until smooth.`,0],
+  ['Cook noodles','Cook the egg-free noodles following their package directions, then drain and set aside.',0],
+  ['Stir-fry',`Heat sesame oil over medium heat. ${fryBase} for 8–12 minutes until the vegetables are tender and the tofu is hot throughout.${addSpinach} Stir in the garlic for the final 30 seconds. Add the noodles and sauce, toss for 2 minutes, and loosen with water if needed.`,600]
+ ],'Noodles, tofu, vegetables, and a sauce mixed from scratch.'));
+}
 
 // PASTA — vegetable sauces with a vegetarian cheese finish.
 /** @type {Array<[string,Ingredient[]]>} */

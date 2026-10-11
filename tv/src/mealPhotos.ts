@@ -4,7 +4,7 @@ export const mealPhotos:Record<string,any>={
 "spaghetti-meatballs":require('../assets/food/pasta.jpg'),
 "cheeseburgers-fries":require('../assets/food/burgers.jpg'),
 "chicken-potatoes":require('../assets/food/bake.jpg'),
-"grilled-cheese-soup":require('../assets/food/soup.jpg'),
+"grilled-cheese-soup":require('../assets/meals/grilled-cheese-soup-v2.png'),
 "loaded-baked-potatoes":require('../assets/food/potatoes.jpg'),
 "chicken-quesadillas":require('../assets/food/tacos.jpg'),
 "mac-cheese-peas":require('../assets/food/pasta.jpg'),

@@ -2,7 +2,7 @@
 
 <img src="tv/assets/brand/crave-frame-3d-v5.png" alt="Crave Frame logo" width="160" />
 
-**Dinner and a story, planned together.**
+**An evening you can agree on—dinner and something good to watch, planned together.**
 
 Crave Frame helps a household answer “what should we eat?” and “what should we watch?” as one evening. Start with a movie, TV episode, or meal, compare explained pairings, approve a dinner, and carry the recipe from the television to a phone. When plans change, preview a revised schedule or replacement dinner before applying it.
 
@@ -23,11 +23,11 @@ Crave Frame helps a household answer “what should we eat?” and “what shoul
 
 | Area | Included behavior |
 | --- | --- |
-| Matching | Live Gemini selection over eligible catalog recipes; up to six proposed candidates, up to three validated finalists |
+| Matching | Preference-based catalog matching in the current deployment; optional Gemini selection when configured, with up to six proposed candidates and three validated finalists |
 | Explainability | Documented food references, synopsis-based setting interpretations, and plainly labeled practical choices |
 | Constraints | Deterministic food, time, effort, family, title, and rejected-ingredient filtering before AI selection |
 | Discovery | Meal-first and watch-first flows, TMDB search, exact movie/episode selection, pantry input, shared planning |
-| Recipes | 527 catalog recipes; quantities, steps, timers, portion scaling, and supported adaptations |
+| Recipes | 127 core recipes and 400 explicitly labeled variations; quantities, steps, timers, portion scaling, and supported adaptations |
 | Cooking guidance | Beginner, regular, confident, and kid-oriented guidance; recipe-aware AI questions |
 | Recovery | Delays, missing ingredients, guest changes, simpler dinners, and changed-mind alternatives with review |
 | TV experience | Large controls, remote focus navigation, scrolling assistance, reduced motion, animated matching and introduction |
@@ -110,7 +110,7 @@ npm run check:secrets
 npm run build
 ~~~
 
-The current backend suite contains **71 tests**. Tests cover filtering, IDs, source excerpts, variety, planning, persistence, sharing, family constraints, and mocked provider behavior. They do not establish real-world recipe safety, model taste, production reliability, or smooth Fire TV performance. See the [manual device and live AI checklist](docs/TESTING.md).
+The current backend suite contains **77 tests**. Tests cover filtering, IDs, source excerpts, variety, planning, persistence, sharing, family constraints, and mocked provider behavior. They do not establish real-world recipe safety, model taste, production reliability, or smooth Fire TV performance. See the [manual device and live AI checklist](docs/TESTING.md).
 
 Known limitations:
 
@@ -119,7 +119,7 @@ Known limitations:
 - Browser/native features vary by device. The latest UI needs a full Fire TV remote-only rehearsal.
 - Streaming and ordering happen outside Crave Frame; prices, checkout, and delivery tracking are not integrated.
 - Local media upload lacks the production R2 binding. Phone testing requires a backend reachable by the phone.
-- AI response quality and latency vary. Daily limits are 35 AI actions per household and 200 globally per UTC day.
+- AI response quality and latency vary. Daily limits are 1,000 AI actions per household and 2,000 globally (testing limits) per UTC day.
 - A synopsis excerpt can still be semantically misused by a model; human evaluation remains necessary.
 
 ## Hackathon materials

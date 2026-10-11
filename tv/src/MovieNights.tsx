@@ -42,16 +42,16 @@ export function CinemaIntelligence({pair,onPlan}:any){
  </View>;
 }
 
-export function CinematicModes({show,watchArt,onBack,onBuild,onMemory}:any){
+export function CinematicModes({show,choices=[],onChoose,watchArt,onBack,onBuild,onMemory}:any){
  const [selected,setSelected]=useState('premiere');
- const mode=MODES.find(x=>x.id===selected)!;
+ const mode=MODES.find(x=>x.id===selected)!;const movie=show?.kind==='Movie'?show:null;
  return <ScrollView testID="main-scroll" contentContainerStyle={s.page}>
   <Button style={{alignSelf:'flex-start'}} onPress={onBack}>← Back</Button>
-  <View style={s.hero}>
+  <Text style={s.sectionTitle}>Choose your movie</Text><View style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{choices.map((title:any)=><Button key={title.id} selected={show?.id===title.id} onPress={()=>onChoose(title)}>{title.name}</Button>)}</View>{!movie&&<Text style={s.body}>Select a movie to continue. These formats are for feature films.</Text>}{movie&&<View style={s.hero}>
    <Image source={watchArt(show,true)} style={StyleSheet.absoluteFill} resizeMode="cover"/>
    <LinearGradient colors={['#05070BF5','#05070B70','#05070BDD']} start={{x:0,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill}/>
-   <View style={s.heroCopy}><Text style={s.kicker}>CINEMATIC NIGHTS</Text><Text style={s.heroTitle}>The movie sets the whole evening.</Text><Text style={s.body}>Choose a format. AI will ground the food, timing and atmosphere in {show.name}, then explain every creative leap.</Text><Button primary onPress={()=>onBuild(mode.prompt)}>{mode.title}: build with AI ✦</Button></View>
-  </View>
+   <View style={s.heroCopy}><Text style={s.kicker}>CINEMATIC NIGHTS</Text><Text style={s.heroTitle}>The movie sets the whole evening.</Text><Text style={s.body}>Choose a format. AI will ground the food, timing and atmosphere in {show.name}, then explain every creative leap.</Text><Button primary onPress={()=>onBuild(mode.prompt,mode.id)}>{mode.title}: build with AI ✦</Button></View>
+  </View>}
   <Text style={s.sectionTitle}>Choose tonight’s format</Text>
   <View style={s.modeGrid}>{MODES.map(m=><Button key={m.id} card selected={selected===m.id} style={s.modeCard} onPress={()=>setSelected(m.id)}><Text style={s.modeNo}>{m.number}</Text><Text style={s.signalLabel}>{m.tag}</Text><Text style={s.modeTitle}>{m.title}</Text><Text style={s.modeBody}>{m.description}</Text></Button>)}</View>
   <View style={s.memoryBanner}><View style={{flex:1}}><Text style={s.kicker}>MOVIE MEMORY REEL</Text><Text style={s.title}>Your nights become the collection.</Text><Text style={s.body}>Revisit every pairing as a cinematic card with the title, meal, guests, date and the preference it taught Crave Frame.</Text></View><Button onPress={onMemory}>Open my reel →</Button></View>

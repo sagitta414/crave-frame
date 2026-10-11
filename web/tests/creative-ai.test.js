@@ -13,11 +13,11 @@ test('AI can choose outside the featured shortlist and excludes recent dinners',
  const fresh=eligiblePairs({memory:{},recentPairings:recent},prefs,{showId:'ratatouille'});
  assert.ok(fresh.every(p=>!recent.some(r=>r.mealId===p.meal.id)));
 });
-test('AI failures do not silently substitute catalog choices',async()=>{
+test('AI failures return explicitly labelled catalog matches within the selected limits',async()=>{
  const DB=openDb(),env={DB,AI_GENERATE:async()=>{throw Error('Provider offline');}};
  try{const created=await api(new Request('https://test/api/household',{method:'POST'}),env),{key}=await created.json();
  const response=await api(new Request('https://test/api/recommendations',{method:'POST',headers:{'content-type':'application/json','x-household-key':key},body:JSON.stringify({mode:'watch',sourceId:'avengers',prefs:{...defaults,watchTime:180}})}),env);
- const result=await response.json();assert.equal(result.recommendationSource,'unavailable');assert.deepEqual(result.picks,[]);
+ const result=await response.json();assert.equal(result.recommendationSource,'catalog');assert.equal(result.aiUnavailable,true);assert.match(result.answer,/AI dinner picks could not finish/);assert.ok(result.picks.length);assert.ok(result.picks.every(p=>p.show.id==='tmdb-movie-24428'&&p.meal.minutes<=defaults.cookTime&&!p.aiExplained));
  }finally{DB.close();}
 });
 import {validatePicks} from '../server/ai.js';

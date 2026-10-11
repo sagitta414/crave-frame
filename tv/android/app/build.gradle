@@ -81,6 +81,12 @@ def enableMinifyInReleaseBuilds = (findProperty('android.enableMinifyInReleaseBu
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def releaseSecrets = ['CRAVE_RELEASE_STORE_FILE','CRAVE_RELEASE_STORE_PASSWORD','CRAVE_RELEASE_KEY_ALIAS','CRAVE_RELEASE_KEY_PASSWORD'].collectEntries { [(it): System.getenv(it)] }
+gradle.taskGraph.whenReady { graph ->
+    if (graph.allTasks.any { it.project == project && it.name.toLowerCase().contains('release') } && releaseSecrets.values().any { !it }) {
+        throw new GradleException('Release signing credentials are required. See docs/SECURITY-REMEDIATION.md. Debug signing is never used for release.')
+    }
+}
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -98,8 +104,16 @@ android {
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
     signingConfigs {
+        release {
+            if (releaseSecrets.values().every { it }) {
+                storeFile file(releaseSecrets.CRAVE_RELEASE_STORE_FILE)
+                storePassword releaseSecrets.CRAVE_RELEASE_STORE_PASSWORD
+                keyAlias releaseSecrets.CRAVE_RELEASE_KEY_ALIAS
+                keyPassword releaseSecrets.CRAVE_RELEASE_KEY_PASSWORD
+            }
+        }
         debug {
-            storeFile file('debug.keystore')
+            storeFile file('../../../.local/android/debug.keystore')
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
@@ -110,9 +124,7 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds

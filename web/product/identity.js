@@ -9,3 +9,12 @@ export function canonicalPair(value){const i=String(value).indexOf(':');return i
 export function normalizeMemory(memory={}){return {...memory,watched:[...new Set((memory.watched||[]).map(titleKey))],dislikedPairs:[...new Set((memory.dislikedPairs||[]).map(canonicalPair))]};}
 export function normalizeMembers(members=[]){return members.map(m=>({...m,vote:m.vote?canonicalPair(m.vote):m.vote,vetoes:(m.vetoes||[]).map(canonicalPair)}));}
 export function normalizeHouse(house){return {...house,titles:distinctShows(house.titles||[]),memory:normalizeMemory(house.memory),nights:(house.nights||[]).map(n=>({...n,showId:titleKey(n.showId),show:n.show?{...n.show,id:titleKey(n.show)}:n.show,group:n.group?{...n.group,members:normalizeMembers(n.group.members)}:n.group}))};}
+
+// Legacy editorial episode aliases have no provider record. Match those two known
+// names to their imported episode, while keeping all other provider identities exact.
+export function browseTitleKey(show){
+ const p=show?.provider,name=String(show?.name||'').toLowerCase();
+ const series=show?.id==='detectorists'||/^detectorists(?:\s|$)/.test(name)?'detectorists':show?.id==='only-murders'||/^only murders(?:\s|$)/.test(name)?'only-murders':'';
+ if(series){const episode=name.match(/s(\d+)\s*e(\d+)/i),legacy=['detectorists','only-murders'].includes(show?.id),season=p?.season??(episode?Number(episode[1]):legacy?1:null),number=p?.episode??(episode?Number(episode[2]):legacy?1:null);if(show?.kind==='TV episode'&&Number.isInteger(season)&&Number.isInteger(number))return series+':'+season+':'+number;}
+ return titleKey(show);
+}

@@ -12,6 +12,7 @@ build/
 dist/
 out/
 web-export/
+native-export-check/
 web/product/tv/
 artifacts/
 coverage/
