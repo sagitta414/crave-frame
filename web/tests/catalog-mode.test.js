@@ -6,6 +6,24 @@ import {openDb} from '../server/local-db.js';
 import {defaults} from '../product/catalog.js';
 const prefs={...defaults,cookTime:45,watchTime:180};
 
+test('Food settings save returns current capabilities for replacement household state',async()=>{
+ for(const connected of [false,true]){
+  const DB=openDb(),env={DB,...(connected?{AI_GENERATE:async()=>({})}:{AI_PROVIDER:'catalog'})};
+  try{
+   const house=await (await api(new Request('https://test/api/household',{method:'POST'}),env)).json();
+   const headers={'x-household-key':house.key,'content-type':'application/json'};
+   const response=await api(new Request('https://test/api/preferences',{method:'PUT',headers,body:JSON.stringify({prefs:{...prefs,diet:'Vegetarian'}})}),env);
+   assert.equal(response.status,200);
+   const saved=await response.json();
+   assert.equal(saved.prefs.diet,'Vegetarian');
+   assert.equal(saved.capabilities.connected,connected);
+   assert.deepEqual(saved.capabilities,house.capabilities);
+   const refreshed=await (await api(new Request('https://test/api/household',{headers}),env)).json();
+   assert.deepEqual(saved.capabilities,refreshed.capabilities);
+  }finally{DB.close();}
+ }
+});
+
 test('catalog mode skips configured AI, caches results and avoids earlier suggestions on refresh',async()=>{
  const DB=openDb();let calls=0;
  const env={DB,AI_PROVIDER:'catalog',GCP_SERVICE_ACCOUNT_JSON:'obsolete',AI_GENERATE:()=>{calls++;throw Error('Must not call AI');}};

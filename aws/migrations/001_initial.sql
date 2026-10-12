@@ -1,0 +1,11 @@
+CREATE TABLE households(id text PRIMARY KEY, data text NOT NULL, revision integer NOT NULL DEFAULT 0, updated text NOT NULL);
+CREATE TABLE shares(id text PRIMARY KEY, household text NOT NULL, night text NOT NULL, expires bigint NOT NULL);
+CREATE INDEX shares_household ON shares(household);
+CREATE TABLE integrations(id text PRIMARY KEY, ciphertext text NOT NULL, iv text NOT NULL, updated text NOT NULL);
+CREATE TABLE ai_usage(id text PRIMARY KEY, count bigint NOT NULL DEFAULT 0);
+CREATE TABLE collections(id text PRIMARY KEY, household text NOT NULL, data text NOT NULL, revision integer NOT NULL DEFAULT 0);
+CREATE INDEX collections_household ON collections(household);
+CREATE INDEX collections_photo ON collections((data::jsonb ->> 'photo'));
+CREATE TABLE rooms(id text PRIMARY KEY, household text NOT NULL, data text NOT NULL, revision integer NOT NULL DEFAULT 0, expires bigint NOT NULL);
+CREATE INDEX rooms_household ON rooms(household);
+CREATE TABLE parent_controls(household text PRIMARY KEY,salt text NOT NULL,pin_hash text NOT NULL,enabled integer NOT NULL DEFAULT 0,approved text NOT NULL DEFAULT '[]',attempts integer NOT NULL DEFAULT 0,locked_until bigint NOT NULL DEFAULT 0,recovery_hash text,helper_level text NOT NULL DEFAULT 'Little helper',session text);

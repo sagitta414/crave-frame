@@ -1,0 +1,23 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync,existsSync} from 'node:fs';
+test('synthesized infrastructure enforces private storage, isolated database and bounded runtime access',()=>{
+ const path='cdk.out/CraveFrameAmazon2026.template.json';assert.ok(existsSync(path),'Run npm run build and npm run synth before infrastructure tests');
+ const template=JSON.parse(readFileSync(path,'utf8')),resources=Object.values(template.Resources),of=type=>resources.filter(r=>r.Type===type);
+ assert.equal(of('AWS::RDS::DBCluster').length,1);assert.equal(of('AWS::RDS::DBInstance').length,2);
+ const cluster=of('AWS::RDS::DBCluster')[0].Properties;assert.equal(cluster.StorageEncrypted,true);assert.equal(cluster.DeletionProtection,true);assert.equal(cluster.BackupRetentionPeriod,14);
+ assert.ok(of('AWS::S3::Bucket').every(r=>Object.values(r.Properties.PublicAccessBlockConfiguration).every(v=>v===true)));
+ assert.ok(of('AWS::RDS::DBInstance').every(r=>r.Properties.PubliclyAccessible===false));
+ const proxy=of('AWS::RDS::DBProxy')[0].Properties;assert.equal(proxy.RequireTLS,true);assert.equal(proxy.Auth[0].IAMAuth,'REQUIRED');
+ const fn=of('AWS::Lambda::Function').find(r=>r.Properties.Handler==='handler.handler');
+ const env=fn.Properties.Environment.Variables;for(const name of ['GCP_SERVICE_ACCOUNT_JSON','GCP_PROJECT_ID','GCP_MODEL','TMDB_ACCESS_TOKEN','INTEGRATION_ENCRYPTION_KEY'])assert.equal(env[name],undefined);
+ assert.equal(env.AI_PROVIDER,'catalog');assert.equal(fn.Properties.Timeout,28);
+ const fnRole=fn.Properties.Role['Fn::GetAtt'][0];
+ const policies=of('AWS::IAM::Policy').filter(r=>JSON.stringify(r.Properties.Roles).includes(fnRole));
+ const text=JSON.stringify(policies);assert.ok(!text.includes('ADMIN_SECRET_ARN'));assert.ok(!text.includes('AppDatabaseCredentials'));assert.ok(!text.includes('rds:*'));
+ const cdn=of('AWS::CloudFront::Distribution')[0].Properties.DistributionConfig;
+ assert.ok(cdn.CacheBehaviors.every(b=>b.ResponseHeadersPolicyId&&b.FunctionAssociations));
+ assert.ok(cdn.DefaultCacheBehavior.ResponseHeadersPolicyId);assert.ok(cdn.Origins.some(o=>o.OriginAccessControlId));
+ assert.ok(!cdn.CustomErrorResponses,'API errors must not become HTML redirects');
+ assert.equal(of('AWS::WAFv2::WebACL').length,1);
+});

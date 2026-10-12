@@ -11,7 +11,16 @@
 - The startup’s preferred action enters planning immediately; the full story remains available.
 - Group planning keeps extra preference fields optional and visible through a disclosure. Duplicate feedback choice removed.
 
-## Physical evidence still required
+## Product review follow-up
+
+- Startup keeps planning primary and groups scene navigation, pause and music under Story controls.
+- Saved evenings disclose collections, taste visualizations and themed-night tools under Evening extras.
+- Cooking keeps the original recipe action and safety guidance visible; optional coaching opens with Show me how and resets when the step changes.
+- Recipe illustration captions use the shared TV typography. Missing photographs use a consistent neutral plate icon rather than repeating the full recipe title in the artwork.
+- A familiar-dinner shelf draws only from already eligible, pictured flagship recipes, without changing the recommendation hero or claiming kitchen validation.
+- These are source changes. No fresh couch-distance visual review or observed household trial has been performed.
+
+## Validation still required
 
 See FLAGSHIP-RECIPE-TRIALS.md for eight actual-recipe test sheets and HOUSEHOLD-TRIAL.md for a five-household remote/phone trial. No physical cooking or observed user sessions have been completed by this change. Browser automation was unavailable. Do not describe these documents as successful validation.
 

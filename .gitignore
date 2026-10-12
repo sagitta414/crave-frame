@@ -27,3 +27,7 @@ coverage/
 *.aab
 local.properties
 .DS_Store
+cdk.out/
+cdk.context.json
+aws/.release/
+aws/outputs.json

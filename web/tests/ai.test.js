@@ -19,6 +19,8 @@ test('AI plan persists contextual history, accepts only catalog picks and keeps 
  const call=async(path,method='GET',data,key)=>{const r=await api(new Request('https://test/api/'+path,{method,headers:{'content-type':'application/json',...(key?{'x-household-key':key}:{})},...(data?{body:JSON.stringify(data)}:{})}),env);return {status:r.status,...await r.json()};};
  try{const h=await call('household','POST');assert.equal((await call('ai','POST',{mode:'plan',prompt:'hello'})).status,401);
  const r=await call('ai','POST',{mode:'plan',prompt:'Chicken and adventure',prefs:defaults},h.key);assert.equal(r.status,200);assert.equal(r.picks.length,3);assert.equal(calls,2);
+ const usage=await DB.prepare("SELECT count FROM ai_usage WHERE id NOT LIKE 'create:%'").all();
+ assert.equal(usage.results.length,2);assert.ok(usage.results.every(row=>row.count===1),'multiple provider calls charge each allowance only once');
  const saved=await call('household','GET',null,h.key);assert.equal(saved.aiHistory[0].request,'Chicken and adventure');assert.equal(saved.nights.length,0);
  const pick=r.picks[0];const n=await call('nights','POST',{mealId:pick.meal.id,showId:pick.show.id,prefs:r.prefs,adapted:false,confirmed:[]},h.key);assert.equal(n.status,400);
  assert.equal((await call('ai','POST',{mode:'pantry',image:{mimeType:'text/html',data:'YWJj'}},h.key)).status,400);

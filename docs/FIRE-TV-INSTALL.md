@@ -1,5 +1,9 @@
 # Installed Fire TV and phone cooking
 
+For an AWS build, use the CloudFront `Origin` output with the existing `-ApiOrigin`
+parameter as shown in [AWS deployment](AWS-DEPLOYMENT.md#fire-tv-apk-and-device-acceptance).
+Keep the Cloudflare origin until AWS smoke and physical-device checks pass.
+
 ## Build status — October 10, 2026
 
 - TypeScript check, all 18 TV tests, and scrolling regression checks passed.

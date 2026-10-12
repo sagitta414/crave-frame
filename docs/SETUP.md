@@ -50,6 +50,9 @@ On a native device, set EXPO_PUBLIC_API_ORIGIN to your own reachable HTTPS backe
 
 ## Production
 
+For the new parallel AWS environment, use [AWS deployment](AWS-DEPLOYMENT.md).
+Its build and deploy commands are separate from the Cloudflare path below.
+
 The existing deployment uses a Cloudflare-compatible Worker through Sites, D1 for structured persistence, R2 for supported media, and static assets for the frontends. Configure your own project, migrations, runtime secrets, and access policy. The existing web/.openai/hosting.json is deployment provenance, not authorization to publish to that project.
 
 ## Troubleshooting

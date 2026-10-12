@@ -13,7 +13,7 @@ import {titleKey,distinctShows} from '../product/identity.js';
 import {pantryMatches} from '../product/ingredients.js';
 import {connection,discoveryCandidates,groupFits,pairingAffinity} from '../product/curation.js';
 import {availability} from './catalog.js';
-import {generate} from './vertex.js';
+import {generate as providerGenerate} from './vertex.js';
 import {meals,shows,defaults,moods,mealById} from '../product/catalog.js';
 import {dietFits,foodPreferences} from '../product/diets.js';
 import {ingredients,recipeSteps,suggestedAdaptation} from '../product/engine.js';
@@ -91,7 +91,14 @@ export async function aiRequest(request,env,house,id,revision){
   if(!draft&&(!night||night.status!=='planned'||night.watchStarted))fail('Choose a planned evening before cooking or viewing begins.');
  }
  if(b.mode==='plan'&&b.cinematicFormat==='three-act'&&![...shows,...(house.titles||[])].some(s=>titleKey(s)===titleKey(b.showId||'')&&s.kind==='Movie'))return {mode:'plan',prefs:aiPreferences(b.prefs||{},house.prefs),picks:[],answer:'Choose a movie before building a three-act dinner.'};
- await reserveAI(env.DB,id);
+ // Charge once per request, immediately before its first provider attempt.
+ // Catalog-only early returns must not spend household or shared allowance.
+ let reservation;
+ const generate=async(...args)=>{
+  reservation ||= reserveAI(env.DB,id);
+  await reservation;
+  return providerGenerate(...args);
+ };
  const base=aiPreferences(b.prefs||{},house.prefs),history=(house.aiHistory||[]).slice(-4);
  if(b.mode==='group'){
   const pairs=Array.isArray(b.group)?b.group.slice(0,3):[];

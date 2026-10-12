@@ -71,6 +71,14 @@ flowchart LR
 
 Full component, AI request, trust-boundary, and data-model diagrams are in [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Parallel AWS environment
+
+The `aws/` directory provides CDK infrastructure, a PostgreSQL/S3 Lambda adapter,
+checksummed database migrations with snapshot gating, and post-deploy smoke tests
+for **CraveFrameAmazon2026**. It preserves the existing Cloudflare deployment.
+See [AWS deployment, cost estimate, verification and rollback](docs/AWS-DEPLOYMENT.md).
+AWS deployment and physical-device verification are not implied by a passing local build.
+
 ## Repository map
 
 ~~~text

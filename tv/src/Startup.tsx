@@ -11,7 +11,7 @@ import {StoryBackdrop,StoryBrand,StoryCaption,StoryProgress,eveningStory,STORY_S
 
 export function Startup({onComplete,soundEnabled=true}:{onComplete:()=>void,soundEnabled?:boolean}){
  const {width,height}=useWindowDimensions(),small=width<900,silk=Platform.OS==='web'&&isSilk(navigator.userAgent);const help='Arrows move · Center selects · Back returns';
- const [step,setStep]=useState(0),[reduced,setReduced]=useState(true),[ready,setReady]=useState(false),[paused,setPaused]=useState(false);
+ const [step,setStep]=useState(0),[reduced,setReduced]=useState(true),[ready,setReady]=useState(false),[paused,setPaused]=useState(false),[controls,setControls]=useState(false);
  const ended=useRef(false),callback=useRef(onComplete);callback.current=onComplete;
  const ident=useAudioPlayer(require('../assets/audio/ident.wav'));
  const music=useAudioPlayer(require('../assets/audio/evening-intro.wav'));
@@ -28,15 +28,16 @@ export function Startup({onComplete,soundEnabled=true}:{onComplete:()=>void,soun
  return <MotionContext.Provider value={reduced||paused}><FocusScope.Provider value="intro-story"><View style={[s.root,Platform.OS==='web'?({overflow:'clip'} as any):null]} testID="premiere-intro">
   <StoryBackdrop step={step} reduced={reduced} paused={paused}/>
   <ScrollView style={{flex:1}} contentContainerStyle={{flexGrow:1,paddingHorizontal:small?24:40,paddingTop:24,paddingBottom:16,justifyContent:'space-between',gap:10}}>
-   <View style={[s.row,{justifyContent:'space-between'}]}><StoryBrand/><TVButton compact quiet onPress={toggleMusic}>{musicStatus.playing?'Mute music':'Play music'}</TVButton></View>
+   <View style={[s.row,{justifyContent:'space-between'}]}><StoryBrand/></View>
    <View style={{paddingVertical:4}}><StoryCaption step={step} reduced={reduced||paused}/></View>
    <StoryProgress step={step} paused={paused||!ready} reduced={reduced}/>
   </ScrollView>
   <View style={[s.footer,{paddingHorizontal:small?24:40,paddingVertical:10}]}>
    <View testID="intro-actions" style={[s.row,{justifyContent:'space-between'}]}>
-    <View style={s.row}><TVButton compact primary preferred onPress={finish}>Plan my evening →</TVButton><TVButton compact quiet onPress={()=>step===eveningStory.length-1?finish():setStep(step+1)}>{step===eveningStory.length-1?'Continue to my evening':'Next scene →'}</TVButton>{!reduced&&step<eveningStory.length-1&&<TVButton compact quiet onPress={()=>setPaused(!paused)}>{paused?'Resume':'Pause'}</TVButton>}{step>0&&<TVButton compact quiet onPress={()=>setStep(step-1)}>Previous</TVButton>}</View>
+    <View style={s.row}><TVButton compact primary preferred onPress={finish}>Plan my evening →</TVButton><TVButton compact quiet selected={controls} onPress={()=>setControls(!controls)}>{controls?'Hide story controls':'Story controls'}</TVButton></View>
     {!silk&&height>=700&&!small&&<Text style={[s.label,{maxWidth:400}]}>{help}</Text>}
    </View>
+   {controls&&<View style={[s.row,{flexWrap:'wrap',paddingTop:10}]} ><TVButton compact quiet onPress={()=>step===eveningStory.length-1?finish():setStep(step+1)}>{step===eveningStory.length-1?'Continue to my evening':'Next scene →'}</TVButton>{!reduced&&step<eveningStory.length-1&&<TVButton compact quiet onPress={()=>setPaused(!paused)}>{paused?'Resume':'Pause'}</TVButton>}{step>0&&<TVButton compact quiet onPress={()=>setStep(step-1)}>Previous</TVButton>}<TVButton compact quiet onPress={toggleMusic}>{musicStatus.playing?'Mute music':'Play music'}</TVButton></View>}
    {!silk&&height>=700&&small&&<Text style={s.label}>{help}</Text>}
   </View>
  </View></FocusScope.Provider></MotionContext.Provider>;

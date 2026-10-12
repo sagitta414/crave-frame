@@ -1,5 +1,10 @@
 # Architecture
 
+The diagrams below describe the existing Cloudflare/local runtime. The parallel
+AWS target, adapters, trust boundaries and deployment status are documented in
+[AWS-DEPLOYMENT.md](AWS-DEPLOYMENT.md). It reuses the API and product logic while
+serving static documents through CloudFront/private S3 and data through Aurora.
+
 ## Runtime components
 
 The main TV experience is authored in tv/App.tsx and tv/src. Expo exports a React Native Web bundle under /tv/. The browser planner and phone companion are separate product surfaces, sharing the same Worker API and household data. The native Android wrapper uses the same React Native source and an HTTPS backend.

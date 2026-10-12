@@ -41,7 +41,7 @@ export async function api(request,env){try{
  if(['room','collection-share','collection-editor','photo'].includes(parts[1])){const response=await publicSocial(request,env);if(response)return response;}
  if(u.pathname==='/api/setup/tmdb')return json(await setupTmdb(request,env));
  if(u.pathname==='/api/household'&&method==='POST'){
-  await reserveCreation(db,request);
+  await reserveCreation(db,request,Date.now(),env.TRUSTED_CLIENT_IP);
   const key=token(),id=await hash(key),data={prefs:{...defaults},memory:{shorter:false,favoriteMeals:[],watched:[]},pantry:[],nights:[]};
   const created=await db.prepare('INSERT INTO households (id,data,revision,updated) SELECT ?,?,0,? WHERE (SELECT COUNT(*) FROM households)<2000').bind(id,JSON.stringify(data),new Date().toISOString()).run();if(!created.meta.changes)fail('New household capacity is full. Contact the site owner.',429);await db.prepare('DELETE FROM rooms WHERE expires<?').bind(Date.now()).run();await db.prepare('DELETE FROM shares WHERE expires<?').bind(Date.now()).run();return json({key,...data,capabilities:aiCapabilities(env)},201);
  }
@@ -105,7 +105,7 @@ export async function api(request,env){try{
  if(u.pathname==='/api/preferences'&&method==='PUT'){
   const b=await body(request);row.data.prefs=preferences(b.prefs);
   if(b.memory){const m=b.memory;const allergies=m.allergies??row.data.memory.allergies??[];if(!Array.isArray(allergies)||allergies.some(x=>!allergyOptions.includes(x)))fail('Choose valid allergy exclusions.');row.data.memory.allergies=[...new Set(allergies)];if(typeof m.shorter!=='boolean'||(m.preferredMood&&!moods.includes(m.preferredMood)))fail('Invalid saved preference.');const disliked=m.dislikedIngredients??row.data.memory.dislikedIngredients??[],cuisines=m.favoriteCuisines??row.data.memory.favoriteCuisines??[],effort=m.preferredEffort??row.data.memory.preferredEffort??'Any';if(!Array.isArray(disliked)||disliked.length>20||disliked.some(x=>typeof x!=='string'||!x.trim()||x.length>60)||!Array.isArray(cuisines)||cuisines.some(x=>!['European','Mediterranean','Asian','Americas'].includes(x))||!['Any','Easy'].includes(effort))fail('Check your saved food preferences.');row.data.memory={...row.data.memory,shorter:m.shorter,preferredMood:m.preferredMood||null,dislikedIngredients:[...new Set(disliked.map(x=>x.trim().toLowerCase()))],favoriteCuisines:[...new Set(cuisines)],preferredEffort:effort};}
-  delete row.data.recommendationCache;row.data.aiHistory=[];await saveHouse(db,id,row);return json(row.data);
+  delete row.data.recommendationCache;row.data.aiHistory=[];await saveHouse(db,id,row);return json({...row.data,capabilities:aiCapabilities(env)});
  }
  if(u.pathname==='/api/pantry'&&method==='PUT'){const b=await body(request);if(!Array.isArray(b.items)||b.items.length>60||b.items.some(s=>typeof s!=='string'||s.length>80))fail('Invalid pantry items.');row.data.pantry=[...new Set(b.items)];row.data.pantryUpdatedAt=Date.now();delete row.data.recommendationCache;await saveHouse(db,id,row);return json(row.data);}
  if(u.pathname==='/api/nights'&&method==='POST'){
