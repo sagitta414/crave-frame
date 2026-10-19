@@ -1,3 +1,4 @@
+import {foodReferences,referenceFits} from './food-references.js';
 import {tonightScore} from './tonight-personality.js';
 import {ingredientBlocked} from './food-restrictions.js';
 import {instructionForLevel} from './cooking-level.js';
@@ -21,9 +22,11 @@ export function recommend({mode,sourceId,prefs=defaults,memory={},pantry=[],them
  const candidates=mode==='meal'?shows.filter(s=>prefs.catalog==='Original demo titles'?!s.source&&!s.custom:!!s.source||s.custom):meals;
  const ranked=candidates.map(candidate=>{const meal=mode==='meal'?source:candidate;let show=mode==='meal'?candidate:source,adapted=suggestedAdaptation(meal,prefs,memory);
  if((prefs.eveningMinutes>0&&meal.minutes+25+show.minutes>prefs.eveningMinutes)||!dietFits(meal,prefs.diet)||meal.minutes>prefs.cookTime||show.minutes>prefs.watchTime||(prefs.effort==='Easy'&&meal.effort!=='Easy')||(prefs.family&&!show.family)||(prefs.format!=='Any'&&show.kind!==prefs.format))return null;
+ if(memory.dislikedMeals?.includes(meal.id))return null;
  if(ingredients(meal,prefs.people,adapted).some(i=>ingredientBlocked(i.name,memory)))return null;
  if((memory.dislikedIngredients||[]).some(term=>meal.ingredients.some(i=>i[0].toLowerCase().includes(term.toLowerCase()))))return null;
- let score=20+tonightScore(meal,prefs);const reasons=[];if(prefs.diet==='No preference'&&meal.foodType)score+=12;
+ const foodLink=foodReferences(show).find(r=>referenceFits(r,meal,ingredients(meal,prefs.people,adapted).map(i=>i.name)));
+ let score=20+tonightScore(meal,prefs)+(mode==='watch'&&!themedMealId&&!demoId&&(prefs.pairingStyle||'Atmosphere')==='Atmosphere'?(meal.id==='story-ratatouille'&&titleKey(show)==='tmdb-movie-2062'?340:foodLink?300:0):0);const reasons=[];if(prefs.diet==='No preference'&&meal.foodType)score+=12;
  if(mode==='watch'&&(prefs.pairingStyle||'Atmosphere')==='Atmosphere')score+=pairingAffinity(meal,show);
  if(votes.some(v=>v.veto===meal.id+':'+show.id))return null;
  const fits=voteFit(meal,show,votes);if(fits.length){const count=fits.filter(f=>f.matched).length;score+=count*35;reasons.push(count===fits.length?'Common ground: both mood choices fit this pairing.':'A compromise: '+count+' of '+fits.length+' mood choices fit; review it together.');}

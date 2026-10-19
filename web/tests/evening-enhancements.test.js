@@ -49,6 +49,11 @@ test('finish targets and explicit preparation allowance persist without changing
  assert.equal((await call('nights/'+night.id,'PATCH',{finishBy:target})).status,200);
  const saved=await (await call('nights/'+night.id,'PATCH',{timingAllowanceMinutes:15})).json();
  assert.equal(saved.finishBy,target);assert.equal(saved.timingAllowanceMinutes,15);
+ const shiftedStart=night.planStart+60000;
+ const combined=await (await call('nights/'+night.id,'PATCH',{planStart:shiftedStart,dinnerMinutes:30,timingAllowanceMinutes:10,finishBy:target+60000})).json();
+ assert.equal(combined.planStart,shiftedStart);assert.equal(combined.dinnerMinutes,30);assert.equal(combined.timingAllowanceMinutes,10);assert.equal(combined.finishBy,target+60000);
+ assert.equal((await call('nights/'+night.id,'PATCH',{timingAllowanceMinutes:20,finishBy:-1})).status,400);
+ const unchanged=await (await call('nights/'+night.id)).json();assert.equal(unchanged.timingAllowanceMinutes,10);assert.equal(unchanged.finishBy,target+60000);
  const steps=recipeSteps(meal,false,'Regular',2),before=readyTogetherPlan(night,meal,show,steps),after=readyTogetherPlan(saved,meal,show,steps);
  assert.equal(after.schedule[2].at-before.schedule[2].at,15*60000);
  assert.equal(after.schedule[4].at-before.schedule[4].at,15*60000);

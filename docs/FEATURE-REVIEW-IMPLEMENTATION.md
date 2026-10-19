@@ -2,6 +2,8 @@
 
 This record follows the feature and content review on 18 October 2026. The changes improve choosing an evening, cooking preparation, timing, and honest explanations. They do not establish that meals have been cooked successfully, households will return, or the release has been deployed.
 
+See [the follow-up closure report](REVIEW-CLOSURE-2026-10-18.md) for subsequent fixes and current verification.
+
 ## Changes in this working copy
 
 | Area | Implementation |
@@ -37,15 +39,15 @@ The home screen retains the existing two-feature preview pattern. New detailed f
 
 Run `node scripts/audit-recipe-content.mjs` to regenerate `recipe-content-audit.json`. The report checks mappings and file existence, not the contents of image pixels.
 
-The current source has 527 recipes: 127 core recipes and 400 variations. There are image mappings backed by files for 169 recipes. All core recipes and all featured recipes have mapped images. The remaining 358 gaps are variations. Seven core dishes use category illustrations rather than dedicated dish imagery. These seven are named in the audit for manual review.
+The current source has 527 recipes: 127 core recipes and 400 variations. There are image mappings backed by files for 169 recipes. All core recipes and all featured recipes have mapped images. The remaining 358 gaps are variations. The follow-up replaced all seven core category images with dedicated AI illustrations; the regenerated audit now reports zero core category images.
 
-No images were newly generated during this implementation. Labeling existing imagery does not establish that every picture accurately represents its ingredients, portions or presentation. Prioritize visual review of the seven category images and the featured dishes before expanding variation coverage.
+Seven replacement illustrations were generated and visually checked in the follow-up. See CORE-DISH-IMAGES.md for prompts and scope. The remaining library still requires visual review; asset presence alone does not establish accuracy.
 
 ## Remaining weaknesses
 
 1. **Food quality and timing are unproven.** All eight flagship kitchen trials remain pending. Cook the dishes for two and four people, record preparation, elapsed time and problems, and update the actual recipes. New optional menus also require trials. Do not call them tested in a submission.
 2. **Device usability is not certified.** No browser surfaces were available to the agent for visual inspection in this session. Test this release on an actual Fire TV with the remote and a phone, including small TV viewports, QR scanning and interruptions.
-3. **Image truth still needs human review.** Asset existence is not ingredient or presentation accuracy. Category images remain a particular weakness.
+3. **Image truth still needs human review.** Asset existence is not ingredient or presentation accuracy. The seven identified core category mappings are now replaced; wider library review remains open.
 4. **The matching library still needs editorial judgment.** Existing sourced connections and practical labels are retained. No automated scoring change proves that every pairing feels persuasive. Review at least ten familiar titles and reject weak explanations.
 5. **Retention and speed remain hypotheses.** The five-household trial has not run. Measure time to choose dinner, successful unassisted phone handoff, actual meal completion, and voluntary return.
 6. **Deployment is separate.** These edits do not update AWS, the legacy public site, GitHub or the installed APK by themselves. Deploy a single reviewed revision, then retest the exact release marker.
