@@ -8,10 +8,11 @@ import {RecipeArt} from './RecipeArt';
 import {ingredients,recipeSteps} from './catalog/engine';
 import {mealById} from './catalog/catalog';
 import {cookingProgress} from './cooking-state';
-export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onStart,onUpdate,onBack,onHelp,tick,busy,syncError}:any){
+export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onStart,onUpdate,onBack,onHelp,tick,busy,syncError,helpRequest=0}:any){
  const {width}=useWindowDimensions(),small=width<900,[details,setDetails]=useState(false),m=mealById(night.mealId),steps=recipeSteps(m,night.adapted,night.prefs.cookLevel||'Regular',night.prefs.people),index=preview?previewStep:night.step,step=steps[index],ready=['ready','complete'].includes(night.status),progress=cookingProgress(night,steps.length,preview),left=Math.max(0,Math.ceil(((night.timer||0)-tick)/1000));
  const [showCoaching,setShowCoaching]=useState(false);
  useEffect(()=>setShowCoaching(false),[night.id,index,preview]);
+ useEffect(()=>{if(helpRequest){setDetails(true);setShowCoaching(true);}},[helpRequest]);
  const baseStep=recipeSteps(m,night.adapted,'Confident',night.prefs.people)[index];
  const copy=cookingCopy(step.instruction,baseStep.instruction);
  return <ScrollView testID="main-scroll" contentContainerStyle={{padding:small?20:40,paddingBottom:90,gap:20,maxWidth:1200,width:'100%',alignSelf:'center'}}>

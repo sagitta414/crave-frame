@@ -19,10 +19,10 @@ export function orderBrief(meal,prefs={}){
   {id:'group',label:'Sharing search',query:alternatives[2]||alternatives[0],detail:`Search for shareable portions for ${people}; confirm portion sizes with the restaurant.`}
  ]};
 }
-export function orderOutEvening(night,meal,show,etaMinutes=35,now=Date.now()){
+export function orderOutEvening(night,meal,show,etaMinutes=35,now=Date.now(),estimateAt=now){
  if(night.status!=='planned'||night.watchStarted)throw Error('Order-out changes are available before cooking or viewing begins.');
  if(!Number.isInteger(etaMinutes)||etaMinutes<15||etaMinutes>120)throw Error('Enter a delivery estimate from 15 to 120 minutes.');
- const baseNight={...night,planStart:night.scheduleChange?.kind==='order-out'?night.scheduleChange.previousStart:night.planStart,fulfillment:null,orderPlan:null},current=eveningTimeline(baseNight,meal,show),previousWatchAt=current[3].at,arrivalAt=now+etaMinutes*60000,watchAt=Math.max(previousWatchAt,arrivalAt+(night.dinnerMinutes||25)*60000),shiftMinutes=Math.max(0,Math.ceil((watchAt-previousWatchAt)/60000));
+ const baseNight={...night,planStart:night.scheduleChange?.kind==='order-out'?night.scheduleChange.previousStart:night.planStart,fulfillment:null,orderPlan:null},current=eveningTimeline(baseNight,meal,show),previousWatchAt=current[3].at,arrivalAt=estimateAt+etaMinutes*60000,watchAt=Math.max(previousWatchAt,arrivalAt+(night.dinnerMinutes||25)*60000),shiftMinutes=Math.max(0,Math.ceil((watchAt-previousWatchAt)/60000));
  return {...night,fulfillment:'delivery',planStart:now,orderPlan:{etaMinutes,orderAt:now,arrivalAt,watchAt,previousWatchAt},scheduleChange:{kind:'order-out',minutes:shiftMinutes,previousStart:baseNight.planStart||Date.parse(night.created),planStart:now,previousWatchAt,watchAt,at:new Date(now).toISOString()}};
 }
 export function readyTogetherPlan(night,meal,show,steps=[],now=Date.now()){
@@ -31,7 +31,7 @@ export function readyTogetherPlan(night,meal,show,steps=[],now=Date.now()){
  let dinnerAt=base[2].at;
  if(night.status==='cooking'){
   const list=steps.length?steps:[{}],weights=list.map(step=>Math.max(60,Number(step.seconds)||0)),total=weights.reduce((sum,value)=>sum+value,0),durations=weights.map(value=>meal.minutes*60000*value/total),current=Math.min(list.length-1,Math.max(0,night.step||0)),later=durations.slice(current+1).reduce((sum,value)=>sum+value,0),anchor=Number(night.progressAt)||Number(night.planStart)||now;
-  const projected=night.timer&&night.timer>now?night.timer+later:anchor+durations.slice(current).reduce((sum,value)=>sum+value,0);
+  const projected=night.timer?Math.max(night.timer,now)+later:anchor+durations.slice(current).reduce((sum,value)=>sum+value,0);
   dinnerAt=Math.max(dinnerAt,projected,now);
  }else if(night.status==='ready'||night.status==='complete')dinnerAt=Number(night.readyAt)||now;
  if(night.status==='cooking')dinnerAt=Math.max(dinnerAt,Number(night.servingNotBefore)||0);

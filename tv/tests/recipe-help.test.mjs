@@ -1,0 +1,24 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+import {mealById,defaults} from '../src/catalog/catalog.js';
+import {ingredients,recipeSteps} from '../src/catalog/engine.js';
+import {cookingCopy} from '../src/cooking-copy.js';
+import {cookingProgress} from '../src/cooking-state.js';
+
+test('recipe help opens ingredients and coaching, and can reopen after closing',()=>{
+ const states=[],effects=[],deps=[];let cursor=0,effectCursor=0;
+ const React={useState:initial=>{const i=cursor++;if(!(i in states))states[i]=initial;return [states[i],v=>states[i]=typeof v==='function'?v(states[i]):v];},useEffect:(fn,next)=>{const i=effectCursor++;if(!deps[i]||next.some((v,j)=>v!==deps[i][j]))effects.push(fn);deps[i]=next;}};
+ const jsx=(type,props)=>({type,props});
+ const modules={'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'ScrollView',View:'View',StyleSheet:{create:x=>x},useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./RecipeArt':{RecipeArt:'Art'},'./catalog/engine':{ingredients,recipeSteps},'./catalog/catalog':{mealById},'./cooking-copy':{cookingCopy},'./cooking-state':{cookingProgress}};
+ const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/CookingScreen.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>{assert.ok(modules[id],id);return modules[id];}});
+ const night={mealId:'pepper-pasta',prefs:{...defaults,cookLevel:'Beginner'},step:0,status:'cooking',adapted:false};
+ const render=request=>{cursor=0;effectCursor=0;const tree=exports.CookingScreen({night,tick:Date.now(),helpRequest:request});while(effects.length)effects.shift()();return tree;};
+ const buttons=tree=>{if(!tree||typeof tree!=='object')return [];if(Array.isArray(tree))return tree.flatMap(buttons);return [...(tree.type==='Button'?[tree]:[]),...buttons(tree.props?.children)];};
+ render(0);assert.equal(states[0],false);
+ render(1);assert.equal(states[0],true);assert.equal(states[1],true);
+ const close=buttons(render(1)).find(b=>b.props.children==='Hide ingredients');assert.ok(close);close.props.onPress();assert.equal(states[0],false);
+ render(2);assert.equal(states[0],true);assert.equal(states[1],true);
+});
