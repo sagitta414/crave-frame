@@ -1,3 +1,5 @@
+import {PairingReason} from './PairingReason';
+import {MealSignals} from './MealSignals';
 import React from 'react';
 import {Image,StyleSheet,View,useWindowDimensions} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
@@ -17,7 +19,7 @@ export function PairingHero({pair,watchArt,onChoose}:any){
     <Text accessibilityRole="header" style={[s.title,{fontSize:wide?64:40,lineHeight:wide?72:48}]}>{pair.show.name}</Text>
     <Text style={s.meal}>{pair.meal.name}</Text>
     <Text style={s.meta}>{pair.meal.minutes} min cooking · {pair.show.minutes} min watching</Text>
-    <View style={s.actions}><Button primary compact preferred focusKey="hero-choose" onPress={()=>onChoose(pair)}>Plan this evening →</Button></View>
+    <PairingReason pair={pair} compact/><MealSignals meal={pair.meal} compact/><View style={s.actions}><Button primary compact preferred focusKey="hero-choose" onPress={()=>onChoose(pair)}>Plan this evening →</Button></View>
    </View>
    <View style={{width:wide?'38%':'100%',maxWidth:680,alignSelf:'center',borderRadius:22,overflow:'hidden',borderWidth:1,borderColor:accent+'55'}}><RecipeArt meal={pair.meal} resizeMode="contain" style={{width:'100%',aspectRatio:1.5,backgroundColor:'#111A27'}}/></View>
   </View>

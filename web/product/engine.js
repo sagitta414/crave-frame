@@ -20,7 +20,7 @@ export function recommend({mode,sourceId,prefs=defaults,memory={},pantry=[],them
  if(!source)return [];
  const candidates=mode==='meal'?shows.filter(s=>prefs.catalog==='Original demo titles'?!s.source&&!s.custom:!!s.source||s.custom):meals;
  const ranked=candidates.map(candidate=>{const meal=mode==='meal'?source:candidate;let show=mode==='meal'?candidate:source,adapted=suggestedAdaptation(meal,prefs,memory);
- if(!dietFits(meal,prefs.diet)||meal.minutes>prefs.cookTime||show.minutes>prefs.watchTime||(prefs.effort==='Easy'&&meal.effort!=='Easy')||(prefs.family&&!show.family)||(prefs.format!=='Any'&&show.kind!==prefs.format))return null;
+ if((prefs.eveningMinutes>0&&meal.minutes+25+show.minutes>prefs.eveningMinutes)||!dietFits(meal,prefs.diet)||meal.minutes>prefs.cookTime||show.minutes>prefs.watchTime||(prefs.effort==='Easy'&&meal.effort!=='Easy')||(prefs.family&&!show.family)||(prefs.format!=='Any'&&show.kind!==prefs.format))return null;
  if(ingredients(meal,prefs.people,adapted).some(i=>ingredientBlocked(i.name,memory)))return null;
  if((memory.dislikedIngredients||[]).some(term=>meal.ingredients.some(i=>i[0].toLowerCase().includes(term.toLowerCase()))))return null;
  let score=20+tonightScore(meal,prefs);const reasons=[];if(prefs.diet==='No preference'&&meal.foodType)score+=12;

@@ -1,0 +1,68 @@
+{
+  "scope": "Source asset coverage only. Image contents and cooking quality require human verification.",
+  "recipes": 527,
+  "core": 127,
+  "variations": 400,
+  "withImage": 169,
+  "missingImages": 358,
+  "categoryImages": [
+    {
+      "id": "spaghetti-meatballs",
+      "name": "Spaghetti & meatballs",
+      "tier": "core",
+      "featured": true,
+      "image": "category illustration",
+      "kitchenTested": false
+    },
+    {
+      "id": "cheeseburgers-fries",
+      "name": "Cheeseburgers & oven fries",
+      "tier": "core",
+      "featured": true,
+      "image": "category illustration",
+      "kitchenTested": false
+    },
+    {
+      "id": "chicken-potatoes",
+      "name": "Chicken & roasted potatoes",
+      "tier": "core",
+      "featured": true,
+      "image": "category illustration",
+      "kitchenTested": false
+    },
+    {
+      "id": "loaded-baked-potatoes",
+      "name": "Loaded baked potatoes",
+      "tier": "core",
+      "featured": true,
+      "image": "category illustration",
+      "kitchenTested": false
+    },
+    {
+      "id": "chicken-quesadillas",
+      "name": "Chicken quesadillas",
+      "tier": "core",
+      "featured": true,
+      "image": "category illustration",
+      "kitchenTested": false
+    },
+    {
+      "id": "mac-cheese-peas",
+      "name": "Mac & cheese with peas",
+      "tier": "core",
+      "featured": true,
+      "image": "category illustration",
+      "kitchenTested": false
+    },
+    {
+      "id": "pepperoni-pizza",
+      "name": "Pepperoni pizza",
+      "tier": "core",
+      "featured": true,
+      "image": "category illustration",
+      "kitchenTested": false
+    }
+  ],
+  "featuredMissing": [],
+  "coreMissing": []
+}

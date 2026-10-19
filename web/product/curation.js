@@ -28,7 +28,7 @@ export function connection(meal,show,actualIngredients){
 export function curate({mode,sourceId,prefs,memory={},titles=[],members=[],pantry=[],dinnerAdapted=undefined,connectionMode='Mood',fullCatalog=false}){
  const pool=distinctShows([...shows.filter(s=>s.source),...titles]);
  const out=[];for(const show of pool){if(mode==='watch'&&titleKey(show)!==titleKey(sourceId))continue;if(show.minutes>prefs.watchTime||(prefs.format!=='Any'&&show.kind!==prefs.format)||(prefs.family&&!show.family))continue;
- for(const meal of meals){if(!fullCatalog&&mode!=='meal'&&!meal.featuredRecipe&&meal.catalogTier!=='core')continue;if(mode==='meal'&&meal.id!==sourceId)continue;if(meal.minutes>prefs.cookTime||!dietFits(meal,prefs.diet)||(prefs.effort==='Easy'&&meal.effort!=='Easy'))continue;
+ for(const meal of meals){if(!fullCatalog&&mode!=='meal'&&!meal.featuredRecipe&&meal.catalogTier!=='core')continue;if(mode==='meal'&&meal.id!==sourceId)continue;if((prefs.eveningMinutes>0&&meal.minutes+25+show.minutes>prefs.eveningMinutes)||meal.minutes>prefs.cookTime||!dietFits(meal,prefs.diet)||(prefs.effort==='Easy'&&meal.effort!=='Easy'))continue;
  if(members.some(m=>(m.vetoes||[]).includes(meal.id+':'+show.id)||(m.vetoTitle&&show.name.toLowerCase().includes(m.vetoTitle.toLowerCase()))))continue;
  const adapted=dinnerAdapted===undefined?suggestedAdaptation(meal,{...prefs,diet:members.some(m=>m.diet==='Plant-based')?'Plant-based':prefs.diet},memory):dinnerAdapted;
  const mealIngredients=ingredients(meal,prefs.people,adapted);

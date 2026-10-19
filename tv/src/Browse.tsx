@@ -41,7 +41,7 @@ export function EveningCard({pair,watchArt,onChoose,onFocus,focusKey,titleOnly=f
    <LinearGradient pointerEvents="none" colors={['transparent','#090E18B0']} style={StyleSheet.absoluteFill}/>
    {!titleOnly&&!!mealPhotos[pair.meal.mainMealId||pair.meal.id]&&<View style={{position:'absolute',right:14,bottom:14,width:'52%',aspectRatio:1.4,borderRadius:14,borderWidth:2,borderColor:'#E9D5BE',overflow:'hidden',backgroundColor:'#101827'}}><RecipeArt meal={pair.meal} resizeMode="cover" style={{width:'100%',height:'100%'}}/></View>}
   </View>
-  <View style={{padding:20,backgroundColor:'#121B29',gap:10,minHeight:190}}><Text numberOfLines={2} style={{color:'#FFF8F0',fontSize:28,lineHeight:36,fontWeight:'800'}}>{pair.show.name}</Text>{!titleOnly&&<Text numberOfLines={2} style={{color:'#FFD8BC',fontSize:24,lineHeight:32}}>{pair.meal.name}</Text>}<Text style={{color:'#BECBDC',fontSize:22,lineHeight:30}}>{!titleOnly?pair.meal.minutes+' min cook · ':''}{pair.show.minutes} min watch</Text>{!titleOnly&&<WatchBites meal={pair.meal} compact/>}</View>
+  <View style={{padding:20,backgroundColor:'#121B29',gap:10,minHeight:190}}><Text numberOfLines={2} style={{color:'#FFF8F0',fontSize:28,lineHeight:36,fontWeight:'800'}}>{pair.show.name}</Text>{!titleOnly&&<Text numberOfLines={2} style={{color:'#FFD8BC',fontSize:24,lineHeight:32}}>{pair.meal.shortName||pair.meal.name}</Text>}<Text style={{color:'#BECBDC',fontSize:22,lineHeight:30}}>{!titleOnly?pair.meal.minutes+' min cook · ':''}{pair.show.minutes} min watch</Text>{!titleOnly&&<WatchBites meal={pair.meal} compact/>}</View>
  </Button>;
 }
 export function Discover({house,prefs,options,watchArt,onChoose,onDetails,onPreferences,onSearch,onOpenNight,onGroup,onKitchen,onPantry,onSurprise,onReplay,onFeature}:any){

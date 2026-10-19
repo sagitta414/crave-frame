@@ -28,6 +28,7 @@ export function aiPreferences(input={},base=defaults){
  for(const [k,values] of Object.entries({energy:energyLevels,viewingStyle:viewingStyles,cookLevel:['Beginner','Regular','Confident'],mood:moods,diet:foodPreferences,effort:['Any','Easy'],format:['Any','Movie','TV episode'],pairingStyle:['Atmosphere','Cuisine inspiration','Practical']}))if(values.includes(input[k]))p[k]=input[k];
  if(Number.isInteger(input.people)&&input.people>=1&&input.people<=8)p.people=input.people;
  p.cookTime=floor(input.cookTime,[15,30,45,60],p.cookTime);p.watchTime=floor(input.watchTime,[30,45,90,120,180,240,360,600],p.watchTime);
+ if([0,60,90,120,180,240,360].includes(input.eveningMinutes))p.eveningMinutes=input.eveningMinutes;
  if(typeof input.specialTouch==='boolean')p.specialTouch=input.specialTouch;
  if(typeof input.family==='boolean')p.family=input.family;p.catalog='Real titles';return p;
 }
@@ -47,7 +48,7 @@ export function eligiblePairs(house,prefs,{mealId,showId,mealQuery='',avoid=[],f
  const screenSource=showId?(()=>{const match=allShows.find(s=>titleKey(s)===titleKey(showId));return match?[{...match,id:showId}]:[];})():allShows;
  const screen=screenSource.filter(s=>titleKey(s)!==titleKey(excludeShowId)&&(!surprise||(!(house.memory?.watched||[]).map(titleKey).includes(titleKey(s))&&!(house.nights||[]).some(n=>titleKey(n.showId)===titleKey(s))))&&(s.source||s.custom)&&s.minutes<=prefs.watchTime&&(!prefs.family||s.family)&&(prefs.format==='Any'||prefs.format===s.kind));
  screen.sort((a,b)=>(b.mood===prefs.mood)-(a.mood===prefs.mood)+(house.memory?.shorter?Number(b.minutes<=45)-Number(a.minutes<=45):0));
- return selected.flatMap(meal=>screen.slice(0,12).map(show=>({meal,show,adapted:adaptedFor(meal),id:meal.id+'|'+show.id})));
+ return selected.flatMap(meal=>screen.slice(0,12).map(show=>({meal,show,adapted:adaptedFor(meal),id:meal.id+'|'+show.id}))).filter(p=>!prefs.eveningMinutes||p.meal.minutes+25+p.show.minutes<=prefs.eveningMinutes);
 }
 export function validatePicks(output,pairs,options={}){
  const candidates=[],seen=new Set();
@@ -152,7 +153,7 @@ export async function aiRequest(request,env,house,id,revision){
   }
   if(!showId){titleChoices=d.results.slice(0,6);return {mode:'plan',prefs,picks:[],titleChoices,answer:'Choose the edition you mean'+(titleChoices.some(s=>s.type==='tv')?' and the episode if it is a series':'')+'. I will use its listed runtime for the pairing.'};}
  }
- let pairs=discoveryCandidates(eligiblePairs(house,threeAct?{...prefs,cookTime:prefs.cookTime-10}:prefs,{showId,mealId,mealQuery:text(intent.mealQuery),avoid,allowRecent:b.allowRecent===true,familiarOnly:b.refinement==='familiar',avoidCuisine:b.refinement==='cuisine'?text(b.avoidCuisine,80):'',surprise:b.surprise===true,excludeShowId:text(b.excludeShowId,160),dinnerAdapted:typeof b.dinnerAdapted==='boolean'?b.dinnerAdapted:undefined}),house,{surprise:b.surprise===true,excludeShowId:text(b.excludeShowId,160),seed:text(b.seed,64)});
+ let pairs=discoveryCandidates(eligiblePairs(house,threeAct?{...prefs,cookTime:prefs.cookTime-10,eveningMinutes:prefs.eveningMinutes?Math.max(1,prefs.eveningMinutes-10):0}:prefs,{showId,mealId,mealQuery:text(intent.mealQuery),avoid,allowRecent:b.allowRecent===true,familiarOnly:b.refinement==='familiar',avoidCuisine:b.refinement==='cuisine'?text(b.avoidCuisine,80):'',surprise:b.surprise===true,excludeShowId:text(b.excludeShowId,160),dinnerAdapted:typeof b.dinnerAdapted==='boolean'?b.dinnerAdapted:undefined}),house,{surprise:b.surprise===true,excludeShowId:text(b.excludeShowId,160),seed:text(b.seed,64)});
  const opts=house.options||{};if(opts.connectionMode&&opts.connectionMode!=="Mood")pairs=pairs.filter(p=>connection(p.meal,p.show).kind===opts.connectionMode);
  if(opts.services?.length){const allowed=new Set();const titles=[...new Map(pairs.map(p=>[p.show.id,p.show])).values()];await Promise.all(titles.map(async show=>{const a=await availability(env,show,opts.region);if(a.subscription.some(s=>opts.services.includes(s.id)))allowed.add(show.id);}));pairs=pairs.filter(p=>allowed.has(p.show.id));}
  const timeAlternative=!threeAct&&showId&&(!opts.connectionMode||opts.connectionMode==='Mood'||opts.connectionMode==='On-screen food')?storyTimeAlternative(house,prefs,showId,{avoid,allowRecent:b.allowRecent===true,familiarOnly:b.refinement==='familiar',avoidCuisine:b.refinement==='cuisine'?text(b.avoidCuisine,80):'',dinnerAdapted:typeof b.dinnerAdapted==='boolean'?b.dinnerAdapted:undefined}):null;

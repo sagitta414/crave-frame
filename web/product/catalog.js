@@ -44,7 +44,7 @@ shows.push(
 const plainMeal=id=>meals.find(x=>x.id===id)||proteinVariations.find(x=>x.id===id);
 export const mealById=id=>plainMeal(id)||resolveThreeAct(id,plainMeal)||resolveTwoAppetites(id,plainMeal)||undefined;
 export const showById=id=>shows.find(x=>titleKey(x)===titleKey(id));
-export const defaults={people:2,cookLevel:'Regular',mood:'Cozy',watchTime:120,cookTime:30,effort:'Any',diet:'No preference',family:false,format:'Any',catalog:'Real titles',pairingStyle:'Atmosphere',energy:'Any',viewingStyle:'Any',specialTouch:false};
+export const defaults={people:2,cookLevel:'Regular',mood:'Cozy',watchTime:120,cookTime:30,effort:'Any',diet:'No preference',family:false,format:'Any',catalog:'Real titles',pairingStyle:'Atmosphere',energy:'Any',viewingStyle:'Any',specialTouch:false,eveningMinutes:0};
 
 shows.push({id:'avengers',name:'The Avengers',kind:'Movie',minutes:143,mood:'Adventure',genre:'Superhero action',scene:'lake',family:false,description:'Earth’s heroes assemble to defend New York. A full-length action night after a relaxed sharing supper.',tags:['Teamwork','Action'],pairing:'Sharing tacos fit the ensemble spirit.',source:'https://www.themoviedb.org/movie/24428',rating:'Not verified',releaseYear:'2012',posterPath:'/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg',provider:{type:'movie',id:24428}});
 export function registerShows(items=[]){for(const original of items){if(!original)continue;const item=canonicalShow(original);const index=shows.findIndex(s=>titleKey(s)===item.id);if(index<0)shows.push(item);else if(item.provider)shows[index]=item;}}

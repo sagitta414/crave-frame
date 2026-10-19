@@ -6,7 +6,7 @@
 
 Crave Frame helps a household answer “what should we eat?” and “what should we watch?” as one evening. Start with a movie, TV episode, or meal, compare explained pairings, approve a dinner, and carry the recipe from the television to a phone. When plans change, preview a revised schedule or replacement dinner before applying it.
 
-[Live TV/web demo](https://screen-to-supper-storyboard.sagitta107.chatgpt.site/tv/) · [Architecture](docs/ARCHITECTURE.md) · [Setup](docs/SETUP.md) · [Demo guide](docs/DEMO.md) · [Testing](docs/TESTING.md)
+[AWS TV/web demo](https://dcp5jtiiw3gji.cloudfront.net/tv/) · [Legacy demo](https://screen-to-supper-storyboard.sagitta107.chatgpt.site/tv/) · [Architecture](docs/ARCHITECTURE.md) · [Setup](docs/SETUP.md) · [Demo guide](docs/DEMO.md) · [Testing](docs/TESTING.md)
 
 > Hackathon prototype, not a streaming service or delivery marketplace. Crave Frame does not play films, place food orders, or connect to Alexa. The live deployment and this public source snapshot differ in bundled promotional artwork; see [asset provenance](docs/ASSETS.md).
 
@@ -18,6 +18,8 @@ Crave Frame helps a household answer “what should we eat?” and “what shoul
 4. **Approve your evening.** Review ingredients and adaptations before saving. Choose cooking or an external order-out handoff.
 5. **Adapt and cook.** “I’m delayed” previews the changed schedule. A scoped QR link moves cooking steps to a phone and synchronizes progress.
 6. **Remember what worked.** Explicit feedback informs future recommendations and organizes loved evenings.
+
+The latest feature and content improvements, remaining validation gaps, and reproduction steps are recorded in [Feature review implementation](docs/FEATURE-REVIEW-IMPLEMENTATION.md).
 
 ## Features
 
@@ -52,7 +54,11 @@ The initial build exports the editable Expo app and assembles the Worker-compati
 
 **Without credentials:** catalog planning, recipes, and local persistence work. Live AI and TMDB search require your own credentials; AI failure is reported rather than silently represented as an AI match. See [configuration and native setup](docs/SETUP.md).
 
-## Architecture at a glance
+## Runtime architecture
+
+The AWS demo and the legacy deployment are separate environments. The diagram below describes the retained Cloudflare runtime; the AWS adapter and infrastructure design are documented in [AWS deployment](docs/AWS-DEPLOYMENT.md). A source change is not evidence that either live site has been updated.
+
+### Retained Cloudflare runtime
 
 ~~~mermaid
 flowchart LR
@@ -71,7 +77,7 @@ flowchart LR
 
 Full component, AI request, trust-boundary, and data-model diagrams are in [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Parallel AWS environment
+## AWS environment
 
 The `aws/` directory provides CDK infrastructure, a PostgreSQL/S3 Lambda adapter,
 checksummed database migrations with snapshot gating, and post-deploy smoke tests

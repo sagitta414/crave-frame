@@ -1,3 +1,5 @@
+import {parentState} from './parental.js';
+import {aiCapabilities} from './ai-capabilities.js';
 import {ingredientKey} from '../product/ingredients.js';
 import {mealById} from '../product/catalog.js';
 import {ingredients} from '../product/engine.js';
@@ -13,10 +15,11 @@ function section(name){const n=normalize(name);if(/chicken|beef|pork|turkey|salm
 function shopping(n,house){const meal=mealById(n.mealId),items=ingredients(meal,n.prefs.people,n.adapted).map(i=>({...i,section:section(i.name),pantryListed:(house.pantry||[]).some(p=>ingredientKey(p)===ingredientKey(i.name))}));const signature=JSON.stringify([n.mealId,n.prefs.people,n.adapted,items.map(i=>[i.name,i.amount,i.unit])]);const saved=n.shopping?.signature===signature?n.shopping:null;return {kind:'shopping',meal:meal.name,show:n.show?.name,people:n.prefs.people,mealId:n.mealId,adapted:n.adapted,signature,items,revision:n.shopping?.revision||0,approved:!!saved,enough:saved?.enough||[],missing:saved?items.filter(i=>!saved.enough.includes(i.name)):null};}
 
 export async function createCompanion(env,id,row,b){
- if(!['pantry','shopping','order'].includes(b.kind))fail('Choose a phone handoff.');
+ if(!['pantry','shopping','order','search'].includes(b.kind))fail('Choose a phone handoff.');
  if(b.kind==='shopping'&&!row.data.nights.some(n=>n.id===b.nightId))fail('Save this evening first.',404);
  let changed=false,session;
- if(b.kind==='pantry')session='pantry:'+crypto.randomUUID();
+ if(b.kind==='search'){session='search:'+crypto.randomUUID();row.data.searchHandoffs=[{session,query:null,createdAt:Date.now()},...(row.data.searchHandoffs||[]).filter(x=>x.createdAt>Date.now()-3600000)].slice(0,5);changed=true;}
+ else if(b.kind==='pantry')session='pantry:'+crypto.randomUUID();
  else if(b.kind==='shopping')session='shopping:'+b.nightId;
  else{
   const d=b.draft||{},meal=mealById(d.mealId),show=d.showId&&(d.show||row.data.titles?.find(s=>s.id===d.showId)||row.data.nights.find(n=>n.showId===d.showId)?.show);
@@ -25,7 +28,7 @@ export async function createCompanion(env,id,row,b){
   const entry={session,nightId:typeof b.nightId==='string'?b.nightId:null,mealId:meal.id,mealName:meal.name,showId:d.showId,showName:String(show.name||'Your watch').slice(0,160),people:brief.people,diet:brief.diet,budget:brief.budget,strategies:brief.strategies,selectedStrategy:strategy,preferredProvider:row.data.orderPreferences?.provider||'',createdAt:Date.now(),confirmation:null};
   row.data.orderHandoffs=[entry,...(row.data.orderHandoffs||[]).filter(x=>x.createdAt>Date.now()-86400000)].slice(0,5);changed=true;
  }
- const key=token(),expires=Date.now()+(b.kind==='pantry'?3600000:b.kind==='order'?2*3600000:7*86400000);
+ const key=token(),expires=Date.now()+(['pantry','search'].includes(b.kind)?3600000:b.kind==='order'?2*3600000:7*86400000);
  await env.DB.prepare('DELETE FROM shares WHERE household=? AND expires<?').bind(id,Date.now()).run();
  await env.DB.prepare('INSERT INTO shares(id,household,night,expires) VALUES(?,?,?,?)').bind(await digest(key),id,session,expires).run();
  return {key,session,expires,kind:b.kind,changed};
@@ -35,10 +38,20 @@ export async function publicCompanion(req,env,{getHouse,saveHouse}){
  const u=new URL(req.url),a=u.pathname.split('/').filter(Boolean),key=a[2];
  if(!/^[a-f0-9]{64}$/.test(key||''))fail('This phone link is invalid.',404);
  const share=await env.DB.prepare('SELECT household,night,expires FROM shares WHERE id=?').bind(await digest(key)).first();
- if(!share||share.expires<Date.now()||!/^pantry:|^shopping:|^order:/.test(share.night))fail('This link expired. Create another on the TV.',404);
+ if(!share||share.expires<Date.now()||! /^(pantry:|shopping:|order:|search:)/.test(share.night))fail('This link expired. Create another on the TV.',404);
  const row=await getHouse(env.DB,share.household),house=row.data;
+ if(share.night.startsWith('search:')){
+  if((await parentState(env.DB,share.household))?.enabled)fail('Ask a parent to unlock search on the TV.',403);
+  const handoff=(house.searchHandoffs||[]).find(x=>x.session===share.night);if(!handoff)fail('Create a new search link on the TV.',404);
+  if(req.method==='GET')return reply({kind:'search',query:handoff.query,expires:share.expires});
+  if(req.method!=='POST'||a[3]!=='confirm')fail('Method not allowed.',405);
+  const raw=await req.text();if(raw.length>1000)fail('Search text is too long.',413);let b;try{b=JSON.parse(raw);}catch{fail('Invalid request.');}
+  if(typeof b.query!=='string'||!b.query.trim()||b.query.trim().length>80)fail('Enter a title using 1–80 characters.');
+  if(handoff.query!==null){if(handoff.query!==b.query.trim())fail('This search was sent already. Create another link on the TV.',409);return reply({kind:'search',query:handoff.query,sent:true});}
+  handoff.query=b.query.trim();await saveHouse(env.DB,share.household,row);return reply({kind:'search',query:handoff.query,sent:true});
+ }
  if(share.night.startsWith('pantry:')){
-  if(req.method==='GET')return reply({revision:await digest(JSON.stringify(house.pantry||[])),kind:'pantry',items:house.pantry||[],expires:share.expires,confirmed:house.pantryConfirmedSession===share.night});
+  if(req.method==='GET')return reply({revision:await digest(JSON.stringify(house.pantry||[])),kind:'pantry',aiEnabled:aiCapabilities(env).connected,items:house.pantry||[],expires:share.expires,confirmed:house.pantryConfirmedSession===share.night});
   if(req.method!=='POST')fail('Method not allowed.',405);
   const raw=await req.text();if(raw.length>1450000)fail('Choose a smaller photo.',413);let b;try{b=JSON.parse(raw);}catch{fail('Invalid request.');}
   if(a[3]==='identify')return reply(await aiRequest(new Request(req.url,{method:req.method,headers:req.headers,body:JSON.stringify({mode:'pantry',image:b.image})}),env,house,share.household,row.revision));
