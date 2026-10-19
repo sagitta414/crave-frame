@@ -109,6 +109,7 @@ export default function App(){
  const stop=()=>{done=true;},timer=setTimeout(stop,4000);window.addEventListener('pointerdown',stop);window.addEventListener('keydown',stop);window.addEventListener('wheel',stop);
  return()=>{cancelAnimationFrame(frame);clearTimeout(timer);observer.disconnect();window.removeEventListener('pointerdown',stop);window.removeEventListener('keydown',stop);window.removeEventListener('wheel',stop);};},[page,stack.length]);
  const [cookPreview,setCookPreview]=useState(false),[previewStep,setPreviewStep]=useState(0),[reviewRecipeOpen,setReviewRecipeOpen]=useState(false);
+ useEffect(()=>setPreviewStep(0),[night?.id,night?.mealId,night?.adapted,night?.prefs?.cookLevel]);
  const cookingWrite=useRef(0);
  const nav=(p:string)=>{if(Platform.OS==='web')pageOffsets.current[stack.length]=window.scrollY;restoreOffset.current=null;setError('');setStack(v=>[...v,p]);};
  const root=(p:string)=>{restoreOffset.current=null;pageOffsets.current={};setError('');setStack([p]);};
@@ -127,7 +128,7 @@ export default function App(){
   if(!night||!['night','cook'].includes(page))return;
   const sync=createEveningSync({
    read:()=>cookKey?publicApi('shared/'+cookKey+'/connect','POST',{}):api('nights/'+night.id),
-   apply:(n:any)=>{setNight(n);setSyncError('');},
+   apply:(n:any)=>{setNight(n);if(n.status!=='planned')setCookPreview(false);setSyncError('');},
    onError:()=>setSyncError('Connection interrupted. Retrying; your saved progress is safe.'),
    version:()=>cookingWrite.current,blocked:()=>requestLock.current
   });

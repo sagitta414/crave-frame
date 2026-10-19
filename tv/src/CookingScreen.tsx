@@ -12,7 +12,8 @@ import {ingredients,recipeSteps} from './catalog/engine';
 import {mealById} from './catalog/catalog';
 import {cookingProgress} from './cooking-state';
 export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onStart,onUpdate,onBack,onHelp,tick,busy,syncError,helpRequest=0}:any){
- const {width}=useWindowDimensions(),small=width<900,[details,setDetails]=useState(false),m=mealById(night.mealId),steps=recipeSteps(m,night.adapted,night.prefs.cookLevel||'Regular',night.prefs.people),index=preview?previewStep:night.step,step=steps[index],ready=['ready','complete'].includes(night.status),progress=cookingProgress(night,steps.length,preview),left=Math.max(0,Math.ceil(((night.timer||0)-tick)/1000));
+ preview=!!preview&&night.status==='planned';
+ const {width}=useWindowDimensions(),small=width<900,[details,setDetails]=useState(false),m=mealById(night.mealId),steps=recipeSteps(m,night.adapted,night.prefs.cookLevel||'Regular',night.prefs.people),index=Math.max(0,Math.min(steps.length-1,Number.isInteger(preview?previewStep:night.step)?(preview?previewStep:night.step):0)),step=steps[index],ready=['ready','complete'].includes(night.status),progress=cookingProgress(night,steps.length,preview),left=Math.max(0,Math.ceil(((night.timer||0)-tick)/1000));
  const scroll=useRef<ScrollView>(null);
  useEffect(()=>{if(ready&&!preview)scroll.current?.scrollTo({y:0,animated:false});},[night.id,ready,preview]);
  const [showCoaching,setShowCoaching]=useState(false),[checked,setChecked]=useState(false);

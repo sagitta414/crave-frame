@@ -15,21 +15,25 @@ test('recipe help opens ingredients and coaching, and can reopen after closing',
  const modules={'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'ScrollView',View:'View',StyleSheet:{create:x=>x},useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./DinnerReady':{DinnerReady:'DinnerReady'},'./DeliveryCompanion':{DeliveryCompanion:'Delivery'},'./CookingChecklist':{CookingChecklist:'Checklist'},'./RecipeArt':{RecipeArt:'Art'},'./catalog/engine':{ingredients,recipeSteps},'./catalog/catalog':{mealById},'./cooking-copy':{cookingCopy},'./cooking-state':{cookingProgress}};
  const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/CookingScreen.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>{assert.ok(modules[id],id);return modules[id];}});
  const night={mealId:'pepper-pasta',prefs:{...defaults,cookLevel:'Beginner'},step:0,status:'cooking',adapted:false};
- const render=(request,preview=false)=>{cursor=0;effectCursor=0;const tree=exports.CookingScreen({night,tick:Date.now(),helpRequest:request,preview,previewStep:0});while(effects.length)effects.shift()();return tree;};
+ const render=(request,preview=false,previewStep=0)=>{cursor=0;effectCursor=0;const tree=exports.CookingScreen({night,tick:Date.now(),helpRequest:request,preview,previewStep});while(effects.length)effects.shift()();return tree;};
  const buttons=tree=>{if(!tree||typeof tree!=='object')return [];if(Array.isArray(tree))return tree.flatMap(buttons);return [...(tree.type==='Button'?[tree]:[]),...buttons(tree.props?.children)];};
  render(0);assert.equal(states[0],false);
  render(1);assert.equal(states[0],true);assert.equal(states[1],true);
  const close=buttons(render(1)).find(b=>b.props.children==='Hide ingredients');assert.ok(close);close.props.onPress();assert.equal(states[0],false);
  render(2);assert.equal(states[0],true);assert.equal(states[1],true);
  const find=(tree,type)=>!tree||typeof tree!=='object'?null:Array.isArray(tree)?tree.map(x=>find(x,type)).find(Boolean):tree.type===type?tree:find(tree.props?.children,type);
+ night.status='planned';
  const preview=render(2,true);assert.equal(buttons(preview).find(b=>b.props.children==='Start cooking').props.disabled,true);
  find(preview,'Checklist').props.onReady(true);assert.equal(buttons(render(2,true)).find(b=>b.props.children==='Start cooking').props.disabled,false);
  night.prefs={...night.prefs,cookLevel:'Confident'};render(2,true);
  assert.equal(buttons(render(2,true)).find(b=>b.props.children==='Start cooking').props.disabled,true,'a changed guidance level requires preparation review');
  night.status='ready';
  assert.ok(find(render(2),'DinnerReady'),'completion shows the saved-viewing celebration');
- assert.ok(!find(render(2,true),'DinnerReady'),'a recipe preview must never celebrate completion');
+ assert.ok(find(render(2,true),'DinnerReady'),'remote completion overrides a stale preview flag');
+ assert.ok(!find(render(2,true),'Checklist'));
+ night.status='cooking';assert.ok(!find(render(2,true),'Checklist'),'remote cooking start exits preview');
  for(const status of ['ready','complete']){night.status=status;for(let i=0;i<mealById(night.mealId).steps.length;i++){night.step=i;const labels=buttons(render(2)).map(b=>b.props.children);assert.ok(!labels.some(label=>['Start timer','Stop timer','← Previous','Next step →','Dinner is ready ✓'].includes(label)));}}
+ night.status='planned';night.mealId='chicken-couscous-bowls';assert.doesNotThrow(()=>render(2,true,4));night.mealId='story-ratatouille';assert.doesNotThrow(()=>render(2,true,4),'shorter replacement recipe clamps the previous step');assert.doesNotThrow(()=>render(2,true,-1));
  night.status='planned';night.fulfillment='delivery';assert.ok(find(render(2,true),'Delivery'),'delivery never exposes recipe preview or cooking controls');
  assert.equal(buttons(render(2,true)).length,0);
 });

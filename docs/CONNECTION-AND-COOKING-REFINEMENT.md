@@ -46,3 +46,10 @@ These are local feature-branch changes, not a deployment. Physical Fire TV, Silk
 - The TV cooking screen used by `/tv/?cook=…` now selects a delivery companion for delivery evenings, even when boot initialized recipe-preview mode. It shows the shared projected dinner/viewing times, the entered-estimate disclosure, and sync errors. It exposes no cooking mutations or household-only actions on the phone.
 - Ready and completed TV/phone recipes hide step navigation and timers. Explicit recipe previews retain their independent navigation.
 - Validation: 155 web tests and 43 TV tests passed, plus TypeScript, scrolling regressions, production build, and configured secret-pattern scan. Added tests reproduce overlapping navigation and render the delivery companion; completed-state controls are checked across every recipe step. Physical TV/phone testing remains outstanding. Changes remain local to the feature branch.
+
+## Late saves and synchronized recipe previews
+
+- Browser cooking writes capture the target evening, URL, and navigation generation. The save still reaches its intended evening, but its response cannot replace a newly selected view or a newer load of the same evening. Completion messages are suppressed when that view is no longer current.
+- TV/phone sync clears preview mode once cooking is active or finished. The cooking component also derives preview eligibility from the current planned status, preventing stale preview state from hiding completion.
+- Preview position resets when the evening, recipe, adaptation, or cooking level changes. Rendering clamps step indices immediately, before effects run, so replacing a five-step recipe with a four-step recipe cannot crash the screen.
+- Validation: 158 web tests and 43 TV tests passed, plus TypeScript, remote-scrolling regressions, production build, and configured secret-pattern scan. Regression coverage includes late saves after navigation, same-route reloads, ordinary saves, remote cooking/completion transitions, and shorter replacement recipes. No physical-device test or deployment was performed.
