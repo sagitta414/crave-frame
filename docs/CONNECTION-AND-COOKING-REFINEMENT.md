@@ -30,3 +30,12 @@ These are local feature-branch changes, not a deployment. Physical Fire TV, Silk
 - TV dish captions occupy their own strip instead of covering the bottom of the food image.
 - The browser now includes the existing TV grilled-cheese-and-soup illustration. Browser and TV image helpers resolve composed meals through their main recipe.
 - Validation: 149 web tests, 42 TV tests, TypeScript, remote-scrolling checks, production build, and configured secret-pattern scan passed. New tests execute the browser cooking renderer for active, planned, completed, and delivery states. Visual changes still require device inspection.
+
+## Server transition and retry follow-up
+
+- Household and shared-phone API routes reject cooking mutations for delivery evenings and reject step/timer mutations after cooking is finished (409 with refresh guidance).
+- Repeating completion preserves readyAt and completed feedback status. Repeating viewing-start preserves watchStarted. Repeating the active step preserves its running timer and progress timestamp.
+- Browser saved-evening and collection copy distinguish delivery estimates from cooking time; phone sharing uses evening-plan wording for delivery.
+- Missing recipe artwork uses a clearly labeled neutral placeholder, not an unrelated category food photo. This does not fill the outstanding illustration gaps.
+- Further inspection found TV cooking-level changes did not invalidate readiness. Both checklist identity and parent readiness now include the guidance level.
+- Validation: 151 web tests and 42 TV tests passed, plus TypeScript, remote-scrolling checks, production build, and configured secret-pattern scan. API regressions exercise household and shared-phone routes, including stale requests after completion and delivery. No live deployment or physical-device test was performed.

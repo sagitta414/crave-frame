@@ -24,6 +24,8 @@ test('recipe help opens ingredients and coaching, and can reopen after closing',
  const find=(tree,type)=>!tree||typeof tree!=='object'?null:Array.isArray(tree)?tree.map(x=>find(x,type)).find(Boolean):tree.type===type?tree:find(tree.props?.children,type);
  const preview=render(2,true);assert.equal(buttons(preview).find(b=>b.props.children==='Start cooking').props.disabled,true);
  find(preview,'Checklist').props.onReady(true);assert.equal(buttons(render(2,true)).find(b=>b.props.children==='Start cooking').props.disabled,false);
+ night.prefs={...night.prefs,cookLevel:'Confident'};render(2,true);
+ assert.equal(buttons(render(2,true)).find(b=>b.props.children==='Start cooking').props.disabled,true,'a changed guidance level requires preparation review');
  night.status='ready';
  assert.ok(find(render(2),'DinnerReady'),'completion shows the saved-viewing celebration');
  assert.ok(!find(render(2,true),'DinnerReady'),'a recipe preview must never celebrate completion');

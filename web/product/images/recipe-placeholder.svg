@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520" role="img" aria-label="Recipe image not available">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#263b50"/><stop offset="1" stop-color="#101b2a"/></linearGradient></defs>
+<rect width="800" height="520" fill="url(#bg)"/>
+<circle cx="400" cy="210" r="78" fill="none" stroke="#dabd9c" stroke-width="5"/>
+<circle cx="400" cy="210" r="57" fill="none" stroke="#dabd9c" stroke-width="3"/>
+<text x="400" y="355" fill="#eff3f8" font-family="sans-serif" font-size="32" text-anchor="middle">Recipe image not available</text>
+<text x="400" y="400" fill="#c4d1df" font-family="sans-serif" font-size="24" text-anchor="middle">See ingredients and cooking steps</text>
+</svg>
