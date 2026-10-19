@@ -31,3 +31,12 @@ Build verification: Expo TV web export passed. The web production build passed w
 - TV Recipe help opens the actual cooking component's ingredient and coaching panels, including repeated requests after closing the panel. A component hook/render regression exercises this behavior.
 
 Validation: `npm test` passed 129 web tests, 38 TV tests, TypeScript and remote scrolling checks. `npm run build`, `npm run check:secrets` and `git diff --check` passed. Production build required elevated filesystem access for dependency/ancestor reads. Browser hardware navigation and physical Fire TV checks remain outstanding. Changes remain local, not pushed or deployed.
+
+## Delivery retry recovery
+
+- Phone confirmations receive a stable confirmation ID. Creation and conversion save a household-scoped confirmation key; retries return the existing evening without changing arrival or duplicating a saved night. Legacy confirmations use provider plus placement timestamp. Replays after an intentional ETA edit preserve the newer ETA.
+- Explicit ETA editing sends `updateEta: true`, preserving its minutes-from-now semantics and the saved confirmation identity.
+- Order polling awaits a positive persistence result before stopping. Failed reads, rejected saves and busy/blocked saves retry; requests do not overlap. Closing or replacing a handoff cancels polling and discards an outstanding read.
+- Both create-evening and convert-evening callbacks return success only after their save flow succeeds. The poller uses the latest callback rather than a stale render closure.
+
+Verification: 130 web tests and 41 TV tests passed, including retry-after-lost-response, duplicate creation, conversion retries, legacy confirmations, late replay after ETA edits, blocked/failed saves, close-during-read and non-overlapping save tests. TypeScript, scrolling checks, production build, credential scan and diff whitespace checks passed. No push or deployment; physical device testing remains outstanding.

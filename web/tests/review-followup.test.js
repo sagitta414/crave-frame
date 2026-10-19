@@ -51,7 +51,7 @@ test('delivery confirmation uses placement time, but updated ETA starts from now
   const placedAt=Date.now()-10*60000,input={mealId:meal.id,showId:show.id,prefs:defaults,adapted:false,fulfillment:'delivery',orderOut:{etaMinutes:35,provider:'doordash',placedAt}};
   const created=await call('nights','POST',input);assert.equal(created.status,201);
   assert.equal(created.data.orderPlan.arrivalAt,placedAt+35*60000);
-  const now=Date.now(),updated=await call('nights/'+created.data.id,'PATCH',{orderOut:{...input.orderOut,etaMinutes:20}});
+  const now=Date.now(),updated=await call('nights/'+created.data.id,'PATCH',{orderOut:{...input.orderOut,etaMinutes:20,updateEta:true}});
   assert.equal(updated.status,200);assert.equal(updated.data.orderPlan.placedAt,placedAt);
   assert.ok(updated.data.orderPlan.arrivalAt>=now+20*60000);
   const cooked=await call('nights','POST',{...input,fulfillment:'cook',confirmed:ingredients(meal,defaults.people,false).map(i=>i.name)});
@@ -73,4 +73,25 @@ test('shared cooking reads and writes expose current non-sensitive capabilities'
    }
   }finally{DB.close();}
  }
+});
+
+test('order confirmations are idempotent for creation and conversion, including after an ETA update',async()=>{
+ const DB=openDb(),env={DB,AI_PROVIDER:'catalog'};let key='';const originalNow=Date.now;let now=originalNow();Date.now=()=>now;
+ const call=async(path,method,body)=>{const r=await api(new Request('https://test/api/'+path,{method,headers:{'x-household-key':key},...(body?{body:JSON.stringify(body)}:{})}),env);assert.ok(r.ok,await r.clone().text());return r.json();};
+ try{
+  key=(await call('household','POST')).key;
+  for(const useId of [false,true])for(const create of [false,true]){
+   const order={etaMinutes:35,provider:'doordash',placedAt:now,...(useId?{confirmationId:crypto.randomUUID()}:{})};
+   const input={mealId:meal.id,showId:show.id,prefs:defaults,adapted:false,confirmed:ingredients(meal,defaults.people,false).map(i=>i.name),...(create?{fulfillment:'delivery',orderOut:order}:{})};
+   let first=await call('nights','POST',input);if(!create)first=await call('nights/'+first.id,'PATCH',{orderOut:order});
+   now+=10*60000;
+   const retry=create?await call('nights','POST',input):await call('nights/'+first.id,'PATCH',{orderOut:order});
+   assert.equal(retry.id,first.id);assert.deepEqual(retry.orderPlan,first.orderPlan);
+   const updated=await call('nights/'+first.id,'PATCH',{orderOut:{...order,etaMinutes:20,updateEta:true}});
+   assert.equal(updated.orderPlan.arrivalAt,now+20*60000);
+   now+=5*60000;
+   const late=await call('nights/'+first.id,'PATCH',{orderOut:order});assert.deepEqual(late.orderPlan,updated.orderPlan);
+  }
+  assert.equal((await call('household','GET')).nights.length,4);
+ }finally{Date.now=originalNow;DB.close();}
 });

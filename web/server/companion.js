@@ -56,7 +56,7 @@ export async function publicCompanion(req,env,{getHouse,saveHouse}){
   const raw=await req.text();if(raw.length>5000)fail('Request too large.',413);let b;try{b=JSON.parse(raw);}catch{fail('Invalid request.');}
   const strategy=handoff.strategies.find(x=>x.id===b.strategy),provider=b.provider,etaMinutes=Number(b.etaMinutes);
   if(!strategy)fail('Choose an ordering strategy.');if(!['doordash','ubereats'].includes(provider))fail('Choose DoorDash or Uber Eats.');if(!Number.isInteger(etaMinutes)||etaMinutes<15||etaMinutes>120)fail('Enter the provider estimate from 15 to 120 minutes.');if(handoff.confirmation)return reply(view);
-  handoff.confirmation={provider,etaMinutes,strategy:strategy.id,query:strategy.query,budget:handoff.budget,placedAt:Date.now()};await saveHouse(env.DB,share.household,row);
+  handoff.confirmation={confirmationId:crypto.randomUUID(),provider,etaMinutes,strategy:strategy.id,query:strategy.query,budget:handoff.budget,placedAt:Date.now()};await saveHouse(env.DB,share.household,row);
   return reply({...view,selectedStrategy:strategy.id,confirmation:handoff.confirmation});
  }
  const n=house.nights.find(n=>n.id===share.night.slice('shopping:'.length));if(!n)fail('This evening was removed.',404);
