@@ -39,3 +39,10 @@ These are local feature-branch changes, not a deployment. Physical Fire TV, Silk
 - Missing recipe artwork uses a clearly labeled neutral placeholder, not an unrelated category food photo. This does not fill the outstanding illustration gaps.
 - Further inspection found TV cooking-level changes did not invalidate readiness. Both checklist identity and parent readiness now include the guidance level.
 - Validation: 151 web tests and 42 TV tests passed, plus TypeScript, remote-scrolling checks, production build, and configured secret-pattern scan. API regressions exercise household and shared-phone routes, including stale requests after completion and delivery. No live deployment or physical-device test was performed.
+
+## Navigation and actual phone-route follow-up
+
+- Browser route loading now checks both a request generation and the current URL before applying results, showing errors, or redirecting. Slow responses cannot overwrite a newer evening, including repeated loads of the same URL.
+- The TV cooking screen used by `/tv/?cook=…` now selects a delivery companion for delivery evenings, even when boot initialized recipe-preview mode. It shows the shared projected dinner/viewing times, the entered-estimate disclosure, and sync errors. It exposes no cooking mutations or household-only actions on the phone.
+- Ready and completed TV/phone recipes hide step navigation and timers. Explicit recipe previews retain their independent navigation.
+- Validation: 155 web tests and 43 TV tests passed, plus TypeScript, scrolling regressions, production build, and configured secret-pattern scan. Added tests reproduce overlapping navigation and render the delivery companion; completed-state controls are checked across every recipe step. Physical TV/phone testing remains outstanding. Changes remain local to the feature branch.

@@ -1,3 +1,4 @@
+import {DeliveryCompanion} from './DeliveryCompanion';
 import {DinnerReady} from './DinnerReady';
 import {CookingChecklist} from './CookingChecklist';
 import React,{useState,useEffect,useRef} from 'react';
@@ -18,6 +19,7 @@ export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onS
  useEffect(()=>setChecked(false),[night.id,night.mealId,night.prefs.people,night.adapted,night.prefs.cookLevel]);
  useEffect(()=>setShowCoaching(false),[night.id,index,preview]);
  useEffect(()=>{if(helpRequest){setDetails(true);setShowCoaching(true);}},[helpRequest]);
+ if(night.fulfillment==='delivery')return <DeliveryCompanion night={night} phone={phone} onBack={onBack} syncError={syncError}/>;
  const baseStep=recipeSteps(m,night.adapted,'Confident',night.prefs.people)[index];
  const copy=cookingCopy(step.instruction,baseStep.instruction);
  return <ScrollView ref={scroll} testID="main-scroll" contentContainerStyle={{padding:small?20:40,paddingBottom:90,gap:20,maxWidth:1200,width:'100%',alignSelf:'center'}}>
@@ -30,8 +32,8 @@ export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onS
  {preview&&<Text style={s.meta}>Previewing does not advance saved progress or start timers.</Text>}<Text style={[s.title,{fontSize:small?30:40}]}>{step.title}</Text><Text style={[s.body,{fontSize:small?20:28,lineHeight:small?32:41}]}>{copy.action}</Text>
  {copy.safety.map((tip:string)=><Text key={tip} style={s.body}>{tip}</Text>)}
  {!!copy.tips.length&&<><Button compact quiet selected={showCoaching} onPress={()=>setShowCoaching(!showCoaching)}>{showCoaching?'Hide extra guidance':'Show me how'}</Button>{showCoaching&&copy.tips.map((tip:string)=><Text key={tip} style={s.body}>{tip}</Text>)}</>}
- {!preview&&step.seconds>0&&<View style={s.timer}><Text style={s.kicker}>KITCHEN TIMER</Text><Text accessibilityLiveRegion="none" style={s.digits}>{night.timer?left?Math.floor(left/60)+':'+String(left%60).padStart(2,'0'):'Time’s up':Math.round(step.seconds/60)+' min'}</Text><Button compact disabled={busy} onPress={()=>onUpdate({timer:night.timer?null:Date.now()+step.seconds*1000})}>{night.timer?'Stop timer':'Start timer'}</Button></View>}
- <View style={s.row}><Button compact disabled={busy||index===0} onPress={()=>preview?onPreviewStep(index-1):onUpdate({step:index-1})}>← Previous</Button>{preview?<><Button compact disabled={index===steps.length-1} onPress={()=>onPreviewStep(index+1)}>Next preview →</Button><Button compact primary disabled={busy||!checked} onPress={onStart}>Start cooking</Button></>:index===steps.length-1?<Button compact primary={!ready} disabled={busy||ready} onPress={()=>onUpdate({complete:true})}>{ready?'Dinner marked ready ✓':'Dinner is ready ✓'}</Button>:<Button compact primary disabled={busy} onPress={()=>onUpdate({step:index+1})}>Next step →</Button>}</View>
+ {!preview&&!ready&&step.seconds>0&&<View style={s.timer}><Text style={s.kicker}>KITCHEN TIMER</Text><Text accessibilityLiveRegion="none" style={s.digits}>{night.timer?left?Math.floor(left/60)+':'+String(left%60).padStart(2,'0'):'Time’s up':Math.round(step.seconds/60)+' min'}</Text><Button compact disabled={busy} onPress={()=>onUpdate({timer:night.timer?null:Date.now()+step.seconds*1000})}>{night.timer?'Stop timer':'Start timer'}</Button></View>}
+ {(preview||!ready)&&<View style={s.row}><Button compact disabled={busy||index===0} onPress={()=>preview?onPreviewStep(index-1):onUpdate({step:index-1})}>← Previous</Button>{preview?<><Button compact disabled={index===steps.length-1} onPress={()=>onPreviewStep(index+1)}>Next preview →</Button><Button compact primary disabled={busy||!checked} onPress={onStart}>Start cooking</Button></>:index===steps.length-1?<Button compact primary={!ready} disabled={busy||ready} onPress={()=>onUpdate({complete:true})}>{ready?'Dinner marked ready ✓':'Dinner is ready ✓'}</Button>:<Button compact primary disabled={busy} onPress={()=>onUpdate({step:index+1})}>Next step →</Button>}</View>}
 
  {!!syncError&&<Text accessibilityLiveRegion="polite" style={s.warning}>{syncError}</Text>}
  <Button compact quiet selected={details} onPress={()=>setDetails(!details)}>{details?'Hide ingredients':'Ingredients & recipe details'}</Button>{details&&<View style={{gap:12}}>{ingredients(m,night.prefs.people,night.adapted).map((i:any)=><Text key={i.name+i.unit} style={s.body}>{i.amount} {i.unit} · {i.name}</Text>)}<Text style={s.meta}>Cooking times are estimates. Recipes have not yet been kitchen-tested.</Text></View>}{!phone&&<Button compact quiet onPress={onHelp}>Recipe help</Button>}

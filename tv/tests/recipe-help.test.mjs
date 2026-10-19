@@ -12,7 +12,7 @@ test('recipe help opens ingredients and coaching, and can reopen after closing',
  const states=[],effects=[],deps=[];let cursor=0,effectCursor=0;
  const React={useRef:initial=>({current:initial}),useState:initial=>{const i=cursor++;if(!(i in states))states[i]=initial;return [states[i],v=>states[i]=typeof v==='function'?v(states[i]):v];},useEffect:(fn,next)=>{const i=effectCursor++;if(!deps[i]||next.some((v,j)=>v!==deps[i][j]))effects.push(fn);deps[i]=next;}};
  const jsx=(type,props)=>({type,props});
- const modules={'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'ScrollView',View:'View',StyleSheet:{create:x=>x},useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./DinnerReady':{DinnerReady:'DinnerReady'},'./CookingChecklist':{CookingChecklist:'Checklist'},'./RecipeArt':{RecipeArt:'Art'},'./catalog/engine':{ingredients,recipeSteps},'./catalog/catalog':{mealById},'./cooking-copy':{cookingCopy},'./cooking-state':{cookingProgress}};
+ const modules={'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'ScrollView',View:'View',StyleSheet:{create:x=>x},useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./DinnerReady':{DinnerReady:'DinnerReady'},'./DeliveryCompanion':{DeliveryCompanion:'Delivery'},'./CookingChecklist':{CookingChecklist:'Checklist'},'./RecipeArt':{RecipeArt:'Art'},'./catalog/engine':{ingredients,recipeSteps},'./catalog/catalog':{mealById},'./cooking-copy':{cookingCopy},'./cooking-state':{cookingProgress}};
  const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/CookingScreen.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>{assert.ok(modules[id],id);return modules[id];}});
  const night={mealId:'pepper-pasta',prefs:{...defaults,cookLevel:'Beginner'},step:0,status:'cooking',adapted:false};
  const render=(request,preview=false)=>{cursor=0;effectCursor=0;const tree=exports.CookingScreen({night,tick:Date.now(),helpRequest:request,preview,previewStep:0});while(effects.length)effects.shift()();return tree;};
@@ -29,4 +29,7 @@ test('recipe help opens ingredients and coaching, and can reopen after closing',
  night.status='ready';
  assert.ok(find(render(2),'DinnerReady'),'completion shows the saved-viewing celebration');
  assert.ok(!find(render(2,true),'DinnerReady'),'a recipe preview must never celebrate completion');
+ for(const status of ['ready','complete']){night.status=status;for(let i=0;i<mealById(night.mealId).steps.length;i++){night.step=i;const labels=buttons(render(2)).map(b=>b.props.children);assert.ok(!labels.some(label=>['Start timer','Stop timer','← Previous','Next step →','Dinner is ready ✓'].includes(label)));}}
+ night.status='planned';night.fulfillment='delivery';assert.ok(find(render(2,true),'Delivery'),'delivery never exposes recipe preview or cooking controls');
+ assert.equal(buttons(render(2,true)).length,0);
 });
