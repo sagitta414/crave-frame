@@ -3,10 +3,10 @@ import {Image,StyleSheet,View,useWindowDimensions} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {Text} from './TVText';
 import {RecipeArt} from './RecipeArt';
-import {eveningTimeline} from './catalog/evening';
+import {projectEvening} from './schedule';
 import {eveningPalette} from './cinema-model';
 export function EveningDashboard({night,meal,show,watchArt}:any){
- const {width}=useWindowDimensions(),wide=width>=1000,accent=eveningPalette(show),schedule=eveningTimeline(night,meal,show);
+ const {width}=useWindowDimensions(),wide=width>=1000,accent=eveningPalette(show),schedule=projectEvening(night,meal,show).schedule;
  return <View style={{marginTop:24,marginBottom:24,borderRadius:24,overflow:'hidden',backgroundColor:'#101A29'}}>
   <Image source={watchArt(show,true)} style={[StyleSheet.absoluteFill,{width:'100%',height:'100%'}]}/><LinearGradient colors={['#080D18F5','#080D18E0','#080D1890']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFill}/>
   <View style={{padding:width<900?24:36,flexDirection:wide?'row':'column',gap:32,alignItems:wide?'center':'stretch'}}>

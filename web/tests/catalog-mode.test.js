@@ -63,3 +63,27 @@ test('catalog refinements honor exclusions, familiar meals and explicit revisit'
  const result=await curated({},house,{mode:'watch',sourceId:'avengers',prefs,personalized:true,refinement:'familiar',allowRecent:true});
  assert.ok(result.picks.length);assert.ok(result.picks.every(p=>p.meal.familiar&&p.meal.id!==rejected&&!p.meal.ingredients.some(i=>/peanut/i.test(i[0]))));
 });
+
+test('household mutations preserve current capabilities in catalog and connected modes',async()=>{
+ for(const connected of [false,true]){
+  const DB=openDb(),env={DB,...(connected?{AI_GENERATE:async()=>({})}:{AI_PROVIDER:'catalog'})};
+  try{
+   const house=await (await api(new Request('https://test/api/household',{method:'POST'}),env)).json();
+   const headers={'x-household-key':house.key,'content-type':'application/json'};
+   const call=async(path,method='GET',body)=>{const r=await api(new Request('https://test/api/'+path,{method,headers,...(body?{body:JSON.stringify(body)}:{})}),env);assert.ok(r.ok,await r.clone().text());return r.json();};
+   const {ingredients}=await import('../product/engine.js');
+   const {mealById}=await import('../product/catalog.js');
+   const night=await call('nights','POST',{mealId:'pepper-pasta',showId:'ratatouille',prefs,adapted:false,confirmed:ingredients(mealById('pepper-pasta'),prefs.people,false).map(i=>i.name)});
+   const feedback=await call('nights/'+night.id+'/feedback','POST',{meal:'again',pairing:'great',shorter:true,rememberMood:true});
+   assert.ok(feedback.memory.favoriteMeals.includes(night.mealId));
+   const removed=await call('memory','PATCH',{field:'favoriteMeals',value:night.mealId});
+   assert.ok(!removed.memory.favoriteMeals.includes(night.mealId));
+   const pantry=await call('pantry','PUT',{items:['tomato']});
+   const deleted=await call('nights/'+night.id,'DELETE');
+   for(const result of [feedback,removed,pantry,deleted]){
+    assert.equal(result.capabilities.connected,connected);
+    assert.deepEqual(result.capabilities,(await call('household')).capabilities);
+   }
+  }finally{DB.close();}
+ }
+});

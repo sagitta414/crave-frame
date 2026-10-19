@@ -1,3 +1,4 @@
+import {projectEvening} from './src/schedule';
 import {CookingScreen} from './src/CookingScreen';
 import {TonightPreferences,PairPersonality,TwoAppetites,TouchChoice,SavedTouch} from './src/TonightPersonality';
 import {CinemaNavigation} from './src/CinemaNavigation';
@@ -51,7 +52,7 @@ import featured from './src/featured.json';
 import {meals,shows,defaults,moods,mealById,showById,registerShows} from './src/catalog/catalog';
 import {foodPreferences,dietFits} from './src/catalog/diets';
 import {recommend,ingredients,recipeSteps,selectedWatchPrefs,suggestedAdaptation} from './src/catalog/engine';
-import {eveningTimeline,isStaleEvening} from './src/catalog/evening';
+import {isStaleEvening} from './src/catalog/evening';
 import {artworkFor} from './src/catalog/artwork';
 for(let i=shows.length-1;i>=0;i--){if(featured.some(f=>f.name===shows[i].name))shows.splice(i,1);}
 registerShows(featured);
@@ -64,7 +65,7 @@ function Meta({children}:any){return <Text style={s.meta}>{children}</Text>;}
 function Pills({values,value,onChange,labels={}}:any){return <View style={s.wrap}>{values.map((v:any)=><Button key={v} selected={value===v} onPress={()=>onChange(v)}>{labels[v]||String(v)}</Button>)}</View>;}
 const FocusGuide=Platform.OS==='web'?View:TVFocusGuideView;
 const Rail=({title,kicker,children}:any)=><View style={s.rail}><Label>{kicker}</Label><Text style={s.h2}>{title}</Text><FocusGuide autoFocus><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.railContent}>{children}</ScrollView></FocusGuide></View>;
-function TonightStrip({night,onOpen,small}:any){const meal=mealById(night.mealId),show=night.show||showById(night.showId),schedule=eveningTimeline(night,meal,show),phoneLive=night.phoneSeenAt&&Date.now()-night.phoneSeenAt<90000,status=night.watchStarted?'Watching now':night.status==='ready'?'Dinner ready':night.status==='cooking'?`Cooking · step ${(night.step||0)+1}`:'Ready to begin';return <Button card focusKey="active-tonight" style={[s.tonightWrap,small&&{marginHorizontal:14}]} onPress={onOpen}><View style={[s.tonightStrip,small&&{paddingHorizontal:14,gap:10}]}><BrandMark size={small?40:46}/><View style={{flex:1,minWidth:180}}><Text style={s.tonightEyebrow}>TONIGHT · {status.toUpperCase()}{phoneLive?' · PHONE LIVE':''}</Text><Text style={s.tonightTitle} numberOfLines={1}>{show?.name} <Text style={{color:'#8190A8'}}>with</Text> {meal?.name}</Text></View>{!small&&<View style={s.tonightTimes}><View><Text style={s.tonightTimeLabel}>DINNER</Text><Text style={s.tonightTime}>{new Date(schedule[2].at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</Text></View><View><Text style={s.tonightTimeLabel}>WATCH</Text><Text style={s.tonightTime}>{new Date(schedule[3].at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</Text></View></View>}<Text style={s.tonightOpen}>OPEN →</Text></View></Button>}
+function TonightStrip({night,onOpen,small}:any){const meal=mealById(night.mealId),show=night.show||showById(night.showId),schedule=projectEvening(night,meal,show).schedule,phoneLive=night.phoneSeenAt&&Date.now()-night.phoneSeenAt<90000,status=night.watchStarted?'Watching now':night.status==='ready'?'Dinner ready':night.status==='cooking'?`Cooking · step ${(night.step||0)+1}`:'Ready to begin';return <Button card focusKey="active-tonight" style={[s.tonightWrap,small&&{marginHorizontal:14}]} onPress={onOpen}><View style={[s.tonightStrip,small&&{paddingHorizontal:14,gap:10}]}><BrandMark size={small?40:46}/><View style={{flex:1,minWidth:180}}><Text style={s.tonightEyebrow}>TONIGHT · {status.toUpperCase()}{phoneLive?' · PHONE LIVE':''}</Text><Text style={s.tonightTitle} numberOfLines={1}>{show?.name} <Text style={{color:'#8190A8'}}>with</Text> {meal?.name}</Text></View>{!small&&<View style={s.tonightTimes}><View><Text style={s.tonightTimeLabel}>DINNER</Text><Text style={s.tonightTime}>{new Date(schedule[2].at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</Text></View><View><Text style={s.tonightTimeLabel}>WATCH</Text><Text style={s.tonightTime}>{new Date(schedule[3].at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</Text></View></View>}<Text style={s.tonightOpen}>OPEN →</Text></View></Button>}
 export default function App(){
  const [libraryTools,setLibraryTools]=useState(false);
  useWebRemote();
