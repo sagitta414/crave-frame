@@ -1,3 +1,4 @@
+import {foodReferences,referenceFits} from './food-references.js';
 import {ingredientBlocked} from './food-restrictions.js';
 import {cookingProfile} from './cooking-profile.js';
 import {titleKey,distinctShows} from './identity.js';
@@ -5,7 +6,9 @@ import {ingredients} from './engine.js';
 import {pantryMatches as pantryEvidence} from './ingredients.js';
 import {dietFits} from './diets.js';
 import {meals,shows,mealById} from './catalog.js';
-export function pairingConnection(meal,show){
+export function pairingConnection(meal,show,adapted=false){
+ const reference=foodReferences(show).find(ref=>referenceFits(ref,meal,ingredients(meal,2,adapted).map(i=>i.name)));
+ if(reference)return {label:'Story inspired',text:reference.interpretation,reference:reference.text,source:reference.source};
  if(show.id==='ratatouille'||show.id==='tmdb-movie-2062')return {label:'Cooking inspired',text:'A hands-on dinner echoes this story’s love of cooking. Your selected recipe is an independent pairing, not the film’s recipe.',reference:'On screen: Remy’s ratatouille is a version of confit byaldi.',source:'https://www.pbs.org/food/stories/get-creative-pixar-style-ratatouille'};
  if(show.id==='detectorists'&&meal.name.toLowerCase().includes('mushroom'))return {label:'Setting inspired',text:'Earthy mushrooms evoke the countryside setting of Detectorists. This is an interpretation of the setting, not a claim that the characters eat this dish.',source:show.source};
  if(show.id==='avengers'||show.id==='tmdb-movie-24428')return {label:'Mood pairing',text:'A sharing supper fits the ensemble adventure. Finish dinner before the action starts; no on-screen food connection is claimed.'};
