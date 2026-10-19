@@ -21,3 +21,12 @@ This pass addresses interruptions in the existing journey rather than adding hom
 ## Boundaries
 
 These are local feature-branch changes, not a deployment. Physical Fire TV, Silk couch-distance testing, phone handoff interaction testing, and recipe kitchen trials remain required. This pass does not resolve the previously documented upstream dependency advisories or generate the remaining optional recipe illustrations. The phone-search changes compile and pass the full suite, but have not been exercised on a physical device.
+
+## Follow-up: completion, delivery, and artwork
+
+- Ready and completed browser recipes retain their ingredients and guidance but remove step mutations, completion submission, and kitchen timer controls. Both states show the completion message.
+- Order-out evenings opened through the cooking companion show the saved timeline and tracking disclosure rather than recipe controls.
+- Out-of-range recipe step indices are clamped for rendering.
+- TV dish captions occupy their own strip instead of covering the bottom of the food image.
+- The browser now includes the existing TV grilled-cheese-and-soup illustration. Browser and TV image helpers resolve composed meals through their main recipe.
+- Validation: 149 web tests, 42 TV tests, TypeScript, remote-scrolling checks, production build, and configured secret-pattern scan passed. New tests execute the browser cooking renderer for active, planned, completed, and delivery states. Visual changes still require device inspection.

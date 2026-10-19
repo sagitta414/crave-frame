@@ -6,6 +6,7 @@ import {api} from '../server/worker.js';
 import {openDb} from '../server/local-db.js';
 import {defaults,mealById,showById} from '../product/catalog.js';
 import {ingredients,recipeSteps} from '../product/engine.js';
+import {cookingView} from '../product/cooking-view.js';
 import {projectEvening} from '../product/schedule.js';
 import {projectEvening as tvProjection} from '../../tv/src/schedule.js';
 import {readyTogetherPlan} from '../product/evening.js';
@@ -36,7 +37,7 @@ test('browser cooking page offers saved guidance when AI is off or unknown',()=>
  for(const capabilities of [undefined,{connected:false,matchingMode:'catalog'},{connected:true,matchingMode:'ai'}]){
   const n={...night,capabilities};
   const html=vm.runInNewContext(fn('cookPage')+';cookPage()',{
-   getNight:()=>n,mealById,showById,recipeSteps,ingredients,timelinePanel:()=>'',mealPhoto:()=>'',esc:String,badge:()=>'',formatTime:String,sharedKey:'test',household:null,
+   getNight:()=>n,mealById,showById,recipeSteps,ingredients,cookingView,timelinePanel:()=>'',mealPhoto:()=>'',esc:String,badge:()=>'',formatTime:String,sharedKey:'test',household:null,
    button:(label,action)=>'<button data-action="'+action+'">'+label+'</button>'
   });
   assert.equal(html.includes('data-action="ai-cook-help"'),capabilities?.connected===true);
