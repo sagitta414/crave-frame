@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {tonightPreferences,dinnerDecision,tonightShortcuts,tonightShortcutState,eveningDuration} from '../product/tonight-decision.js';
+import {tonightPreferences,dinnerDecision,tonightShortcuts,tonightShortcutState,eveningDuration,pairingInsight} from '../product/tonight-decision.js';
 import {defaults,mealById,showById} from '../product/catalog.js';
 import {recommend} from '../product/engine.js';
 import {curate} from '../product/curation.js';
@@ -47,4 +47,20 @@ test('readable duration and action order keep the main decision before ingredien
  const html=decisionHome(curate({prefs:defaults}),defaults,[]);
  assert.ok(html.indexOf('data-action="home-plan"')<html.indexOf('<details>'));
  assert.match(html,/aria-pressed="true"/);
+});
+test('pairing explanations distinguish documented inspiration from practical matches',()=>{
+ const pair={meal:mealById('mac-cheese-peas'),show:showById('ratatouille')};
+ assert.match(pairingInsight(pair).text,/not a claim/);
+ assert.equal(pairingInsight({...pair,connection:{kind:'Setting',tableEcho:'A setting interpretation.'}}).text,'A setting interpretation.');
+ assert.equal(pairingInsight({...pair,connection:{kind:'Story inspiration',tableEcho:'A supported creative link.'}}).label,'Story-inspired dinner');
+ // An arbitrary generated reason must not turn a practical match into an on-screen claim.
+ assert.match(pairingInsight({...pair,reason:'This dish is in the movie.'}).text,/not a claim/);
+});
+test('evening preview exposes all phases and escapes external pairing text',()=>{
+ const picks=curate({prefs:defaults});
+ picks[0]={...picks[0],connection:{kind:'Setting',tableEcho:'<script>bad</script>'}};
+ const html=decisionHome(picks,defaults,[]);
+ assert.match(html,/Estimated evening sequence/);assert.match(html,/>Cook</);assert.match(html,/>Eat</);assert.match(html,/>Watch</);
+ assert.match(html,/&lt;script&gt;bad/);assert.ok(!html.includes('<script>bad'));
+ assert.match(html,/Why this pairing/);
 });

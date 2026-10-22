@@ -13,6 +13,8 @@ Implemented locally on 21 October 2026. This record does not confirm deployment.
 
 ## Verification and remaining work
 
+22 October: Added a three-phase Cook / Eat / Watch preview to browser and TV decision panels, using the same durations as the displayed total. An expandable pairing explanation distinguishes curated story inspiration, setting interpretation, and practical matches. Unstructured generated reasons are not promoted into verified story claims. Regression tests cover these distinctions and escaping external explanation text. No new images, credentials, or deployment changes were required.
+
 Follow-up polish brings the primary action above expandable ingredients, resets the TV ingredient disclosure when the featured pairing changes, and shows effective shortcut states accessibly. Shortcut copy reflects stricter saved cooking budgets. Evening durations now use hours and minutes, and mobile primary actions expand to the available width. Active cards use a restrained green accent; focus retains its distinct bright outline.
 
 Automated regressions cover preference preservation, ingredient scaling, pantry labeling, a real featured pairing, and pinned dinner/adaptation behavior. Run `npm test`, `npm run build`, and `npm run check:secrets` before publishing.
