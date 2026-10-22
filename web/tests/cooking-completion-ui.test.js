@@ -1,4 +1,4 @@
-import {nightRitual,coupleRoles} from '../product/our-night.js';
+import {nightRitual,coupleRoles,chosenRitual,finishingTouches} from '../product/our-night.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -13,7 +13,7 @@ import {existsSync} from 'node:fs';
 const momentSource=readFileSync(new URL('../product/main.js',import.meta.url),'utf8').match(/^function coupleMoment\(.*$/m)[0];
 const source=readFileSync(new URL('../product/main.js',import.meta.url),'utf8').match(/^function cookPage\(\).*$/m)[0];
 function render(night){
- return vm.runInNewContext(momentSource+';'+source+';cookPage();',{nightRitual,coupleRoles,getNight:()=>night,night,mealById,showById,recipeSteps,ingredients,cookingView,deliveryCompanion,readinessKey,readinessMarkup,cookingChecks:new Map(),timelinePanel:()=>'<div>Timeline</div>',mealPhoto:()=>'/photo.jpg',esc:String,badge:String,button:(label,action)=>`<button data-action="${action}">${label}</button>`,formatTime:String,sharedKey:'private',household:{capabilities:{connected:false}}});
+ return vm.runInNewContext(momentSource+';'+source+';cookPage();',{nightRitual,coupleRoles,chosenRitual,finishingTouches,getNight:()=>night,night,mealById,showById,recipeSteps,ingredients,cookingView,deliveryCompanion,readinessKey,readinessMarkup,cookingChecks:new Map(),timelinePanel:()=>'<div>Timeline</div>',mealPhoto:()=>'/photo.jpg',esc:String,badge:String,button:(label,action)=>`<button data-action="${action}">${label}</button>`,formatTime:String,sharedKey:'private',household:{capabilities:{connected:false}}});
 }
 const base={id:'test',mealId:'mac-cheese-peas',showId:'paddington',prefs:defaults,adapted:false,step:0,status:'cooking'};
 test('completed browser cooking pages celebrate without exposing timer or step mutations',()=>{
@@ -44,3 +44,5 @@ test('browser uses the dedicated sandwich image and preserves main-course artwor
 });
 
 test('couples phone completion offers an optional prompt without storing answers',()=>{const html=render({...base,status:'ready',ourNight:{vibe:'Reconnect'}});assert.match(html,/What made you feel cared for/);assert.match(html,/conversation starter · optional/);assert.doesNotMatch(html,/<textarea/);});
+
+test('no-prompts evenings keep completion controls without personal suggestions',()=>{const html=render({...base,status:'ready',ourNight:{vibe:'Reconnect',ritualChoice:'No prompts'}});assert.match(html,/The rest of tonight is yours/);assert.doesNotMatch(html,/conversation starter|finishing touch|A moment for us/);assert.match(html,/Ingredients & approved changes/);});

@@ -1,5 +1,10 @@
 export const nightDays=['Any day','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 export const nightVibes=['Unwind together','Playful date','Reconnect','Make it special'];
+export const ritualChoices=['Follow tonight’s mood','No prompts',...nightVibes];
+export const finishingTouches=['Choose one song together before pressing play.','Set out two glasses and your favorite place settings.','Give tonight a name that only the two of you would understand.'];
+export function nightWelcome(day){return day&&day!=='Any day'?`${day}, just us.`:'A little time, just us.';}
+export function chosenRitual(config={}){return config.ritualChoice==='No prompts'?null:nightRitual(nightVibes.includes(config.ritualChoice)?config.ritualChoice:config.vibe);}
+export function sharedPaceCopy(prefs={}){return prefs.effort==='Easy'||prefs.energy==='Exhausted'?'An easy dinner, with room to make it special.':'Time to make something together, at your own pace.';}
 export const coupleEnergy=['Keep it easy','Up for cooking together','Make it special'];
 export function repeatEveningDraft(n){return {mode:'meal',sourceId:n.mealId,externalShow:n.show,prefs:{...n.prefs},pair:{mealId:n.mealId,showId:n.showId},adapted:n.adapted,confirmed:[],couplesNight:!!n.ourNight,themeId:n.themeId};}
 export function sharedPace(prefs,members){

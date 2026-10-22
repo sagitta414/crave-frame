@@ -26,6 +26,12 @@ A favorite-dinner action finds another episode within current limits while keepi
 
 ## Verification
 
+### Personal finishing touches
+
+The existing night-in heading now uses the saved day (for example, Friday, just us). Optional finishing ideas cycle through a song, place settings, and a name for the evening; no extra recipe or automatic task is created. Completion copy says, Dinner is ready. The rest of tonight is yours, while retaining the viewing guidance and next action.
+
+Setup can follow the selected mood, keep one favorite ritual, or choose No prompts. No prompts hides both conversation and finishing suggestions. The choice is validated, saved in the routine, and copied into new couples evenings. Clients omitting the new field preserve the existing setting. Already saved evenings keep their snapshot. Shared-pace copy describes an easy dinner or cooking together without attributing anyone's energy preference. No matching, voting, navigation, or schedule algorithms are changed in this pass.
+
 ### Shared pace and preparation follow-up
 
 Two-person rooms now collect an energy preference on each phone: Keep it easy, Up for cooking together, or Make it special. Matching waits for both people to join. It uses the gentler preference and never expands existing time or food limits. Keep it easy selects easy recipes and caps cooking at the lower of 30 minutes and the existing budget. Individual energy values are omitted from room responses even after reveal, and from saved group members; the resulting shared recipe limits remain visible. Legacy submissions without a value default to Keep it easy.

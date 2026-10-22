@@ -6,7 +6,7 @@ import {openDb} from '../server/local-db.js';
 import {defaults} from '../product/catalog.js';
 import {ingredients} from '../product/engine.js';
 import {createOurNightUI} from '../product/our-night-view.js';
-import {nightShortlist,nightPreferences,nightRitual,nightVibes,sharedPace,coupleRoles,repeatEveningDraft} from '../product/our-night.js';
+import {nightShortlist,nightPreferences,nightRitual,nightVibes,sharedPace,coupleRoles,repeatEveningDraft,chosenRitual,nightWelcome,sharedPaceCopy} from '../product/our-night.js';
 const fixture=()=>{const DB=openDb(),env={DB,AI_PROVIDER:'catalog'};return {DB,async call(path,method='GET',data,key=''){const r=await api(new Request('https://test/api/'+path,{method,headers:{'content-type':'application/json','x-household-key':key},...(data?{body:JSON.stringify(data)}:{})}),env);return {status:r.status,data:await r.json()};}};};
 test('night-in rhythm persists, isolates households, preserves capabilities and validates input',async()=>{
  const f=fixture();try{const a=(await f.call('household','POST',{})).data,b=(await f.call('household','POST',{})).data;
@@ -104,4 +104,21 @@ test('repeat starts an unconfirmed draft without copying old timing or room acce
  const d=repeatEveningDraft(n);assert.deepEqual(d.confirmed,[]);assert.equal(d.adapted,true);assert.equal(d.couplesNight,true);assert.deepEqual(d.pair,{mealId:'a',showId:'b'});
  for(const k of ['id','planStart','timer','step','watchStarted','status','groupKey'])assert.ok(!(k in d));
  d.prefs.people=4;assert.equal(n.prefs.people,2);assert.deepEqual(n.confirmed,['old ingredient']);
+});
+test('favorite rituals are independent of mood and no-prompts is explicit',()=>{
+ assert.equal(chosenRitual({vibe:'Reconnect',ritualChoice:'No prompts'}),null);
+ assert.deepEqual(chosenRitual({vibe:'Reconnect',ritualChoice:'Playful date'}),nightRitual('Playful date'));
+ assert.deepEqual(chosenRitual({vibe:'Reconnect'}),nightRitual('Reconnect'));
+ assert.equal(nightWelcome('Friday'),'Friday, just us.');assert.equal(nightWelcome('Any day'),'A little time, just us.');
+ assert.match(sharedPaceCopy({effort:'Easy'}),/An easy dinner/);
+});
+test('ritual preference persists through old clients and is validated without changing matching prefs',async()=>{
+ const f=fixture();try{const h=(await f.call('household','POST',{})).data,payload={day:'Friday',vibe:'Reconnect',prefs:defaults};
+ const a=await f.call('our-night','PUT',{...payload,ritualChoice:'No prompts'},h.key);assert.equal(a.status,200);
+ const b=await f.call('our-night','PUT',payload,h.key);assert.equal(b.data.ourNight.ritualChoice,'No prompts');assert.deepEqual(b.data.ourNight.prefs,defaults);
+ assert.equal((await f.call('our-night','PUT',{...payload,ritualChoice:'unrecognized'},h.key)).status,400);
+ const r=await f.call('our-night','POST',{},h.key),p=r.data.picks[0];assert.ok(p);
+ const n=await f.call('nights','POST',{couplesNight:true,mealId:p.meal.id,showId:p.show.id,prefs:r.data.prefs,adapted:!!p.adapted,confirmed:ingredients(p.meal,r.data.prefs.people,p.adapted).map(i=>i.name)},h.key);
+ assert.equal(n.data.ourNight.ritualChoice,'No prompts');
+ }finally{f.DB.close();}
 });
