@@ -16,11 +16,12 @@ export function suggestedAdaptation(meal,prefs,memory={},requested){
  const baseBlocked=ingredients(meal,prefs.people,false).some(i=>ingredientBlocked(i.name,memory));
  return baseBlocked&&!ingredients(meal,prefs.people,true).some(i=>ingredientBlocked(i.name,memory));
 }
-export function recommend({mode,sourceId,prefs=defaults,memory={},pantry=[],themedMealId=null,demoId=null,votes=[]}){
+export function recommend({mode,sourceId,prefs=defaults,memory={},pantry=[],themedMealId=null,demoId=null,votes=[],excludeShowId=null,dinnerAdapted=undefined}){
  const found=mode==='meal'?mealById(sourceId):showById(sourceId),source=mode==='watch'&&found?{...found,id:sourceId}:found;
  if(!source)return [];
  const candidates=mode==='meal'?shows.filter(s=>prefs.catalog==='Original demo titles'?!s.source&&!s.custom:!!s.source||s.custom):meals;
- const ranked=candidates.map(candidate=>{const meal=mode==='meal'?source:candidate;let show=mode==='meal'?candidate:source,adapted=suggestedAdaptation(meal,prefs,memory);
+ const ranked=candidates.map(candidate=>{const meal=mode==='meal'?source:candidate;let show=mode==='meal'?candidate:source,adapted=mode==='meal'&&typeof dinnerAdapted==='boolean'?dinnerAdapted:suggestedAdaptation(meal,prefs,memory);
+ if(excludeShowId&&titleKey(show)===titleKey(excludeShowId))return null;
  if((prefs.eveningMinutes>0&&meal.minutes+25+show.minutes>prefs.eveningMinutes)||!dietFits(meal,prefs.diet)||meal.minutes>prefs.cookTime||show.minutes>prefs.watchTime||(prefs.effort==='Easy'&&meal.effort!=='Easy')||(prefs.family&&!show.family)||(prefs.format!=='Any'&&show.kind!==prefs.format))return null;
  if(memory.dislikedMeals?.includes(meal.id))return null;
  if(ingredients(meal,prefs.people,adapted).some(i=>ingredientBlocked(i.name,memory)))return null;

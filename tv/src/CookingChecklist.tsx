@@ -10,11 +10,13 @@ export function CookingChecklist({night,meal,onReady}:any){
  const checks=['Ingredients and quantities checked','Equipment ready','Preparation instructions reviewed'];
  const toggle=(label:string)=>{const next=checked.includes(label)?checked.filter(x=>x!==label):[...checked,label];setChecked(next);onReady(next.length===checks.length);};
  return <View style={{padding:24,gap:16,borderRadius:20,backgroundColor:'#132739'}}>
- <Text style={{fontSize:30,color:'#FFF6EE',fontWeight:'800'}}>Ready to cook?</Text>
+ <Text style={{fontSize:30,color:'#FFF6EE',fontWeight:'800'}}>Your kitchen starts here.</Text>
+ <Text style={{fontSize:20,lineHeight:29,color:'#AEE2C9'}}>Check what you need, then start step one. Your TV keeps the evening in sync.</Text>
  <Text style={{fontSize:22,lineHeight:32,color:'#D9E4EF'}}>{night.prefs.people} servings · {meal.minutes} min estimated · {profile.equipment.join(' + ')||'Check equipment in the recipe steps'}</Text>
  {items.map((i:any)=><Text key={i.name+i.unit} style={{fontSize:23,lineHeight:33,color:'#FFF'}}>{i.amount} {i.unit} · {i.name}</Text>)}
  {!!preparationNote(meal,items)&&<Text style={{fontSize:22,lineHeight:32,color:'#FFD1AA'}}>{preparationNote(meal,items)}</Text>}
  <Text style={{fontSize:21,lineHeight:31,color:'#D9E4EF'}}>Review the steps and package instructions first. Cooking times are estimates; these recipes still await kitchen trials.</Text>
+ <Text accessibilityLiveRegion="polite" style={{fontSize:20,color:'#FFDFC2'}}>{checked.length} of 3 preparation checks complete</Text>
  {checks.map(label=><Button key={label} selected={checked.includes(label)} onPress={()=>toggle(label)}>{checked.includes(label)?'✓ ':''}{label}</Button>)}
  </View>;
 }
