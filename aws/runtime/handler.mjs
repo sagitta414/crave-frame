@@ -6,6 +6,7 @@ import {api} from '../../web/server/worker.js';
 import {databaseAdapter} from './postgres.mjs';
 import {mediaAdapter} from './media.mjs';
 import {gatewayRequest,gatewayResponse} from './request.mjs';
+import {databaseOptions} from './database-options.mjs';
 pg.types.setTypeParser(20,value=>{const n=Number(value);if(!Number.isSafeInteger(n))throw Error('Integer outside supported range');return n;});
 const secrets=new SecretsManagerClient({}),s3=new S3Client({});
 let pool,config,expires=0;
@@ -16,7 +17,7 @@ export async function handler(event,context){
  const started=Date.now();let status=500;
  try{
   const {edge,runtime}=await settings();const {request,ip}=gatewayRequest(event,edge.token);
-  if(!pool){const signer=new Signer({hostname:process.env.DB_HOST,port:5432,username:'crave_app',region:process.env.AWS_REGION});pool=new pg.Pool({host:process.env.DB_HOST,port:5432,user:'crave_app',database:'craveframe',password:()=>signer.getAuthToken(),ssl:{rejectUnauthorized:true,minVersion:'TLSv1.2'},max:2,idleTimeoutMillis:60000,connectionTimeoutMillis:4000,statement_timeout:15000});}
+  if(!pool)pool=new pg.Pool(await databaseOptions(process.env,secret,options=>new Signer(options)));
   let response;
   if(new URL(request.url).pathname==='/api/health'){
    const result=await pool.query("SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1");
