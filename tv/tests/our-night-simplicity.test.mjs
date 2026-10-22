@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import ts from 'typescript';
+import {readFileSync} from 'node:fs';
+import * as model from '../src/catalog/our-night.js';
+import {defaults} from '../src/catalog/catalog.js';
+test('night-in starts simply and saves edited settings even after setup is hidden',async()=>{
+ const states=[],calls=[];let cursor=0;
+ const React={useState:initial=>{const i=cursor++;if(!(i in states))states[i]=initial;return [states[i],v=>states[i]=typeof v==='function'?v(states[i]):v];}};
+ const jsx=(type,props)=>({type,props});
+ const api=async(path,method,body)=>{calls.push({path,method,body});return method==='PUT'?{ourNight:body}:{picks:[],learning:[],prefs:defaults};};
+ const modules={'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'ScrollView',View:'View',useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./RecipeArt':{RecipeArt:'Art'},'./api':{api},'./catalog/our-night':model};
+ const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/OurNight.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>{assert.ok(modules[id],id);return modules[id];}});
+ const props={house:{ourNight:{day:'Friday',vibe:'Reconnect',prefs:defaults},nights:[]},prefs:defaults,options:{},onHouse:()=>{}};
+ const render=()=>{cursor=0;return exports.OurNight(props);};
+ const nodes=t=>Array.isArray(t)?t.flatMap(nodes):t&&typeof t==='object'?[t,...nodes(t.props?.children)]:[];
+ const click=(tree,label)=>{const b=nodes(tree).find(n=>n.type==='Button'&&n.props.children===label);assert.ok(b,label);return b.props.onPress();};
+ let tree=render();assert.ok(!nodes(tree).some(n=>n.props?.children==='Make it your rhythm'));
+ click(tree,'Adjust our usual night');tree=render();click(tree,'15 min');tree=render();click(tree,'Hide setup');tree=render();
+ await click(tree,'Refresh our choices');assert.equal(calls[0].method,'PUT');assert.equal(calls[0].body.prefs.cookTime,15);assert.equal(calls[1].method,'POST');
+});
