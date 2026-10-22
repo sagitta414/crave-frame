@@ -13,6 +13,8 @@ Implemented locally on 21 October 2026. This record does not confirm deployment.
 
 ## Verification and remaining work
 
+22 October shopping follow-up: Browser pairing previews and phone cooking preparation now export a plain-text ingredient checklist. Quantities follow the displayed servings and adaptation. Saved pantry matches are separated for quantity verification, never silently removed. Shared phone links use the full recipe list rather than assuming access to household pantry state. Clipboard failure reveals a selectable, read-only checklist. Native TV continues to use its existing shopping QR handoff. Automated tests cover quantities, substitutions, complete pantry matches, and phone action wiring; physical clipboard behavior remains unverified.
+
 22 October: Added a three-phase Cook / Eat / Watch preview to browser and TV decision panels, using the same durations as the displayed total. An expandable pairing explanation distinguishes curated story inspiration, setting interpretation, and practical matches. Unstructured generated reasons are not promoted into verified story claims. Regression tests cover these distinctions and escaping external explanation text. No new images, credentials, or deployment changes were required.
 
 Follow-up polish brings the primary action above expandable ingredients, resets the TV ingredient disclosure when the featured pairing changes, and shows effective shortcut states accessibly. Shortcut copy reflects stricter saved cooking budgets. Evening durations now use hours and minutes, and mobile primary actions expand to the available width. Active cards use a restrained green accent; focus retains its distinct bright outline.
