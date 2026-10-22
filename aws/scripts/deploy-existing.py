@@ -1,12 +1,32 @@
 """Application-only release for the existing stack; never runs CDK or migrations.
 Run in AWS CloudShell. Requires boto3. No credentials or secret values are printed.
 """
-import argparse, hashlib, json, mimetypes, os, pathlib, time, urllib.request, zipfile
+import argparse, base64, copy, hashlib, json, mimetypes, os, pathlib, time, urllib.request, zipfile
 import boto3
+from botocore.validate import validate_parameters
 
 REGION = 'us-east-1'
 STACK = 'CraveFrameAmazon2026'
 REPO = 'https://github.com/sagitta414/crave-frame/releases/download/'
+
+def distribution_for_update(config):
+    result = copy.deepcopy(config)
+    # CloudFront's XML GET response can omit the empty legacy OAI field for
+    # OAC-backed S3 origins. UPDATE still requires that field, even with OAC.
+    for origin in result['Origins']['Items']:
+        if 'S3OriginConfig' in origin and origin.get('OriginAccessControlId'):
+            origin['S3OriginConfig'].setdefault('OriginAccessIdentity', '')
+    return result
+
+def report_error(error):
+    print('Failure type:', type(error).__name__, flush=True)
+    if isinstance(error, RuntimeError):
+        print(str(error), flush=True)
+    # Print schema paths only, never values (which can include origin secrets).
+    if type(error).__name__ == 'ParamValidationError':
+        for line in str(error).splitlines():
+            if line.startswith(('Missing required parameter', 'Unknown parameter')):
+                print(line, flush=True)
 
 def require(condition, message):
     if not condition:
@@ -43,6 +63,7 @@ def main():
     parser.add_argument('--release', required=True)
     parser.add_argument('--apply', action='store_true')
     parser.add_argument('--rollback', action='store_true')
+    parser.add_argument('--resume', action='store_true')
     args = parser.parse_args()
     require(all(c.isalnum() or c in '-_.' for c in args.release), 'Invalid release')
     folder = pathlib.Path.home() / ('crave-release-' + args.release)
@@ -54,19 +75,36 @@ def main():
     fn, distribution, origin = outputs['BackendFunction'], outputs['DistributionId'], outputs['Origin']
     require(origin == 'https://dcp5jtiiw3gji.cloudfront.net', 'Unexpected target site')
 
-    def switch_front(path, marker):
+    def front_plan(path, marker):
         current = edge.get_distribution_config(Id=distribution)
-        config = current['DistributionConfig']
+        config = distribution_for_update(current['DistributionConfig'])
         target = next(o for o in config['Origins']['Items'] if o['Id'] == saved['origin_id'])
         require(target.get('OriginPath') in (saved['old_path'], saved['new_path']), 'Frontend changed by another deployment')
+        path_changed = target.get('OriginPath') != path
         target['OriginPath'] = path
-        edge.update_distribution(Id=distribution, IfMatch=current['ETag'], DistributionConfig=config)
         policy = edge.get_response_headers_policy_config(Id=saved['policy_id'])
         headers = policy['ResponseHeadersPolicyConfig']['CustomHeadersConfig']['Items']
         header = next(h for h in headers if h['Header'].lower() == 'x-crave-version')
         require(header['Value'] in (saved['old_marker'], saved['version']), 'Version marker changed by another deployment')
+        marker_changed = header['Value'] != marker
         header['Value'] = marker
-        edge.update_response_headers_policy(Id=saved['policy_id'], IfMatch=policy['ETag'], ResponseHeadersPolicyConfig=policy['ResponseHeadersPolicyConfig'])
+        updates = []
+        if path_changed:
+            updates.append(('UpdateDistribution', 'update_distribution', dict(Id=distribution, IfMatch=current['ETag'], DistributionConfig=config)))
+        if marker_changed:
+            updates.append(('UpdateResponseHeadersPolicy', 'update_response_headers_policy', dict(Id=saved['policy_id'], IfMatch=policy['ETag'], ResponseHeadersPolicyConfig=policy['ResponseHeadersPolicyConfig'])))
+        for operation, _, parameters in updates:
+            validate_parameters(parameters, edge.meta.service_model.operation_model(operation).input_shape)
+        return updates
+
+    def switch_front(path, marker):
+        updates = front_plan(path, marker)
+        if not updates:
+            print('Frontend already at requested release; no CloudFront update needed.', flush=True)
+            return
+        for operation, method, parameters in updates:
+            print('Applying', operation, flush=True)
+            getattr(edge, method)(**parameters)
         edge.create_invalidation(DistributionId=distribution, InvalidationBatch={'Paths':{'Quantity':1,'Items':['/*']},'CallerReference':str(time.time_ns())})
         print('Waiting for CloudFront propagation (several minutes)...', flush=True)
         edge.get_waiter('distribution_deployed').wait(Id=distribution)
@@ -82,6 +120,47 @@ def main():
         saved = json.loads(journal.read_text())
         require(saved['function'] == fn and saved['distribution'] == distribution, 'Rollback target mismatch')
         rollback()
+        return
+
+    if args.resume:
+        saved = json.loads(journal.read_text())
+        require(saved['function'] == fn and saved['distribution'] == distribution and saved['version'] == args.release, 'Resume target mismatch')
+        require(saved.get('new_version') not in (None, '$LATEST', saved['old_version']), 'No published candidate to resume')
+        manifest = get_json(REPO + args.release + '/manifest.json')
+        require(manifest['version'] == saved['version'], 'Manifest mismatch')
+        candidate = lam.get_function_configuration(FunctionName=fn, Qualifier=saved['new_version'])
+        require(candidate['CodeSha256'] == base64.b64encode(bytes.fromhex(manifest['sha256']['lambda.zip'])).decode(), 'Published candidate does not match the release archive')
+        require(candidate['Environment']['Variables']['DEPLOYMENT_VERSION'] == saved['version'], 'Candidate release marker mismatch')
+        archive_path = folder / 'static.zip'
+        require(hashlib.sha256(archive_path.read_bytes()).hexdigest() == manifest['sha256']['static.zip'], 'Staged archive checksum mismatch')
+        prefix = saved['new_path'].lstrip('/') + '/'
+        staged = {item['Key']:item['Size'] for page in s3.get_paginator('list_objects_v2').paginate(Bucket=outputs['StaticBucket'],Prefix=prefix) for item in page.get('Contents',[])}
+        with zipfile.ZipFile(archive_path) as archive:
+            require(all(staged.get(prefix+item.filename) == item.file_size for item in archive.infolist() if not item.is_dir()), 'Staged frontend files are incomplete')
+        alias = lam.get_alias(FunctionName=fn, Name='live')
+        require(alias['FunctionVersion'] in (saved['old_version'], saved['new_version']), 'Another release is live; stopped')
+        front_plan(saved['new_path'], saved['version'])
+        print('Published candidate, staged files and CloudFront update parameters verified.', flush=True)
+        if not args.apply:
+            print('Resume review only. Add --apply to switch the live release.')
+            return
+        stage = 'switching backend alias'
+        try:
+            lam.update_alias(FunctionName=fn, Name='live', FunctionVersion=saved['new_version'], RevisionId=alias['RevisionId'])
+            stage = 'checking backend health'
+            check_health(origin, saved['version'])
+            print('New backend health and version passed.', flush=True)
+            stage = 'switching CloudFront'
+            switch_front(saved['new_path'], saved['version'])
+            stage = 'checking public release'
+            verify_release(origin, saved['version'])
+            print('DEPLOYED AND BASIC SMOKE CHECKS PASSED:', saved['version'], flush=True)
+        except Exception as error:
+            print('Failed while', stage, flush=True)
+            report_error(error)
+            print('Restoring previous release...', flush=True)
+            rollback()
+            raise
         return
 
     require(not journal.exists(), 'Release already started. Keep its rollback file; use --rollback if needed.')
@@ -108,6 +187,7 @@ def main():
     saved = {'function':fn,'distribution':distribution,'origin_id':target_id,'policy_id':policy_id,
              'old_path':target['OriginPath'],'new_path':'/releases/'+version,
              'old_marker':marker,'old_version':alias['FunctionVersion'],'version':version}
+    front_plan(saved['new_path'], version)
     print('Target:', origin)
     print('Release:', version)
     print('App-only update: existing Lambda, live alias, versioned S3 assets and CloudFront release path.')
@@ -148,27 +228,29 @@ def main():
         print('Checking new backend before switching frontend...', flush=True)
         check_health(origin, version)
         switch_front(saved['new_path'], version)
-        for path in ('/','/app/','/tv/','/app/style.css'):
-            with urllib.request.urlopen(origin+path, timeout=45) as response:
-                require(response.status == 200, 'Document check failed')
-                for name in ('Content-Security-Policy','Strict-Transport-Security','X-Frame-Options','X-Content-Type-Options','Referrer-Policy'):
-                    require(response.headers.get(name), 'Missing security header')
-        require(get_json(origin+'/version.json')['version'] == version, 'Frontend marker mismatch')
-        check_health(origin, version)
+        verify_release(origin, version)
         print('DEPLOYED AND BASIC SMOKE CHECKS PASSED:', version)
         print('Now test Dexter search, a saved evening, and phone synchronization. Keep', journal)
-    except Exception:
-        print('Deployment check failed. Attempting to restore the previous live release...', flush=True)
+    except Exception as error:
+        report_error(error)
+        print('Deployment failed. Attempting to restore the previous live release...', flush=True)
         rollback()
         raise
+
+def verify_release(origin, version):
+    for path in ('/','/app/','/tv/','/app/style.css'):
+        with urllib.request.urlopen(origin+path, timeout=45) as response:
+            require(response.status == 200, 'Document check failed')
+            for name in ('Content-Security-Policy','Strict-Transport-Security','X-Frame-Options','X-Content-Type-Options','Referrer-Policy'):
+                require(response.headers.get(name), 'Missing security header')
+    require(get_json(origin+'/version.json')['version'] == version, 'Frontend marker mismatch')
+    check_health(origin, version)
 
 if __name__ == '__main__':
     try:
         main()
     except Exception as error:
         # AWS SDK errors can include request details. Do not print configuration or credentials.
-        if isinstance(error, RuntimeError):
-            print('STOPPED:', str(error))
-        else:
-            print('STOPPED:', type(error).__name__, 'Keep the rollback file and report this error type.')
+        report_error(error)
+        print('STOPPED. Keep the rollback file.')
         raise SystemExit(1)

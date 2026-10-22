@@ -18,6 +18,7 @@ artifacts/
 coverage/
 *.log
 *.tsbuildinfo
+__pycache__/
 *.pem
 *.key
 *.jks
