@@ -14,7 +14,15 @@ export function tonightPreferences(prefs,id){
  if(id==='special')next.energy='Make it special';
  return next;
 }
+export function tonightShortcutState(prefs,id){
+ const minutes=Math.min(prefs.cookTime,30);
+ if(id==='easy')return {active:prefs.energy==='Exhausted'&&prefs.effort==='Easy'&&prefs.cookTime<=30,detail:`Easy cooking · up to ${minutes} min`};
+ if(id==='quick')return {active:prefs.cookTime<=30,detail:`Up to ${minutes} min · cooking time`};
+ if(id==='family')return {active:!!prefs.family,detail:'Family-filtered viewing'};
+ return {active:prefs.energy==='Make it special',detail:'A little more occasion'};
+}
+export function eveningDuration(minutes){const hours=Math.floor(minutes/60),rest=minutes%60;return hours?`${hours} hr${rest?' '+rest+' min':''}`:`${rest} min`;}
 export function dinnerDecision(meal,show,prefs,adapted=false,pantry=[]){
  const list=ingredients(meal,prefs.people,adapted),matched=new Set(pantryMatches(list,pantry).map(i=>i.name));
- return {total:meal.minutes+25+show.minutes,items:list.map(i=>({...i,inPantry:matched.has(i.name)})),check:list.filter(i=>!matched.has(i.name)),pantryCount:matched.size};
+ return {total:meal.minutes+25+show.minutes,duration:eveningDuration(meal.minutes+25+show.minutes),items:list.map(i=>({...i,inPantry:matched.has(i.name)})),check:list.filter(i=>!matched.has(i.name)),pantryCount:matched.size};
 }

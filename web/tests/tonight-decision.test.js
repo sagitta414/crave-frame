@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {tonightPreferences,dinnerDecision,tonightShortcuts} from '../product/tonight-decision.js';
+import {tonightPreferences,dinnerDecision,tonightShortcuts,tonightShortcutState,eveningDuration} from '../product/tonight-decision.js';
 import {defaults,mealById,showById} from '../product/catalog.js';
 import {recommend} from '../product/engine.js';
 import {curate} from '../product/curation.js';
@@ -32,4 +32,19 @@ test('same dinner new show excludes the original while retaining the meal and ad
 });
 test('TV and browser decision helpers remain identical',()=>{
  assert.equal(readFileSync(new URL('../product/tonight-decision.js',import.meta.url),'utf8'),readFileSync(new URL('../../tv/src/catalog/tonight-decision.js',import.meta.url),'utf8'));
+});
+test('shortcut feedback reflects effective settings including stricter budgets',()=>{
+ const p={...defaults,cookTime:15};
+ assert.match(tonightShortcutState(p,'quick').detail,/15 min/);
+ assert.equal(tonightShortcutState(p,'quick').active,true);
+ assert.equal(tonightShortcutState(p,'easy').active,false);
+ assert.equal(tonightShortcutState(tonightPreferences(p,'easy'),'easy').active,true);
+ assert.equal(tonightShortcutState(tonightPreferences(p,'special'),'special').active,true);
+ assert.equal(tonightShortcutState(p,'family').active,false);
+});
+test('readable duration and action order keep the main decision before ingredient detail',()=>{
+ assert.equal(eveningDuration(45),'45 min');assert.equal(eveningDuration(120),'2 hr');assert.equal(eveningDuration(135),'2 hr 15 min');
+ const html=decisionHome(curate({prefs:defaults}),defaults,[]);
+ assert.ok(html.indexOf('data-action="home-plan"')<html.indexOf('<details>'));
+ assert.match(html,/aria-pressed="true"/);
 });

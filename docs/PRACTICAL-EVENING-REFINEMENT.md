@@ -13,6 +13,8 @@ Implemented locally on 21 October 2026. This record does not confirm deployment.
 
 ## Verification and remaining work
 
+Follow-up polish brings the primary action above expandable ingredients, resets the TV ingredient disclosure when the featured pairing changes, and shows effective shortcut states accessibly. Shortcut copy reflects stricter saved cooking budgets. Evening durations now use hours and minutes, and mobile primary actions expand to the available width. Active cards use a restrained green accent; focus retains its distinct bright outline.
+
 Automated regressions cover preference preservation, ingredient scaling, pantry labeling, a real featured pairing, and pinned dinner/adaptation behavior. Run `npm test`, `npm run build`, and `npm run check:secrets` before publishing.
 
 Browser automation was unavailable during this pass. Physical Fire TV, phone, and visual checks remain required. No TMDB credentials or production configuration were changed.
