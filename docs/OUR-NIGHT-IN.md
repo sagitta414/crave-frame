@@ -26,6 +26,16 @@ A favorite-dinner action finds another episode within current limits while keepi
 
 ## Verification
 
+### Shared pace and preparation follow-up
+
+Two-person rooms now collect an energy preference on each phone: Keep it easy, Up for cooking together, or Make it special. Matching waits for both people to join. It uses the gentler preference and never expands existing time or food limits. Keep it easy selects easy recipes and caps cooking at the lower of 30 minutes and the existing budget. Individual energy values are omitted from room responses even after reveal, and from saved group members; the resulting shared recipe limits remain visible. Legacy submissions without a value default to Keep it easy.
+
+Saved couples evenings offer optional Kitchen lead / Set the scene preparation suggestions, with a swap button. These are local suggestions, not synchronized assignments or extra recipe steps. Partners choose who does what together. The same panel retains the optional conversation starter, without collecting answers.
+
+Our night in now has a prominent Do this evening again action alongside the alternate-episode option. It opens an unconfirmed draft using the same dinner, title, servings, and adaptation. Old timers, schedule, watch progress, ingredient confirmations, and voting-room access are not copied. The original saved evening remains intact; a fresh schedule starts only when the new plan is approved. Couples styling follows the saved routine currently configured for the household.
+
+Regression checks cover gentler-pace selection, individual energy omission before/after reveal and in saved plans, role swapping, and fresh repeat drafts. These are automated results, not a physical two-phone test.
+
 Automated checks cover persistence, household isolation, validation, capability preservation, constraints, preference-based ranking, distinct shortlist choices, phone ritual snapshots, browser setup actions, and the two-person private-voting flow. Production build and secret checks must pass before deployment.
 
 Still required: physical Fire TV navigation and readability, phone QR scanning and clipboard behavior, a complete two-person session, and a fresh-user usability session. No claim of real-world relationship benefit or retention validation is made.

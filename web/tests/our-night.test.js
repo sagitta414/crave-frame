@@ -6,7 +6,7 @@ import {openDb} from '../server/local-db.js';
 import {defaults} from '../product/catalog.js';
 import {ingredients} from '../product/engine.js';
 import {createOurNightUI} from '../product/our-night-view.js';
-import {nightShortlist,nightPreferences,nightRitual,nightVibes} from '../product/our-night.js';
+import {nightShortlist,nightPreferences,nightRitual,nightVibes,sharedPace,coupleRoles,repeatEveningDraft} from '../product/our-night.js';
 const fixture=()=>{const DB=openDb(),env={DB,AI_PROVIDER:'catalog'};return {DB,async call(path,method='GET',data,key=''){const r=await api(new Request('https://test/api/'+path,{method,headers:{'content-type':'application/json','x-household-key':key},...(data?{body:JSON.stringify(data)}:{})}),env);return {status:r.status,data:await r.json()};}};};
 test('night-in rhythm persists, isolates households, preserves capabilities and validates input',async()=>{
  const f=fixture();try{const a=(await f.call('household','POST',{})).data,b=(await f.call('household','POST',{})).data;
@@ -67,15 +67,41 @@ test('couple voting rooms admit two guests and keep votes private until both sub
  const f=fixture();try{const h=(await f.call('household','POST',{})).data;
  const r=await f.call('rooms','POST',{name:'Our night in',maxMembers:2,prefs:defaults},h.key),k=r.data.key;
  assert.equal(r.status,201);assert.equal(r.data.room.maxMembers,2);
- const guest={name:'A',mood:'Cozy',diet:'No preference',watchTime:120,format:'Any',avoid:[]};
- const a=(await f.call('room/'+k+'/join','POST',guest)).data,b=(await f.call('room/'+k+'/join','POST',{...guest,name:'B'})).data;
+ const guest={name:'A',energy:'Keep it easy',mood:'Cozy',diet:'No preference',watchTime:120,format:'Any',avoid:[]};
+ const a=(await f.call('room/'+k+'/join','POST',guest)).data;
+ assert.equal((await f.call('rooms/'+k+'/match','POST',{},h.key)).status,400);
+ const b=(await f.call('room/'+k+'/join','POST',{...guest,name:'B',energy:'Make it special'})).data;
  assert.equal((await f.call('room/'+k+'/join','POST',{...guest,name:'C'})).status,400);
  const m=await f.call('rooms/'+k+'/match','POST',{},h.key);assert.ok(m.data.picks.length);
+ assert.equal(m.data.prefs.effort,'Easy');assert.ok(m.data.picks.every(p=>p.meal.effort==='Easy'&&p.meal.minutes<=30));
+ assert.ok(m.data.members.every(member=>!('energy' in member)));
  const p=m.data.picks[0],choice=p.meal.id+':'+p.show.id;
  await f.call('room/'+k+'/vote','POST',{choice,memberKey:a.memberKey});
  assert.equal((await f.call('rooms/'+k+'/reveal','POST',{},h.key)).status,400);
  assert.deepEqual((await f.call('room/'+k)).data.votes,{});
  await f.call('room/'+k+'/vote','POST',{choice,memberKey:b.memberKey});
  const revealed=await f.call('rooms/'+k+'/reveal','POST',{},h.key);assert.equal(revealed.data.votes[choice],2);
+ assert.ok(revealed.data.members.every(member=>!('energy' in member)));
+ const saved=await f.call('nights','POST',{groupKey:k,mealId:p.meal.id,showId:p.show.id,prefs:m.data.prefs,adapted:!!p.adapted,confirmed:ingredients(p.meal,2,p.adapted).map(i=>i.name)},h.key);
+ assert.equal(saved.status,201);assert.ok(saved.data.group.members.every(member=>!('energy' in member)));
  }finally{f.DB.close();}
+});
+test('shared energy respects the gentler preference without widening hard limits',()=>{
+ const p={...defaults,cookTime:15,diet:'Plant-based',family:true,watchTime:30};
+ const result=sharedPace(p,[{energy:'Make it special'},{energy:'Keep it easy'}]);
+ assert.equal(result.energy,'Exhausted');assert.equal(result.effort,'Easy');assert.equal(result.cookTime,15);assert.equal(result.diet,p.diet);assert.equal(result.family,true);assert.equal(result.watchTime,30);
+ assert.equal(sharedPace(p,[{energy:'Make it special'},{energy:'Up for cooking together'}]).energy,'Up for cooking');
+ assert.equal(sharedPace(p,[{energy:'Make it special'},{energy:'Make it special'}]).energy,'Make it special');
+ assert.equal(sharedPace(p,[{},{}]).effort,'Easy');
+});
+test('role swap changes suggested people without inventing new recipe steps',()=>{
+ const a=coupleRoles(),b=coupleRoles(true);
+ assert.equal(a[0].person,b[1].person);assert.equal(a[1].person,b[0].person);
+ assert.equal(a[0].task,b[0].task);assert.match(a[0].task,/Follow the recipe/);assert.match(a[1].task,/No extra recipe/);
+});
+test('repeat starts an unconfirmed draft without copying old timing or room access',()=>{
+ const n={id:'old',mealId:'a',showId:'b',prefs:{...defaults},adapted:true,ourNight:{vibe:'Reconnect'},planStart:123,timer:345,step:3,status:'complete',watchStarted:234,groupKey:'old-room',confirmed:['old ingredient']};
+ const d=repeatEveningDraft(n);assert.deepEqual(d.confirmed,[]);assert.equal(d.adapted,true);assert.equal(d.couplesNight,true);assert.deepEqual(d.pair,{mealId:'a',showId:'b'});
+ for(const k of ['id','planStart','timer','step','watchStarted','status','groupKey'])assert.ok(!(k in d));
+ d.prefs.people=4;assert.equal(n.prefs.people,2);assert.deepEqual(n.confirmed,['old ingredient']);
 });

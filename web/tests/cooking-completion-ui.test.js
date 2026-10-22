@@ -1,4 +1,4 @@
-import {nightRitual} from '../product/our-night.js';
+import {nightRitual,coupleRoles} from '../product/our-night.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -13,7 +13,7 @@ import {existsSync} from 'node:fs';
 const momentSource=readFileSync(new URL('../product/main.js',import.meta.url),'utf8').match(/^function coupleMoment\(.*$/m)[0];
 const source=readFileSync(new URL('../product/main.js',import.meta.url),'utf8').match(/^function cookPage\(\).*$/m)[0];
 function render(night){
- return vm.runInNewContext(momentSource+';'+source+';cookPage();',{nightRitual,getNight:()=>night,night,mealById,showById,recipeSteps,ingredients,cookingView,deliveryCompanion,readinessKey,readinessMarkup,cookingChecks:new Map(),timelinePanel:()=>'<div>Timeline</div>',mealPhoto:()=>'/photo.jpg',esc:String,badge:String,button:(label,action)=>`<button data-action="${action}">${label}</button>`,formatTime:String,sharedKey:'private',household:{capabilities:{connected:false}}});
+ return vm.runInNewContext(momentSource+';'+source+';cookPage();',{nightRitual,coupleRoles,getNight:()=>night,night,mealById,showById,recipeSteps,ingredients,cookingView,deliveryCompanion,readinessKey,readinessMarkup,cookingChecks:new Map(),timelinePanel:()=>'<div>Timeline</div>',mealPhoto:()=>'/photo.jpg',esc:String,badge:String,button:(label,action)=>`<button data-action="${action}">${label}</button>`,formatTime:String,sharedKey:'private',household:{capabilities:{connected:false}}});
 }
 const base={id:'test',mealId:'mac-cheese-peas',showId:'paddington',prefs:defaults,adapted:false,step:0,status:'cooking'};
 test('completed browser cooking pages celebrate without exposing timer or step mutations',()=>{

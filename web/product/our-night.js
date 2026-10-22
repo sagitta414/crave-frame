@@ -1,5 +1,15 @@
 export const nightDays=['Any day','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 export const nightVibes=['Unwind together','Playful date','Reconnect','Make it special'];
+export const coupleEnergy=['Keep it easy','Up for cooking together','Make it special'];
+export function repeatEveningDraft(n){return {mode:'meal',sourceId:n.mealId,externalShow:n.show,prefs:{...n.prefs},pair:{mealId:n.mealId,showId:n.showId},adapted:n.adapted,confirmed:[],couplesNight:!!n.ourNight,themeId:n.themeId};}
+export function sharedPace(prefs,members){
+ const level=Math.min(...members.map(m=>Math.max(0,coupleEnergy.indexOf(m.energy||'Keep it easy'))));
+ return {...prefs,...(level===0?{energy:'Exhausted',effort:'Easy',cookTime:Math.min(prefs.cookTime,30)}:level===1?{energy:'Up for cooking'}:{energy:'Make it special'})};
+}
+export function coupleRoles(swapped=false){return [
+ {person:swapped?'Partner 2':'Partner 1',title:'Kitchen lead',task:'Follow the recipe and handle the cooking. Ask for help when you want it.'},
+ {person:swapped?'Partner 1':'Partner 2',title:'Set the scene',task:'Set two places, choose a song together, and keep the table ready. No extra recipe needed.'}
+ ];}
 export function nightPreferences(ritual,memory={}){
  const soft=ritual.vibe==='Playful date'?{mood:'Lighthearted'}:ritual.vibe==='Reconnect'?{mood:'Romantic'}:ritual.vibe==='Make it special'?{energy:'Make it special'}:{energy:'Exhausted',mood:'Cozy'};
  return {...ritual.prefs,...soft,...(memory.preferredEffort==='Easy'?{effort:'Easy'}:{}),...(memory.shorter?{format:'TV episode',watchTime:Math.min(ritual.prefs.watchTime,45)}:{})};
