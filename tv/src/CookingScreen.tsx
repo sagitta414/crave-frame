@@ -1,3 +1,4 @@
+import {CoupleMoment} from './CoupleMoment';
 import {DeliveryCompanion} from './DeliveryCompanion';
 import {DinnerReady} from './DinnerReady';
 import {CookingChecklist} from './CookingChecklist';
@@ -25,7 +26,7 @@ export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onS
  const copy=cookingCopy(step.instruction,baseStep.instruction);
  return <ScrollView ref={scroll} testID="main-scroll" contentContainerStyle={{padding:small?20:40,paddingBottom:90,gap:20,maxWidth:1200,width:'100%',alignSelf:'center'}}>
  <Text style={s.kicker}>{preview?'RECIPE PREVIEW':phone?'YOUR KITCHEN COMPANION':'COOK AT YOUR PACE'}</Text><Text style={[s.title,{fontSize:small?32:44}]}>{m.name}</Text>
- {ready&&!preview&&<DinnerReady night={night} phone={phone} onBack={onBack}/>}
+ {ready&&!preview&&<><DinnerReady night={night} phone={phone} onBack={onBack}/><CoupleMoment key={night.id} night={night}/></>}
  {preview&&<CookingChecklist key={JSON.stringify([night.id,night.mealId,night.prefs.people,night.adapted,night.prefs.cookLevel])} night={night} meal={m} onReady={setChecked}/>}
  <View style={{flexDirection:small?'column':'row',gap:24}}><View style={{width:small?'100%':'32%',gap:12}}><RecipeArt meal={m} resizeMode="cover" style={{width:'100%',height:small?180:260,borderRadius:20}}/><Text style={s.meta}>{night.prefs.people} servings · {night.prefs.cookLevel||'Regular'} guidance</Text><Text style={s.meta}>Later tonight · {night.show?.name||'Your selected story'}</Text></View>
  <LinearGradient colors={['#1C2A3C','#111B2A']} style={[s.panel,{flex:1}]}><Text style={s.encourage}>{preview?'Take a look before you begin.':ready?'✦ You made dinner happen.':index===0?'Let’s make something good.':index===steps.length-1?'The finishing touches. You’ve got this.':'One step at a time. You’re getting there.'}</Text>

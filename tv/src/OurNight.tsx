@@ -1,0 +1,32 @@
+import React,{useState} from 'react';
+import {ScrollView,View,useWindowDimensions} from 'react-native';
+import {LinearGradient} from 'expo-linear-gradient';
+import {Text} from './TVText';
+import {TVButton as Button} from './TVButton';
+import {RecipeArt} from './RecipeArt';
+import {api} from './api';
+import {nightDays,nightVibes,nightRitual} from './catalog/our-night';
+export function OurNight({house,prefs,options,onHouse,onChoose,onGroup,onBack,onContinue}:any){
+ const saved=house.ourNight,{width}=useWindowDimensions(),[day,setDay]=useState(saved?.day||'Friday'),[vibe,setVibe]=useState(saved?.vibe||'Unwind together'),[settings,setSettings]=useState(saved?.prefs||{...prefs,people:2}),[editing,setEditing]=useState(!saved),[result,setResult]=useState<any>(null),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[question,setQuestion]=useState(false);
+ const ritual=nightRitual(vibe),favorite=house.nights.find((n:any)=>n.feedback?.meal==='again'&&n.feedback?.pairing!=='miss');
+ async function run(fn:any){if(busy)return;setBusy(true);setMessage('');try{await fn();}catch(e){setMessage(e.message);}finally{setBusy(false);}}
+ async function find(){const r=await api('our-night','POST',{});setResult(r);}
+ return <ScrollView testID="main-scroll" contentContainerStyle={{padding:width<700?20:40,paddingBottom:100,gap:22,backgroundColor:'#100E19'}}>
+ <Button compact quiet style={{alignSelf:'flex-start'}} onPress={onBack}>← Back</Button>
+ <LinearGradient colors={['#3A2037','#221D34','#142832']} style={{padding:30,borderRadius:26,gap:16,borderWidth:1,borderColor:'#785565'}}>
+ <Text style={{fontSize:20,color:'#F4BDAD',letterSpacing:3}}>OUR NIGHT IN</Text><Text style={{fontSize:width<700?38:56,lineHeight:width<700?46:64,fontWeight:'800',color:'#FFF2E7'}}>A little more us.</Text>
+ <Text style={{fontSize:24,lineHeight:34,color:'#E1CED7'}}>Dinner, a story, and time for each other. No perfect date required.</Text>
+ <Text style={{fontSize:21,color:'#E6DCCF'}}>{day} · {settings.people} people · {settings.cookTime} min cooking · {settings.diet}</Text>
+ <Button primary disabled={busy} onPress={()=>run(async()=>{if(editing||!saved){const h=await api('our-night','PUT',{day,vibe,prefs:settings,options});onHouse(h);setEditing(false);}await find();})}>{busy?'Finding our choices…':editing?'Save our rhythm & find choices':'Find our three evenings'}</Button>
+ <Button compact quiet disabled={busy} onPress={()=>setEditing(!editing)}>{editing?'Hide setup':'Adjust our usual night'}</Button>
+ <Text style={{fontSize:18,lineHeight:26,color:'#CCBAC8'}}>Saved for your next visit. No notifications or automatic bookings. Your streaming filters and food exclusions still apply.</Text>
+ </LinearGradient>
+ {editing&&<View style={{gap:16,padding:22,borderRadius:20,backgroundColor:'#241D2C'}}><Text style={{fontSize:25,color:'#FFF2E7'}}>Make it your rhythm</Text><View style={{flexDirection:'row',flexWrap:'wrap',gap:10}}>{nightDays.map(d=><Button compact key={d} disabled={busy} selected={d===day} onPress={()=>{setDay(d);setResult(null);}}>{d}</Button>)}</View><View style={{flexDirection:'row',flexWrap:'wrap',gap:10}}>{nightVibes.map(v=><Button compact key={v} disabled={busy} selected={v===vibe} onPress={()=>{setVibe(v);setQuestion(false);setResult(null);}}>{v}</Button>)}</View><Text style={{fontSize:21,color:'#E1CED7'}}>Cooking budget</Text><View style={{flexDirection:'row',flexWrap:'wrap',gap:10}}>{[15,30,45,60].map(v=><Button compact key={v} selected={settings.cookTime===v} disabled={busy} onPress={()=>{setSettings({...settings,cookTime:v});setResult(null);}}>{v+' min'}</Button>)}</View><Button quiet disabled={busy} onPress={()=>setSettings({...prefs,people:2})}>Use current food & viewing preferences · two people</Button></View>}
+ {!!message&&<Text accessibilityLiveRegion="polite" style={{fontSize:22,color:'#FFC4AA'}}>{message}</Text>}
+ {result&&<><Text style={{fontSize:28,color:'#FFF2E7',fontWeight:'700'}}>Choose the night you both need</Text>{result.learning.map((t:string)=><Text key={t} style={{fontSize:20,lineHeight:28,color:'#B7D9CB'}}>{t}</Text>)}<View style={{flexDirection:width>=1100?'row':'column',gap:20}}>{result.picks.map((p:any)=><View key={p.meal.id+p.show.id} style={{flex:1,borderRadius:20,overflow:'hidden',backgroundColor:'#1D2431',borderWidth:1,borderColor:'#5D5266'}}><RecipeArt meal={p.meal} style={{width:'100%',height:200}}/><View style={{padding:22,gap:12}}><Text style={{fontSize:20,color:'#FFCAB5'}}>{p.nightLabel}</Text><Text style={{fontSize:28,lineHeight:36,color:'#FFF2E7',fontWeight:'700'}}>{p.meal.name}</Text><Text style={{fontSize:22,lineHeight:30,color:'#E6DCE6'}}>With {p.show.name}</Text><Text style={{fontSize:19,lineHeight:27,color:'#BCCBDC'}}>{p.nightWhy}</Text><Button onPress={()=>onChoose(p,result.prefs)}>Review this evening</Button></View></View>)}</View>{!result.picks.length&&<Text style={{fontSize:22,color:'#FFD4C3'}}>{result.message||'No choices fit. Adjust the limits above; food exclusions stay active.'}</Text>}</>}
+ <View style={{padding:24,borderRadius:22,backgroundColor:'#2B202B',gap:14}}><Text style={{fontSize:28,color:'#FFE4D1'}}>{ritual.title}</Text><Text style={{fontSize:23,lineHeight:33,color:'#E8D8DF'}}>{ritual.before}</Text><Button quiet selected={question} onPress={()=>setQuestion(!question)}>{question?'Put the question away':'A question for just us · optional'}</Button>{question&&<Text style={{fontSize:28,lineHeight:39,color:'#FFE2CB'}}>{ritual.question}</Text>}<Text style={{fontSize:20,lineHeight:29,color:'#CBBAC8'}}>Afterwards: {ritual.after} Skip any prompt that doesn’t feel right.</Text></View>
+ <Button disabled={busy||!saved||editing} onPress={()=>onGroup(result?.prefs||saved.prefs,saved.options)}>Let us both choose · private phone votes</Button>
+ {favorite&&<Button onPress={()=>onContinue(favorite)}>Keep a favorite dinner · find another episode</Button>}
+ <Text style={{fontSize:19,lineHeight:28,color:'#BBC9D3'}}>After dinner, rate the meal and choose “favor easier cooking” or shorter episodes if that suits you. Those preferences will shape your next shortlist.</Text>
+ </ScrollView>;
+}
