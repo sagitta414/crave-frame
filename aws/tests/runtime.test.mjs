@@ -50,7 +50,7 @@ test('PostgreSQL persistence, concurrency, household isolation, private sharing 
   const first=await call('collections/'+ck+'/photo','PUT',{jpeg},h.key);assert.equal(first.status,200);
   const second=await call('collections/'+ck+'/photo','PUT',{jpeg},h.key);assert.equal(second.status,200);
   assert.equal(objects.has('photos/'+first.data.photo),false);assert.equal((await call('photo/'+first.data.photo)).status,404);
-  assert.equal((await call('photo/'+second.data.photo)).status,200);
+  assert.equal((await call('photo/'+second.data.photo+'?access='+second.data.photoAccess)).status,200);
   await call('collections/'+ck,'DELETE',null,h.key);assert.equal(objects.size,0);
   await call('nights/'+id+'/share','DELETE',null,h.key);assert.equal((await call('shared/'+share.data.key)).status,404);
   const reopened=databaseAdapter(client);assert.ok(await reopened.prepare('SELECT data FROM households WHERE id=?').bind(row.id).first());

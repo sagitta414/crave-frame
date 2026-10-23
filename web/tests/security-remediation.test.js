@@ -42,19 +42,19 @@ test('owner and editor replacements revoke old photos; orphan keys cannot be rea
  try{
   const owner=await digest(homeKey),collectionId=await digest(key);
   await DB.prepare('INSERT INTO households(id,data,revision,updated) VALUES(?,?,0,?)').bind(owner,JSON.stringify({prefs:{},nights:[],memory:{},pantry:[]}),'2026-10-10').run();
-  await DB.prepare('INSERT INTO collections(id,household,data) VALUES(?,?,?)').bind(collectionId,owner,JSON.stringify({key,name:'Test',photo:null,editKey:'c'.repeat(64)})).run();
+  await DB.prepare('INSERT INTO collections(id,household,data) VALUES(?,?,?)').bind(collectionId,owner,JSON.stringify({key,name:'Test',photo:null,editKey:'c'.repeat(64),editExpires:Date.now()+3600000})).run();
   const jpeg='data:image/jpeg;base64,/9j/2Q==';
   const first=await (await call('collections/'+key+'/photo','PUT',{jpeg})).json();
-  assert.ok(first.photo);assert.equal((await call('photo/'+first.photo)).status,200);
+  assert.ok(first.photo);assert.equal((await call('photo/'+first.photo+'?access='+first.photoAccess)).status,200);
   const second=await (await call('collections/'+key+'/photo','PUT',{jpeg})).json();
   assert.ok(second.photo);assert.equal(files.has('photos/'+first.photo),false);assert.equal((await call('photo/'+first.photo)).status,404);
   const third=await (await call('collection-editor/'+key,'PUT',{jpeg,editKey:'c'.repeat(64)})).json();
-  assert.equal(files.has('photos/'+second.photo),false);assert.equal((await call('photo/'+third.photo)).status,200);
+  assert.equal(files.has('photos/'+second.photo),false);assert.equal((await call('photo/'+third.photo+'?access='+third.photoAccess)).status,200);
   // Simulate a concurrent collection edit: a rejected new upload must be removed.
   env.DB={prepare(sql){const statement=DB.prepare(sql);if(sql.startsWith('UPDATE collections SET'))return {bind(){return {run:async()=>({meta:{changes:0}})};}};return statement;}};
   assert.equal((await call('collections/'+key+'/photo','PUT',{jpeg})).status,409);
   assert.equal(files.size,1);assert.ok(files.has('photos/'+third.photo));env.DB=DB;
-  await DB.prepare('UPDATE ai_usage SET count=? WHERE id=?').bind(500*1024*1024,'storage:photo-upload-bytes').run();
+  await DB.prepare('UPDATE ai_usage SET count=? WHERE id=?').bind(10*1024*1024,'photo-upload:'+new Date().toISOString().slice(0,10)+':'+owner).run();
   assert.equal((await call('collections/'+key+'/photo','PUT',{jpeg})).status,429);assert.equal(files.size,1);
   await call('collections/'+key,'DELETE');assert.equal(files.size,0);assert.equal((await call('photo/'+third.photo)).status,404);
   files.set('photos/'+key,new Uint8Array([255,216,255]));assert.equal((await call('photo/'+key)).status,404);

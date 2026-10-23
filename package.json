@@ -8,7 +8,8 @@
     "build": "node scripts/project.mjs build",
     "test": "node scripts/project.mjs test",
     "dev": "npm --prefix web run dev",
-    "check:secrets": "node scripts/check-secrets.mjs"
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "check:secrets:history": "node scripts/check-secrets.mjs --history"
   },
   "engines": {
     "node": ">=24"

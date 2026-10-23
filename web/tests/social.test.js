@@ -54,9 +54,10 @@ test('saved scheduling syncs to phone and collections revoke access without shar
  const c=(await f.call('collections','POST',{nightId:n.id,name:'Quiet night',notes:'A favorite'},key)).data;assert.equal((await f.call('collection-share/'+c.key)).status,404);assert.equal((await f.call('collections/'+c.key,'PUT',{name:'Changed',notes:'',shared:true},other)).status,404);
  await f.call('collections/'+c.key,'PUT',{name:c.name,notes:c.notes,shared:true},key);const publicEntry=(await f.call('collection-share/'+c.key)).data;assert.ok(publicEntry.meal);assert.ok(!JSON.stringify(publicEntry).includes(key));assert.ok(!publicEntry.memory);
  assert.equal((await f.call('collections/'+c.key+'/photo','PUT',{jpeg:'data:image/jpeg;base64,AAAA'},key)).status,400);
+ const editor=(await f.call('collections/'+c.key+'/editor','POST',{},key)).data;
  assert.equal((await f.call('collection-editor/'+c.key+'?editKey='+other)).status,403);
- assert.equal((await f.call('collection-editor/'+c.key+'?editKey='+c.editKey)).status,200);
- const uploaded=await f.call('collection-editor/'+c.key,'PUT',{editKey:c.editKey,jpeg:'data:image/jpeg;base64,/9j/2Q=='});assert.equal(uploaded.status,200);assert.equal((await f.call('photo/'+uploaded.data.photo)).status,200);assert.ok(!(await f.call('collection-share/'+c.key)).data.editKey);
+ assert.equal((await f.call('collection-editor/'+c.key+'?editKey='+editor.editKey)).status,200);
+ const uploaded=await f.call('collection-editor/'+c.key,'PUT',{editKey:editor.editKey,jpeg:'data:image/jpeg;base64,/9j/2Q=='});assert.equal(uploaded.status,200);assert.equal((await f.call('photo/'+uploaded.data.photo+'?access='+uploaded.data.photoAccess)).status,200);assert.ok(!(await f.call('collection-share/'+c.key)).data.editKey);
  await f.call('collections/'+c.key,'PUT',{name:c.name,notes:c.notes,shared:false},key);assert.equal((await f.call('collection-share/'+c.key)).status,404);
  }finally{f.DB.close();}
 });

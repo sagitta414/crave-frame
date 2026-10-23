@@ -99,7 +99,7 @@ test('collections retain adaptations and the shared recreation passes them to re
   await f.call('collections/'+c.key,'PUT',{name:c.name,notes:'',shared:true});
   assert.equal((await f.call('collection-share/'+c.key)).data.adapted,true);
   const source=readFileSync(new URL('../../tv/src/Extras.tsx',import.meta.url),'utf8');
-  assert.match(source,/adapted:shared.adapted/);assert.match(source,/Existing photo links still work/);
+  assert.match(source,/adapted:shared.adapted/);assert.match(source,/Stopping sharing revokes existing photo and editor links/);
  }finally{f.DB.close();}
 });
 

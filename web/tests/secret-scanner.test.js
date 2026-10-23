@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+import {spawnSync} from 'node:child_process';
+const scanner=resolve('../scripts/check-secrets.mjs');
+test('secret scan covers env, Python, AWS IDs and JWTs without printing values',()=>{const dir=mkdtempSync(join(tmpdir(),'crave-secret-test-'));try{for(const [name,value]of [['.env','TMDB_ACCESS_TOKEN='+('z'.repeat(45))],['credentials.py','token="'+('ey'+'J'+ 'a'.repeat(20)+'.'+'b'.repeat(30)+'.'+'c'.repeat(30))+'"'],['aws.txt','AK'+'IA'+'Z'.repeat(16)]]){writeFileSync(join(dir,name),value);const r=spawnSync(process.execPath,[scanner],{cwd:dir,encoding:'utf8'});assert.equal(r.status,1);assert.ok(r.stderr.includes(name));assert.ok(!r.stderr.includes(value));rmSync(join(dir,name));}writeFileSync(join(dir,'safe.js'),'const x={INTEGRATION_ENCRYPTION_KEY:process.env.INTEGRATION_ENCRYPTION_KEY};');assert.equal(spawnSync(process.execPath,[scanner],{cwd:dir}).status,0);}finally{rmSync(dir,{recursive:true,force:true});}});
+import {execFileSync} from 'node:child_process';
+test('history scan finds a credential removed from the working tree',()=>{const dir=mkdtempSync(join(tmpdir(),'crave-history-test-'));try{const git=args=>execFileSync('git',['-c','safe.directory='+dir.replaceAll('\\','/'),'-c','user.name=Test','-c','user.email=test@example.invalid',...args],{cwd:dir,stdio:'pipe'});git(['init']);const value='AK'+'IA'+'X'.repeat(16);writeFileSync(join(dir,'removed.env'),value);git(['add','.']);git(['commit','-m','Synthetic fixture']);rmSync(join(dir,'removed.env'));git(['add','-u']);git(['commit','-m','Remove fixture']);assert.equal(spawnSync(process.execPath,[scanner],{cwd:dir}).status,0);const result=spawnSync(process.execPath,[scanner,'--history'],{cwd:dir,encoding:'utf8'});assert.equal(result.status,1);assert.ok(result.stderr.includes('removed.env'));assert.ok(!result.stderr.includes(value));}finally{rmSync(dir,{recursive:true,force:true});}});
