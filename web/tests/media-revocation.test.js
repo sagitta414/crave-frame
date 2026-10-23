@@ -60,9 +60,40 @@ test('failed retired-photo deletion does not report a failed save and is retried
  assert.equal((await f.call('photo/'+first.photo+'?access='+first.photoAccess)).status,404);
  assert.equal((await f.call('photo/'+second.data.photo+'?access='+second.data.photoAccess)).status,200);
  assert.ok(await f.DB.prepare('SELECT id FROM ai_usage WHERE id=?').bind('photo-delete:'+first.photo).first());
- f.env.MEDIA.delete=remove;await f.call('collections','GET',null,true);assert.equal(f.files.has('photos/'+first.photo),false);assert.equal(f.files.has('photos/'+second.data.photo),true);
+ f.env.MEDIA.delete=remove;await f.DB.prepare("UPDATE ai_usage SET count=0 WHERE id LIKE 'photo-delete:%'").run();await f.call('collections','GET',null,true);assert.equal(f.files.has('photos/'+first.photo),false);assert.equal(f.files.has('photos/'+second.data.photo),true);
  assert.equal(await f.DB.prepare('SELECT id FROM ai_usage WHERE id=?').bind('photo-delete:'+first.photo).first(),null);
  // Deleting the collection also succeeds without leaving a misleading failure to retry.
  f.env.MEDIA.delete=async()=>{throw Error('Simulated outage');};assert.equal((await f.call('collections/'+f.key,'DELETE',null,true)).status,200);
- f.env.MEDIA.delete=remove;await f.call('collections','GET',null,true);assert.equal(f.files.size,0);
+ f.env.MEDIA.delete=remove;await f.DB.prepare("UPDATE ai_usage SET count=0 WHERE id LIKE 'photo-delete:%'").run();await f.call('collections','GET',null,true);assert.equal(f.files.size,0);
+}finally{f.DB.close();}});
+
+test('referenced cleanup entries and failed deletes cannot starve later retired photos',async()=>{const f=await fixture();try{
+ for(let i=1;i<=10;i++){const photo=i.toString(16).padStart(64,'0');f.files.set('photos/'+photo,new Uint8Array([255,216,255]));await f.DB.prepare('INSERT INTO collections(id,household,data) VALUES(?,?,?)').bind('fixture-'+i,f.house,JSON.stringify({photo,photoAccess:'e'.repeat(64)})).run();await f.DB.prepare('INSERT INTO ai_usage(id,count) VALUES(?,?)').bind('photo-delete:'+photo,i).run();}
+ const orphan='f'.repeat(64);f.files.set('photos/'+orphan,new Uint8Array([255,216,255]));await f.DB.prepare('INSERT INTO ai_usage(id,count) VALUES(?,?)').bind('photo-delete:'+orphan,11).run();
+ await f.call('collections','GET',null,true);await f.call('collections','GET',null,true);assert.equal(f.files.has('photos/'+orphan),false);assert.equal(f.files.size,10);
+}finally{f.DB.close();}});
+
+test('upload is journaled before object storage and a failed database save remains recoverable',async()=>{const f=await fixture();try{
+ const original=f.env.DB;let capturedPhoto;
+ const put=f.env.MEDIA.put;f.env.MEDIA.put=async(k,v)=>{capturedPhoto=k.slice(7);const journal=await f.DB.prepare('SELECT count FROM ai_usage WHERE id=?').bind('photo-delete:'+capturedPhoto).first();assert.ok(journal.count>Date.now(),'in-flight upload has a grace period');await put(k,v);};
+ f.env.DB={prepare(sql){const st=original.prepare(sql);if(sql.startsWith('UPDATE collections SET data='))return {bind(){return {run:async()=>{throw Error('Simulated database save failure');}};}};return st;}};
+ const result=await f.call('collections/'+f.key+'/photo','PUT',{jpeg},true);assert.equal(result.status,500);assert.ok(f.files.has('photos/'+capturedPhoto));
+ assert.ok(await f.DB.prepare('SELECT count FROM ai_usage WHERE id=?').bind('photo-delete:'+capturedPhoto).first());
+ f.env.DB=original;await f.call('collections','GET',null,true);assert.ok(f.files.has('photos/'+capturedPhoto),'grace period protects in-flight uploads');
+ await f.DB.prepare('UPDATE ai_usage SET count=0 WHERE id=?').bind('photo-delete:'+capturedPhoto).run();await f.call('collections','GET',null,true);assert.equal(f.files.size,0);
+}finally{f.DB.close();}});
+
+test('repeated object-store failures do not block cleanup of later objects',async()=>{const f=await fixture();try{
+ for(let i=1;i<=11;i++){const photo=i.toString(16).padStart(64,'0');f.files.set('photos/'+photo,new Uint8Array([255,216,255]));await f.DB.prepare('INSERT INTO ai_usage(id,count) VALUES(?,?)').bind('photo-delete:'+photo,i).run();}
+ const last=(11).toString(16).padStart(64,'0'),remove=f.env.MEDIA.delete;
+ f.env.MEDIA.delete=async k=>{if(k!=='photos/'+last)throw Error('Simulated unavailable object');return remove(k);};
+ await f.call('collections','GET',null,true);await f.call('collections','GET',null,true);
+ assert.equal(f.files.has('photos/'+last),false);assert.equal(f.files.size,10);
+}finally{f.DB.close();}});
+
+test('failed cleanup journaling prevents an untracked object upload',async()=>{const f=await fixture();try{
+ const original=f.env.DB;let puts=0;f.env.MEDIA.put=async()=>{puts++;};
+ f.env.DB={prepare(sql){const st=original.prepare(sql);if(sql.startsWith('INSERT INTO ai_usage(id,count) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET count=excluded.count'))return {bind(){return {run:async()=>{throw Error('Simulated journal failure');}};}};return st;}};
+ assert.equal((await f.call('collections/'+f.key+'/photo','PUT',{jpeg},true)).status,500);assert.equal(puts,0);
+ const budget=await f.DB.prepare('SELECT count FROM ai_usage WHERE id=?').bind('photo-upload:'+new Date().toISOString().slice(0,10)+':'+f.house).first();assert.equal(budget.count,0);
 }finally{f.DB.close();}});

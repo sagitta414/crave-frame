@@ -44,3 +44,11 @@ Three regressions found during the post-fix review are corrected:
 - Old-photo cleanup is queued durably before retirement. Storage deletion failures do not turn an already saved edit or deletion into a misleading error. Later collection requests retry a bounded batch of cleanup, checking references before deletion. This is request-driven retry, not a scheduled background worker; an operator may need to trigger a collection read after a prolonged storage outage.
 
 Follow-up validation: 218 web + 55 TV + 10 AWS tests passed (283 total), with TV type/remote checks, production build and credential-pattern scan. The three new regressions reproduce the original failures. No AWS deployment was performed.
+
+## Cleanup queue reliability follow-up
+
+- Cleanup records now carry a not-before time. In-use photos and failed deletions are deferred for one minute, allowing subsequent requests to process later entries instead of repeatedly selecting the same ten records.
+- New uploads are journaled before S3 writes with a ten-minute grace period. If the collection save fails or the request is interrupted, the unreferenced file remains discoverable for later cleanup. Failure to write the journal prevents the object upload; the reserved upload allowance is refunded.
+- Cleanup still checks collection references before deletion and is driven by subsequent collection requests. Grace periods are longer than the deployed Lambda request lifetime. This does not introduce a background scheduler.
+
+Validation: 222 web + 55 TV + 10 AWS tests passed (287 total), plus TV type/remote checks, production build and secret scans. Four new regressions cover referenced-entry starvation, failed-delete starvation, post-upload database failure and journal failure before upload.
