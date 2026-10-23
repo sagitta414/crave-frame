@@ -10,7 +10,7 @@ test('night-in starts simply and saves edited settings even after setup is hidde
  const React={useState:initial=>{const i=cursor++;if(!(i in states))states[i]=initial;return [states[i],v=>states[i]=typeof v==='function'?v(states[i]):v];}};
  const jsx=(type,props)=>({type,props});
  const api=async(path,method,body)=>{calls.push({path,method,body});return method==='PUT'?{ourNight:body}:{picks:[],learning:[],prefs:defaults};};
- const modules={'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'ScrollView',View:'View',useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./RecipeArt':{RecipeArt:'Art'},'./api':{api},'./catalog/our-night':model};
+ const modules={'./NightDirector':{NightDirector:'NightDirector'},'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'ScrollView',View:'View',useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./RecipeArt':{RecipeArt:'Art'},'./api':{api},'./catalog/our-night':model};
  const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/OurNight.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>{assert.ok(modules[id],id);return modules[id];}});
  const props={house:{ourNight:{day:'Friday',vibe:'Reconnect',prefs:defaults},nights:[]},prefs:defaults,options:{},onHouse:()=>{}};
  const render=()=>{cursor=0;return exports.OurNight(props);};

@@ -29,7 +29,7 @@ export function Startup({onComplete,soundEnabled=true}:{onComplete:()=>void,soun
   <StoryBackdrop step={step} reduced={reduced} paused={paused}/>
   <ScrollView style={{flex:1}} contentContainerStyle={{flexGrow:1,paddingHorizontal:small?24:40,paddingTop:24,paddingBottom:16,justifyContent:'space-between',gap:10}}>
    <View style={[s.row,{justifyContent:'space-between'}]}><StoryBrand/></View>
-   <View style={{paddingVertical:4}}>{longStory?<StoryCaption step={step} reduced={reduced||paused}/>:<View style={{gap:20,maxWidth:850}}><Text style={{fontSize:small?36:48,lineHeight:small?46:58,color:"#FFF6EE",fontWeight:"800"}}>Dinner and something to watch. Sorted together.</Text><Text style={{fontSize:small?24:30,lineHeight:small?34:42,color:"#DAE3EF"}}>Choose an evening on TV. Scan the recipe to your phone. Running late? Your plan can move with you.</Text><Text style={{fontSize:22,lineHeight:32,color:"#FFCA9F"}}>Arrows move · Center selects · Back returns</Text></View>}</View>
+   <View style={{paddingVertical:4}}>{longStory?<StoryCaption step={step} reduced={reduced||paused}/>:<View style={{gap:20,maxWidth:850}}><Text style={{fontSize:small?36:48,lineHeight:small?46:58,color:"#FFF6EE",fontWeight:"800"}}>Make a little time for each other.</Text><Text style={{fontSize:small?24:30,lineHeight:small?34:42,color:"#DAE3EF"}}>Pick dinner and something to watch on TV. Scan the code to cook with your phone. Running late? Your evening plan adjusts with you.</Text><Text style={{fontSize:22,lineHeight:32,color:"#FFCA9F"}}>Arrows move · Center selects · Back returns</Text></View>}</View>
    {longStory&&<StoryProgress step={step} paused={paused||!ready} reduced={reduced}/>}
   </ScrollView>
   <View style={[s.footer,{paddingHorizontal:small?24:40,paddingVertical:10}]}>

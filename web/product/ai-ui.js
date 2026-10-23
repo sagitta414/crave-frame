@@ -5,7 +5,7 @@ import {artworkFor,tmdbImage} from './artwork.js';
 import {foodPreferences} from './diets.js';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const food=mealPhoto;
-const poster=s=>artworkFor(s)?.image||'/app/images/crave-frame-logo-v2.png';
+const poster=s=>artworkFor(s)?.image||'/app/images/crave-frame-together-mark-v6.png';
 const samples=['Two people, chicken tacos and an adventurous movie. 30 minutes to cook, up to 3 hours to watch.','A cozy date night. We have pasta and tomatoes. Keep cooking under 30 minutes.','We disagree: one wants comfort, one wants adventure. Find common ground.'];
 export function createAiUI(ctx){
  const state={mode:'plan',prompt:'',response:null,pending:false,error:'',image:null,preview:'',pin:null};

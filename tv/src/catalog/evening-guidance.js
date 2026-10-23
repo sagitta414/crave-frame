@@ -13,6 +13,6 @@ export function emptyMatchAdvice(prefs={},show){
  if(show&&prefs.eveningMinutes>0&&show.minutes+25>=prefs.eveningMinutes)return {text:`This title and 25 minutes for dinner use ${show.minutes+25} minutes before cooking. Your whole-evening limit is ${prefs.eveningMinutes} minutes. Choose a shorter watch or review that limit.`,action:'Review whole-evening time',destination:'preferences'};
  return {text:`No pairing meets every current choice. Cooking is limited to ${prefs.cookTime||30} minutes${prefs.eveningMinutes?`, with ${prefs.eveningMinutes} minutes for the whole evening`:''}. Try a different title or review time and format. Food exclusions remain active.`,action:'Review time & format',destination:'preferences'};
 }
-export function nextCookingLabel(night){return night.fulfillment==='delivery'?'View delivery plan':night.status==='planned'?'Check ingredients':night.status==='cooking'?'Continue cooking':night.status==='ready'||night.status==='complete'?'View cooking steps':'Open evening';}
+export function nextCookingLabel(night){return night.fulfillment==='delivery'?'View delivery plan':night.status==='planned'?'Get ready to cook':night.status==='cooking'?'Continue cooking':night.status==='ready'||night.status==='complete'?'View cooking steps':'Open evening';}
 
 export function changeDinnerDraft(draft,showId,mealId){return {...draft,mode:'watch',sourceId:showId,pair:null,ai:null,demoId:null,themeId:null,themedMealId:null,confirmed:[],excludedDinnerIds:[...new Set([...(draft.sourceId===showId?draft.excludedDinnerIds||[]:[]),mealId])]};}

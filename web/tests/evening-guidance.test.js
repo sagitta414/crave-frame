@@ -28,7 +28,7 @@ test('change dinner keeps the watch and preferences, excludes the rejected dish 
  assert.equal(original.mode,'meal');assert.equal(original.excludedDinnerIds,undefined);
  const memory={dislikedIngredients:['peanut'],dislikedMeals:next.excludedDinnerIds};
  const picks=recommend({...next,memory});assert.ok(picks.length);assert.ok(picks.every(p=>p.show.id===show.id&&p.meal.id!=='grilled-cheese-soup'&&p.meal.minutes<=prefs.cookTime));
- assert.equal(nextCookingLabel({status:'planned'}),'Check ingredients');assert.equal(nextCookingLabel({status:'cooking'}),'Continue cooking');assert.equal(nextCookingLabel({status:'ready'}),'View cooking steps');assert.equal(nextCookingLabel({status:'planned',fulfillment:'delivery'}),'View delivery plan');
+ assert.equal(nextCookingLabel({status:'planned'}),'Get ready to cook');assert.equal(nextCookingLabel({status:'cooking'}),'Continue cooking');assert.equal(nextCookingLabel({status:'ready'}),'View cooking steps');assert.equal(nextCookingLabel({status:'planned',fulfillment:'delivery'}),'View delivery plan');
 });
 test('browser and TV use the same guidance rules',()=>{
  assert.equal(readFileSync(new URL('../product/evening-guidance.js',import.meta.url),'utf8'),readFileSync(new URL('../../tv/src/catalog/evening-guidance.js',import.meta.url),'utf8'));

@@ -11,7 +11,7 @@ test('choice labels distinguish saved favorites, documented links and estimated 
 });
 test('brief pairing explanation keeps the interpretation honest',()=>{
  assert.equal(pairingSummary({meal:meal('Sandwich',15),connection:{source:'https://store.paddington.com/news'}}),'A savory sandwich inspired by Paddington’s love of marmalade sandwiches.');
- assert.match(pairingSummary({meal:meal('Pasta',20),pairingType:'practical',connection:{source:'https://paddington.com'}}),/no direct story-food connection/);
+ assert.match(pairingSummary({meal:meal('Pasta',20),pairingType:'practical',connection:{source:'https://paddington.com'}}),/everyday pairing/);
  assert.doesNotMatch(pairingSummary({meal:meal('Pasta',20),connection:{source:'https://paddington.com'}}),/sandwich/);
 });
 test('return visits resume a current unfinished evening and exclude completed feedback',()=>{

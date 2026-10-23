@@ -53,3 +53,9 @@ test('successful room polling clears connection errors without erasing form vali
  await sync.refresh();assert.equal(connectionError,'offline');await sync.refresh();
  assert.equal(connectionError,'');assert.equal(formError,'Choose a preference');sync.stop();
 });
+
+test('expired room surfaces the server message and stops polling',async()=>{
+ let calls=0,message='',room={phase:'voting'};const scheduled=[];
+ const sync=createEveningSync({read:async()=>{calls++;throw Object.assign(Error('This room expired. Ask the host for a new link.'),{status:404});},apply:()=>assert.fail('expired room must not apply'),onError:e=>{message=e.message;room=null;return false;},version:()=>0,blocked:()=>false,schedule:fn=>scheduled.push(fn),cancel:()=>{}});
+ await sync.refresh();await sync.refresh();assert.equal(calls,1);assert.equal(room,null);assert.match(message,/Ask the host/);assert.equal(scheduled.length,0);
+});

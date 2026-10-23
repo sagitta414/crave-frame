@@ -1,3 +1,4 @@
+import {signatureFor} from './catalog/signature-evenings.js';
 import {browseTitleKey} from './catalog/identity.js';
 const flagshipMeals=new Set(['tomato-pasta','margherita','grilled-cheese-soup','chicken-pepper-tacos','chicken-basil-pasta','beef-rice-bowls','salmon-lemon-pasta','tuna-rice-bowls']);
 // Choose only from already eligible results; presentation never relaxes food/time filters.
@@ -5,7 +6,7 @@ export function chooseSpotlight(pairs,hasPhoto,reviewed=(meal)=>false){
  const valid=pairs.filter(p=>p?.meal&&p?.show);
  const photographed=valid.filter(p=>hasPhoto(p.meal));
  const candidates=photographed.length?photographed:valid;
- const score=p=>(reviewed(p.meal)?4:0)+((p.meal.shortName||p.meal.name).length<=38?2:0)+(p.meal.familiar?1:0);
+ const score=p=>(signatureFor(p.meal,p.show)?3:0)+(reviewed(p.meal)?4:0)+((p.meal.shortName||p.meal.name).length<=38?2:0)+(p.meal.familiar?1:0);
  return [...candidates].sort((a,b)=>score(b)-score(a))[0];
 }
 export function eveningPalette(show){return ({Cozy:'#FFD2AA',Romantic:'#E9B4D6',Adventure:'#A4CFFF',Lighthearted:'#B7E8D2',Thoughtful:'#CDBEFF'})[show?.mood]||'#FFD2AA';}

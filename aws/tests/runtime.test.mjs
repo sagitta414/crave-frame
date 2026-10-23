@@ -45,13 +45,14 @@ test('PostgreSQL persistence, concurrency, household isolation, private sharing 
   const row=(await client.query('SELECT id,revision FROM households ORDER BY id')).rows[0];
   const update=()=>DB.prepare('UPDATE households SET revision=revision+1 WHERE id=? AND revision=?').bind(row.id,row.revision).run();
   assert.equal((await update()).meta.changes,1);assert.equal((await update()).meta.changes,0);
-  const collection=await call('collections','POST',{nightId:id},h.key);assert.equal(collection.status,201);
+  const memoryBody={nightId:id,requestId:'postgres_memory_request_123'};const collection=await call('collections','POST',memoryBody,h.key);assert.equal(collection.status,201);
+  assert.equal((await call('collections','POST',memoryBody,h.key)).data.key,collection.data.key);assert.equal((await call('collections','POST',{nightId:id},h.key)).data.key,collection.data.key);
   const ck=collection.data.key,jpeg='data:image/jpeg;base64,/9j/2Q==';
   const first=await call('collections/'+ck+'/photo','PUT',{jpeg},h.key);assert.equal(first.status,200);
   const second=await call('collections/'+ck+'/photo','PUT',{jpeg},h.key);assert.equal(second.status,200);
   assert.equal(objects.has('photos/'+first.data.photo),false);assert.equal((await call('photo/'+first.data.photo)).status,404);
   assert.equal((await call('photo/'+second.data.photo+'?access='+second.data.photoAccess)).status,200);
-  await call('collections/'+ck,'DELETE',null,h.key);assert.equal(objects.size,0);
+  await call('collections/'+ck,'DELETE',null,h.key);assert.equal(objects.size,0);assert.equal((await call('collections','POST',memoryBody,h.key)).status,409);assert.equal((await call('collections','GET',null,h.key)).data.collections.length,0);const fresh=await call('collections','POST',{...memoryBody,requestId:'postgres_fresh_request_123'},h.key);assert.equal(fresh.status,201);assert.notEqual(fresh.data.key,ck);await call('collections/'+fresh.data.key,'PUT',{name:'New card',notes:'',shared:true},h.key);assert.equal((await call('collection-share/'+ck)).status,404);
   await call('nights/'+id+'/share','DELETE',null,h.key);assert.equal((await call('shared/'+share.data.key)).status,404);
   const reopened=databaseAdapter(client);assert.ok(await reopened.prepare('SELECT data FROM households WHERE id=?').bind(row.id).first());
  }finally{await pg.close();}

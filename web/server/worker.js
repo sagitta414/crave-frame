@@ -1,4 +1,7 @@
 import {validateCookingPlan} from './plan-validation.js';
+import {eveningWays} from '../product/night-director.js';
+import {respondToEdition} from '../product/tonights-edition.js';
+import {partnerTasks,savePartnerFeedback,partnerLearning} from '../product/together-features.js';
 import {nightDays,nightVibes,nightShortlist,nightLearning,nightPreferences,ritualChoices} from '../product/our-night.js';
 import {energyLevels,viewingStyles} from '../product/tonight-personality.js';
 import {secureResponse} from './security.js';
@@ -76,9 +79,11 @@ export async function api(request,env){try{
  if(parts[1]==='companion'&&method==='POST'){const handoff=await createCompanion(env,id,row,await body(request));if(handoff.changed)await saveHouse(db,id,row);delete handoff.changed;return json(handoff);}
  if(['browse','curate','options','rooms','schedule','collections'].includes(parts[1])){const response=await social(request,env,{id,row,save:()=>saveHouse(db,id,row)});if(response)return response;}
  if(parts[1]==='our-night'){
+  if(parts[2]==='ways'&&method==='POST'){const b=await body(request),ritual=row.data.ourNight;if(!ritual)fail('Save your night-in preferences first.');if(typeof b.showId!=='string'||!b.showId||b.showId.length>160)fail('Choose a title first.');const p=preferences(nightPreferences(ritual,row.data.memory));const r=await curated(env,row.data,{mode:'watch',sourceId:b.showId,prefs:p,options:ritual.options,browse:true});return json({ways:eveningWays(partnerLearning(r.picks,row.data.nights),b.showId),prefs:p});}
+  if(parts[2])fail('Not found.',404);
   if(method==='PUT'){const b=await body(request);if(!nightDays.includes(b.day)||!nightVibes.includes(b.vibe)||(b.ritualChoice!==undefined&&!ritualChoices.includes(b.ritualChoice)))fail('Choose a day and kind of evening.');row.data.ourNight={day:b.day,vibe:b.vibe,ritualChoice:b.ritualChoice??row.data.ourNight?.ritualChoice??'Follow tonight’s mood',prefs:preferences(b.prefs),options:validatePairingOptions(b.options||row.data.options)};await saveHouse(db,id,row);return json(householdView(row.data,env));}
   if(method==='DELETE'){delete row.data.ourNight;await saveHouse(db,id,row);return json(householdView(row.data,env));}
-  if(method==='POST'){const ritual=row.data.ourNight;if(!ritual)fail('Save your night-in preferences first.');const p=preferences(nightPreferences(ritual,row.data.memory));const r=await curated(env,row.data,{prefs:p,options:ritual.options,browse:true});return json({...r,picks:nightShortlist(r.picks,row.data),ritual,learning:nightLearning(row.data.memory)});}
+  if(method==='POST'){const ritual=row.data.ourNight;if(!ritual)fail('Save your night-in preferences first.');const p=preferences(nightPreferences(ritual,row.data.memory));const r=await curated(env,row.data,{prefs:p,options:ritual.options,browse:true});const picks=nightShortlist(r.picks,row.data,p);return json({...r,picks,message:picks.length?r.message:`No ${p.mood.toLowerCase()} choices fit your ${p.watchTime}-minute viewing limit, ${p.cookTime}-minute cooking limit and current filters. Try another mood or review viewing time and streaming services. Food exclusions stay active.`,ritual,learning:nightLearning(row.data.memory,row.data.nights)});}
   fail('Method not allowed.',405);
  }
  if(parts[1]==='memory'&&method==='PATCH'){
@@ -162,6 +167,7 @@ export async function api(request,env){try{
    const needed=validateCookingPlan(meal,{...night.prefs,people:r.people},b.adapted,b.confirmed,row.data.memory);if(!Array.isArray(b.confirmed)||needed.some(i=>!b.confirmed.includes(i)))fail('Confirm the updated ingredients.');
    if(needed.some(i=>r.missing.some(x=>i.toLowerCase().includes(x.toLowerCase()))))fail('The adapted recipe still contains a missing ingredient. Choose another option.');
    if(night.group)night.group.compromises=compromiseFacts({meal,show:choice.show},night.group.members||[]);
+   delete night.partnerTasks;
    night.rescue={fromMeal:night.mealId,fromShow:night.showId,delay:r.delay,minutesSaved:choice.minutesSaved,at:new Date().toISOString()};
    Object.assign(night,{mealId:meal.id,showId:choice.showId,show:choice.show,prefs:{...night.prefs,people:r.people,effort:r.easier?'Easy':night.prefs.effort,cookTime:r.maxCookTime||night.prefs.cookTime,format:r.allowWatchChange?'Any':night.prefs.format},adapted:b.adapted,confirmed:needed,themeId:null,ai:null,step:0,timer:null,planStart:Math.max(night.planStart||Date.parse(night.created),Date.now())+r.delay*60000});
    await saveHouse(db,id,row);return json(nightView(night,env,row.data.memory));
@@ -181,6 +187,9 @@ export async function api(request,env){try{
  }catch(error){return json({error:error.status?error.message:'Unable to save right now. Please try again.'},error.status||500);}}
 function applyCooking(night,b,memory={}){const max=mealById(night.mealId).steps.length-1;
  if(b.mealId!==undefined&&b.mealId!==night.mealId)fail('The recipe changed. Refresh the cooking steps before continuing.',409);
+ if(b.edition!==undefined){try{respondToEdition(night,b.edition);}catch(e){fail(e.message);}return;}
+ if(b.partnerFeedback!==undefined){try{savePartnerFeedback(night,b.partnerFeedback);}catch(e){fail(e.message);}return;}
+ if(b.partnerTask!==undefined){const t=b.partnerTask;if(night.prefs.people!==2||night.fulfillment==='delivery'||!['planned','cooking'].includes(night.status))fail('Shared preparation is available before dinner is ready for two.',409);if(!t||typeof t.done!=='boolean'||!partnerTasks(mealById(night.mealId),night.prefs.people,night.adapted).some(x=>x.id===t.id))fail('Choose a current preparation task.');night.partnerTasks={...night.partnerTasks,[t.id]:t.done};return;}
  const changesCooking=b.step!==undefined||b.timer!==undefined||b.complete===true;
  if(changesCooking&&night.fulfillment==='delivery')fail('This evening uses delivery. Refresh the delivery plan before continuing.',409);
  if(changesCooking&&['ready','complete'].includes(night.status)){

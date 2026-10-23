@@ -55,7 +55,7 @@ export function recommend({mode,sourceId,prefs=defaults,memory={},pantry=[],them
  while(picks.length<3&&ranked.length){const alternate=ranked.findIndex(p=>!categories.has(p.meal.category));const [pick]=ranked.splice(alternate<0?0:alternate,1);picks.push(pick);categories.add(pick.meal.category);}
  return picks;
 }
-export function ingredients(meal,people,adapted){return meal.ingredients.map(([name,amount,unit])=>adapted&&name===meal.swap.from?{name:meal.swap.to,amount:meal.swap.amount*people/2,unit:meal.swap.unit}:{name,amount:amount*people/2,unit}).map(i=>meal.twoAppetites?{...i,amount:Math.round(i.amount*100)/100}:i);}
+export function ingredients(meal,people,adapted){return meal.ingredients.map(([name,amount,unit])=>adapted&&name===meal.swap.from?{name:meal.swap.to,amount:meal.swap.amount*people/2,unit:meal.swap.unit}:{name,amount:amount*people/2,unit}).map(i=>meal.twoAppetites?{...i,amount:Math.round(i.amount*100)/100}:i).map(i=>({...i,unit:i.amount===1?({cloves:'clove',pieces:'piece',slices:'slice',leaves:'leaf'}[i.unit]||i.unit):i.unit}));}
 export function recipeSteps(meal,adapted,cookLevel='Confident',people=2){const seenTips=new Set();return meal.steps.map(([title,instruction,seconds],stepIndex)=>{
  const courseIndex=meal.stepCourses?.[stepIndex],course=courseIndex==null?null:meal.courses?.[courseIndex];
  const contextMeal=course?{...meal,name:course.name,ingredients:course.ingredients}:meal;

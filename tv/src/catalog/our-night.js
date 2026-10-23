@@ -1,3 +1,4 @@
+import {partnerLearning} from './together-features.js';
 export const nightDays=['Any day','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 export const nightVibes=['Unwind together','Playful date','Reconnect','Make it special'];
 export const ritualChoices=['Follow tonight’s mood','No prompts',...nightVibes];
@@ -16,7 +17,7 @@ export function coupleRoles(swapped=false){return [
  {person:swapped?'Partner 1':'Partner 2',title:'Set the scene',task:'Set two places, choose a song together, and keep the table ready. No extra recipe needed.'}
  ];}
 export function nightPreferences(ritual,memory={}){
- const soft=ritual.vibe==='Playful date'?{mood:'Lighthearted'}:ritual.vibe==='Reconnect'?{mood:'Romantic'}:ritual.vibe==='Make it special'?{energy:'Make it special'}:{energy:'Exhausted',mood:'Cozy'};
+ const soft=ritual.vibe==='Playful date'?{mood:'Lighthearted'}:ritual.vibe==='Reconnect'?{mood:'Romantic'}:ritual.vibe==='Make it special'?{energy:'Make it special',mood:'Romantic'}:{energy:'Exhausted',mood:'Cozy'};
  return {...ritual.prefs,...soft,...(memory.preferredEffort==='Easy'?{effort:'Easy'}:{}),...(memory.shorter?{format:'TV episode',watchTime:Math.min(ritual.prefs.watchTime,45)}:{})};
 }
 export function nightRitual(vibe){
@@ -25,7 +26,13 @@ export function nightRitual(vibe){
  if(vibe==='Make it special')return {title:'Make an ordinary night an occasion',before:'Set the table and choose a song together while dinner finishes.',question:'Which memory of us would you happily relive?',after:'Give this evening a name in your collection.'};
  return {title:'You don’t have to make a big night of it',before:'Get comfortable, share dinner, and let the day slow down.',question:'What was one good little thing about your day?',after:'Decide whether this dinner deserves another night together.'};
 }
-export function nightShortlist(pairs,house){
+export function nightShortlist(pairs,house,preferences={}){
+ pairs=partnerLearning(pairs,house.nights);
+ // A cozy date must not silently substitute a thriller when mood-fit options run out.
+ if(['Cozy','Romantic','Lighthearted'].includes(preferences.mood))pairs=pairs.filter(p=>p.show.mood===preferences.mood||(['Cozy','Lighthearted'].includes(preferences.mood)&&['Cozy','Lighthearted'].includes(p.show.mood)));
+
+ const recent=new Set((house.nights||[]).slice(0,3).map(n=>n.mealId));
+ const fresh=pairs.filter(p=>!recent.has(p.meal.id));if(fresh.length)pairs=fresh;
  const favorite=new Set(house.memory?.favoriteMeals||[]),seenMeals=new Set((house.nights||[]).map(n=>n.mealId)),seenShows=new Set([...(house.memory?.watched||[]),...(house.nights||[]).map(n=>n.showId)]);
  const selected=[];
  const take=(pool,label,why)=>{const unused=pool.filter(p=>!selected.some(s=>s.meal.id===p.meal.id||s.show.id===p.show.id));if(unused.length)selected.push({...unused[0],nightLabel:label,nightWhy:why});};
@@ -37,4 +44,4 @@ export function nightShortlist(pairs,house){
  while(selected.length<3){const before=selected.length;take(pairs,'Another way to spend tonight','A distinct dinner and title within your limits.');if(before===selected.length)break;}
  return selected;
 }
-export function nightLearning(memory={}){return [memory.favoriteMeals?.length?'Dinners you liked help shape the favorite choice.':'Rate a dinner “make again” to build your favorites.',memory.preferredEffort==='Easy'?'You asked for easier cooking; this shortlist keeps that preference.':null,memory.shorter?'You asked for shorter viewing; episodes are limited to 45 minutes here.':null].filter(Boolean);}
+export function nightLearning(memory={},nights=[]){return [nights.some(n=>Object.keys(n.partnerFeedback||{}).length)?'Your separate dinner and viewing feedback guide these choices. Either partner’s skips stay out of this shortlist.':null,memory.favoriteMeals?.length?'Dinners you liked help shape the favorite choice.':'Rate a dinner “make again” to build your favorites.',memory.preferredEffort==='Easy'?'You asked for easier cooking; this shortlist keeps that preference.':null,memory.shorter?'You asked for shorter viewing; episodes are limited to 45 minutes here.':null].filter(Boolean);}

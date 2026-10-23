@@ -8,6 +8,7 @@ import {ingredients,suggestedAdaptation} from './engine.js';
 import {dietFits} from './diets.js';
 import {pairingAffinity} from './pairing-affinity.js';
 export {pairingAffinity} from './pairing-affinity.js';
+import {signatureFor} from './signature-evenings.js';
 export const connectionModes=['Mood','Setting','On-screen food'];
 const firstSentence=value=>{const clean=String(value||'').replace(/\s+/g,' ').trim();if(!clean)return '';const match=clean.match(/^.*?[.!?](?:\s|$)/);return (match?match[0]:clean).slice(0,220);};
 const ingredientPhrase=meal=>meal.ingredients.slice(0,2).map(i=>i[0].toLowerCase()).join(' and ');
@@ -19,11 +20,13 @@ export function connection(meal,show,actualIngredients){
  if(rat&&meal.id==='story-ratatouille'){const storyCue='Ratatouille places cooking, craft and a version of ratatouille at the center of the story.',tableEcho='Making our rustic vegetable version turns watching into a small act of cooking along, while staying clear that it is not Remy’s confit byaldi recipe.',fit=practicalFit(meal,show);return {kind:'On-screen food',storyCue,tableEcho,practicalFit:fit,text:`${storyCue} ${tableEcho} ${fit}`,source:'https://www.pbs.org/food/stories/get-creative-pixar-style-ratatouille'};}
  const reference=foodReferences(show).find(ref=>referenceFits(ref,meal,actualIngredients));
  if(reference){const fit=practicalFit(meal,show),tableEcho=reference.interpretation;return {kind:'Story inspiration',pairingType:'story',storyCue:reference.text,tableEcho,practicalFit:fit,source:reference.source,text:reference.text+' '+tableEcho+' '+fit};}
+ const signature=signatureFor(meal,show);if(signature&&signature.kind==='Mood')return {kind:'Mood',pairingType:'practical',storyCue:'',tableEcho:signature.line,practicalFit:practicalFit(meal,show),text:signature.line+' Mood inspiration.'};
  const storyCue=angle?angle+'.':firstSentence(show.description)||`${show.name} is presented as a ${String(show.genre||show.mood).toLowerCase()} ${show.kind==='TV episode'?'episode':'movie'}.`;
- const ingredients=ingredientPhrase(meal),sharedMood=meal.moods.includes(show.mood),format=String(meal.category||meal.cuisine||'supper').toLowerCase();
+ const ingredients=actualIngredients?.length?actualIngredients.slice(0,2).map(i=>String(typeof i==='string'?i:i.name).toLowerCase()).join(' and '):ingredientPhrase(meal),sharedMood=meal.moods.includes(show.mood),format=String(meal.category||meal.cuisine||'supper').toLowerCase();
  if(show.cuisine&&show.cuisine!=='Any'&&meal.cuisine===show.cuisine){const tableEcho=`${meal.name} extends the setting through ${meal.cuisine} cuisine, using ${ingredients}; this is a creative interpretation rather than a claim that the dish appears on screen.`,fit=practicalFit(meal,show);return {kind:'Setting',storyCue,tableEcho,practicalFit:fit,text:`${storyCue} ${tableEcho} ${fit}`};}
- const tableEcho=meal.name+' is a practical '+meal.minutes+'-minute dinner option. No direct food connection to this title is claimed.';
- const fit=practicalFit(meal,show);return {kind:'Mood',pairingType:'practical',storyCue:'',tableEcho,practicalFit:fit,text:tableEcho+' '+fit};
+ const handheld=/pizza|flatbread|sandwich|toast|taco|wrap|quesadilla|burger/i.test(meal.name);
+ const tableEcho=handheld?meal.name+' can be portioned before '+show.name+', keeping serving simple when you settle in. An everyday pairing, rather than a dish from the story.':meal.name+' gives you a '+meal.minutes+'-minute dinner before the '+show.minutes+'-minute '+(show.kind==='TV episode'?'episode':'movie')+'. An everyday pairing chosen for the evening’s pace.';
+ const fit=practicalFit(meal,show);return {kind:'Mood',pairingType:'practical',storyCue:'',tableEcho,practicalFit:fit,text:tableEcho};
 }
 export function curate({mode,sourceId,prefs,memory={},titles=[],members=[],pantry=[],dinnerAdapted=undefined,connectionMode='Mood',fullCatalog=false}){
  const pool=distinctShows([...shows.filter(s=>s.source),...titles]);
@@ -38,7 +41,7 @@ export function curate({mode,sourceId,prefs,memory={},titles=[],members=[],pantr
  const matched=members.filter(m=>show.mood===m.mood||meal.moods.includes(m.mood)).length;
  const mealMatches=members.filter(m=>m.mealPreference&&m.mealPreference!=='Any'&&(meal.category||'').toLowerCase()===m.mealPreference.toLowerCase()).length;
  const pantryFound=pantryMatches(mealIngredients,pantry).map(i=>i.name);
- const score=tonightScore(meal,prefs)+(meal.familiar?24:0)+(meal.hasDishPhoto?12:0)+(c.kind==='On-screen food'?340:c.kind==='Story inspiration'?300:0)+pairingAffinity(meal,show)+pantryFound.length*8+matched*40+mealMatches*40+(show.mood===prefs.mood?30:0)+(meal.moods.includes(show.mood)?20:0)+(memory.favoriteMeals?.includes(meal.id)?15:0)+(memory.shorter&&show.minutes<=45?25:0)-(memory.dislikedPairs?.includes(meal.id+':'+show.id)?60:0)-(memory.watched?.includes(show.id)?15:0)+(memory.favoriteCuisines?.includes(meal.cuisine)?15:0)-meal.minutes/10;
+ const score=tonightScore(meal,prefs)+(signatureFor(meal,show)?65:0)+(meal.familiar?24:0)+(meal.hasDishPhoto?12:0)+(c.kind==='On-screen food'?340:c.kind==='Story inspiration'?300:0)+pairingAffinity(meal,show)+pantryFound.length*8+matched*40+mealMatches*40+(show.mood===prefs.mood?30:0)+(meal.moods.includes(show.mood)?20:0)+(memory.favoriteMeals?.includes(meal.id)?15:0)+(memory.shorter&&show.minutes<=45?25:0)-(memory.dislikedPairs?.includes(meal.id+':'+show.id)?60:0)-(memory.watched?.includes(show.id)?15:0)+(memory.favoriteCuisines?.includes(meal.cuisine)?15:0)-meal.minutes/10;
  out.push({meal,show,adapted,score,pantryMatches:pantryFound,connection:c,tradeoff:`Allow ${meal.minutes+show.minutes} minutes plus eating time if cooking before watching. ${meal.recipeNote||'Cooking times are estimates.'}`,ritual:'Finish the cooking, set the table, then start your movie or episode.',reasons:[c.text,members.length?`${matched} of ${members.length} mood preferences match. All submitted food, ingredient and viewing limits are respected.`:`${meal.minutes} min cooking · ${show.minutes} min viewing`]});}}
  return out.sort((a,b)=>b.score-a.score);
 }

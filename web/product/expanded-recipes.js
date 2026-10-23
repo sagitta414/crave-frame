@@ -62,5 +62,5 @@ const methods=[
 ];
 export const expandedRecipes=methods.flatMap(method=>profiles.map(p=>{
  const name=p[0]+' '+method.suffix;
- return {id:'expanded-'+slug(name),name,shortName:method.category+' · '+p[1].replace(/^(cooked|canned|tinned) /i,''),category:method.category,image:method.image,cuisine:p[4],minutes:method.minutes,effort:method.minutes<=30?'Easy':'Relaxed',moods:method.moods,subtitle:'A '+method.suffix+' supper using ready-cooked vegetables and pulses.',ingredients:[I(p[1],200),I(p[2],150),I(p[3],p[3]==='Ground nutmeg'?0.25:1,'tsp'),I('Lemon juice',1,'tbsp'),...method.items,I('Plain yogurt',60)],swap,steps:method.steps(p),photoNote:'Representative category photograph',methodFamily:method.category};
+ return {id:'expanded-'+slug(name),name,shortName:method.category+' · '+p[1].replace(/^(cooked|canned|tinned) /i,'').replace(/,.*$/,''),category:method.category,image:method.image,cuisine:p[4],minutes:method.minutes,effort:method.minutes<=30?'Easy':'Relaxed',moods:method.moods,subtitle:'A '+method.suffix+' supper using ready-cooked vegetables and pulses.',ingredients:[I(p[1],200),I(p[2],150),I(p[3],p[3]==='Ground nutmeg'?0.25:1,'tsp'),I('Lemon juice',1,'tbsp'),...method.items,I('Plain yogurt',60)],swap,steps:method.steps(p),photoNote:'Representative category photograph',methodFamily:method.category};
 }));

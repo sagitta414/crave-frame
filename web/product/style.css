@@ -76,3 +76,5 @@ body:has(.page-phone) .topbar .badge{font-size:11px}
 .hero-details{margin-top:24px;color:#e6d6c7}.hero-details>summary{cursor:pointer;padding:14px 0;font-weight:700}.hero-details>summary:focus-visible{outline:3px solid #fff2e7;outline-offset:4px}.our-night-ritual>summary{cursor:pointer;font-size:21px;color:#ffe2cb}
 
 .pantry-grid [hidden]{display:none!important}.pantry-grid{max-height:28rem;overflow:auto;overscroll-behavior:contain}#pantry-search{width:100%;padding:14px;border-radius:12px;margin-block:8px}#pantry-summary{line-height:1.5}
+
+@media(max-width:800px){.topbar nav{display:flex;flex-wrap:wrap;overflow:visible;gap:6px}.topbar nav a{flex:1 1 calc(33.33% - 6px);min-width:0;white-space:normal;padding:12px 8px}}

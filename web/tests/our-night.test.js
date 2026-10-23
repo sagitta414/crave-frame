@@ -122,3 +122,14 @@ test('ritual preference persists through old clients and is validated without ch
  assert.equal(n.data.ourNight.ritualChoice,'No prompts');
  }finally{f.DB.close();}
 });
+
+test('romantic evenings offer distinct titles and explain restrictive viewing limits',async()=>{
+ const f=fixture();try{const h=(await f.call('household','POST',{})).data;
+ for(const [watchTime,minCount] of [[120,3],[90,1],[45,0]]){
+  await f.call('our-night','PUT',{day:'Friday',vibe:'Reconnect',prefs:{...defaults,watchTime}},h.key);
+  const r=await f.call('our-night','POST',{},h.key);assert.equal(r.status,200);
+  assert.ok(r.data.picks.every(p=>p.show.minutes<=watchTime&&p.show.mood==='Romantic'));
+  if(minCount)assert.ok(r.data.picks.length>=minCount);else{assert.equal(r.data.picks.length,0);assert.match(r.data.message,/45-minute viewing limit/);assert.match(r.data.message,/Food exclusions stay active/);}
+ }
+ }finally{f.DB.close();}
+});

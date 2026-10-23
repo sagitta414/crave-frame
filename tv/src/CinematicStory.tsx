@@ -29,7 +29,7 @@ export function StoryBackdrop({step,reduced=false,paused=false}:{step:number,red
   <View style={{position:'absolute',left:22,right:22,top:100,bottom:100,borderTopWidth:1,borderBottomWidth:1,borderColor:'#B8CAE916'}}/>
  </View>;
 }
-export function StoryBrand(){return <View style={{flexDirection:'row',gap:14,alignItems:'center'}}><BrandMark size={62}/><View><Text style={{fontSize:27,color:'#FFF7EF',fontWeight:'900',letterSpacing:.3}}>crave frame</Text><FineText style={{fontSize:10,color:'#BCCCE2',letterSpacing:4,marginTop:2}}>THE EVENING EXPERIENCE</FineText></View></View>;}
+export function StoryBrand(){return <View style={{flexDirection:'row',gap:14,alignItems:'center'}}><BrandMark size={80}/><View><Text style={{fontSize:27,color:'#FFF7EF',fontWeight:'900',letterSpacing:.3}}>Crave Frame</Text><FineText style={{fontSize:10,color:'#BCCCE2',letterSpacing:4,marginTop:2}}>THE EVENING EXPERIENCE</FineText></View></View>;}
 export function StoryCaption({step,reduced=false,loading=false}:{step:number,reduced?:boolean,loading?:boolean}){
  const {width,height}=useWindowDimensions(),small=width<900,short=height<700,scene=eveningStory[step%eveningStory.length],lines=scene.title.split('\n');
  const reveal=useRef([new Animated.Value(1),new Animated.Value(1),new Animated.Value(1),new Animated.Value(1)]).current;

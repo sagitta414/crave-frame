@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {cinemaRows,refinedPreferences} from '../src/cinema-model.js';
+import {cinemaRows,refinedPreferences,chooseSpotlight} from '../src/cinema-model.js';
 const pair=(id,kind='Movie',minutes=90)=>({meal:{id:'meal-'+id,minutes:20,familiar:true},show:{id,name:id,kind,minutes,mood:'Cozy',family:true}});
 test('evening shelves retain complete pairs, avoid duplicate titles, and separate episodes',()=>{
  const movie=pair('movie'),episode=pair('episode','TV episode',25),long=pair('long','TV episode',80);
@@ -33,4 +33,13 @@ test('discovery shelves never repeat a title and retain the small catalog',()=>{
  assert.equal(rows[0].pairs.length,3);
  assert.equal(new Set(items.map(p=>p.show.id)).size,9);
  assert.equal(items.length,9);
+});
+
+test('spotlight prefers an eligible signature pairing without sacrificing reviewed imagery',()=>{
+ const generic=pair('generic'); generic.meal.name='Easy dinner';
+ const signature={meal:{id:'grilled-cheese-soup',name:'Grilled cheese and tomato soup',familiar:true},show:{id:'paddington',name:'Paddington'}};
+ assert.equal(chooseSpotlight([generic,signature],()=>true,()=>true),signature);
+ assert.equal(chooseSpotlight([generic,signature],m=>m.id===generic.meal.id,()=>true),generic);
+ assert.equal(chooseSpotlight([generic],()=>true),generic);
+ assert.equal(chooseSpotlight([],()=>true),undefined);
 });

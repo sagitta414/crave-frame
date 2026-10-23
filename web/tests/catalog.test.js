@@ -36,3 +36,22 @@ test('TMDB search excludes people and season selection uses episode runtime (moc
  globalThis.fetch=async(url,options)=>{assert.equal(options.headers.Authorization,'Bearer test-token');const data=url.includes('search/multi')?{results:[{id:1,media_type:'person',name:'Actor'},{id:2,media_type:'tv',name:'Example',first_air_date:'2020-01-01'}]}:url.includes('/episode/')?{name:'The arrival',runtime:43,overview:'Episode synopsis'}:{name:'Example',genres:[{name:'Drama'}],overview:'Series synopsis'};return Response.json(data);};
  try{const results=await catalogRequest(new URL('https://demo.test/api/catalog/search?q=Example'),env);assert.equal(results.results.length,1);assert.equal(results.results[0].year,'2020');const show=await selectShow({provider:{type:'tv',id:2,season:1,episode:3},mood:'Cozy',cuisine:'European',minutes:90,family:true},env);assert.equal(show.minutes,43);assert.ok(show.name.includes('S1 E3'));assert.equal(show.family,false);assert.equal(show.source,'https://www.themoviedb.org/tv/2');}finally{globalThis.fetch=original;}
 });
+
+
+test('romantic catalog additions resolve streaming providers and deduplicate imported titles',async()=>{
+ const {availability}=await import('../server/catalog.js');
+ const {showById}=await import('../product/catalog.js');
+ const {distinctShows,titleKey}=await import('../product/identity.js');
+ const original=globalThis.fetch,requested=[];
+ globalThis.fetch=async url=>{requested.push(String(url));return Response.json({results:{US:{flatrate:[{provider_id:8,provider_name:'Netflix'}]}}});};
+ try{
+  for(const [alias,id] of [['before-sunset',80],['before-midnight',132344]]){
+   const show=showById(alias);assert.deepEqual(show.provider,{type:'movie',id});
+   const result=await availability({TMDB_ACCESS_TOKEN:'test-token'},show,'US');
+   assert.equal(result.subscription[0].id,8);
+   assert.ok(requested.some(url=>url.includes('/movie/'+id+'/watch/providers')));
+   assert.equal(titleKey(alias),'tmdb-movie-'+id);
+   assert.equal(distinctShows([show,{...show,id:'tmdb-movie-'+id}]).length,1);
+  }
+ }finally{globalThis.fetch=original;}
+});

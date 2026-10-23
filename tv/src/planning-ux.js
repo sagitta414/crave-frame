@@ -14,6 +14,6 @@ export function choiceLabels(picks,memory={}){
 export function pairingSummary(pair){
  const c=pair.connection||{},echo=pair.tableEcho||c.tableEcho||'';
  if(pair.pairingType!=='practical'&&c.pairingType!=='practical'&&/sandwich|toast|grilled cheese/i.test(pair.meal.name)&&(c.source?.includes('paddington.com')||pair.evidenceSource?.includes('paddington.com')))return 'A savory sandwich inspired by Paddington’s love of marmalade sandwiches.';
- if(pair.pairingType==='practical'||c.pairingType==='practical')return `${pair.meal.name} fits your cooking time; no direct story-food connection is claimed.`;
+ if(pair.pairingType==='practical'||c.pairingType==='practical')return echo||`${pair.meal.name}: ${pair.meal.minutes} minutes to cook before you settle in. An everyday pairing chosen for your time and preferences.`;
  return echo.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim()||echo||`${pair.meal.name} is a ${pair.meal.minutes}-minute option for tonight.`;
 }

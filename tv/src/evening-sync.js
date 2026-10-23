@@ -13,7 +13,7 @@ export function createEveningSync({read, apply, onError, version, blocked, inter
         if(!stopped && !paused && connection===epoch && !blocked() && revision===version()) apply(night);
       }
     } catch(error) {
-      if(!stopped && !paused && connection===epoch && !blocked() && revision===version()) onError(error);
+      if(!stopped && !paused && connection===epoch && !blocked() && revision===version() && onError(error)===false) stopped=true;
     } finally {
       running=false;
       if(!stopped && !paused) {timer=schedule(refresh,reconnect?0:interval);reconnect=false;}

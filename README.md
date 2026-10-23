@@ -3,9 +3,9 @@
 
 # Crave Frame
 
-### A good dinner. Something worth watching. A night together.
+### Make a little time for each other.
 
-Choose on the TV. Cook with your phone. Spend less of the evening deciding.
+A shared evening, from the first choice to the moment you keep. Choose dinner and a story on TV, cook together with your phones, and save a little of tonight.
 
 [Explore the AWS demo](https://dcp5jtiiw3gji.cloudfront.net/tv/) · [Architecture](docs/ARCHITECTURE.md) · [Setup](docs/SETUP.md) · [Friction log](docs/FRICTION-LOG.md)
 
@@ -45,6 +45,24 @@ The television is the shared place to choose. The phone becomes the cooking comp
 - **Flexible plans:** delays, simpler dinners and external order-out alternatives.
 
 This is a hackathon prototype. It does not stream films, place orders, track deliveries or integrate with Alexa. Streaming and delivery services open through external handoffs; delivery estimates come from the user.
+
+## Tonight’s Edition
+
+After viewing begins and dinner is ready, open the optional keepsake on your saved evening or phone companion. Each person submits a moment (up to 280 characters) or skips. Answers are shared household data when submitted; the UI reveals the complete card once both have responded. This is not a secret-message system.
+
+The TV offers an editable title, explicit private saving to the existing collection, and a way to plan another evening. If the existing card is already shared publicly, stop sharing before saving the personal edition. Saved cards are snapshots; later answers do not silently rewrite them. No relationship score, streak, or pressure to participate.
+
+## A more personal night for two
+
+The TV/phone experience in the current source includes:
+
+- **Two cooking roles:** Each person keeps a stable partner number and independently chooses cooking or preparation for tonight. Swapping jobs does not switch feedback identity. Independent preparation checks sync across phones without advancing the recipe. Cooking steps retain their original order and time estimates.
+- **Evidence labels:** documented food connections, story interpretations, setting interpretations, and mood/pace matches have distinct labels. Documented connections offer a reference link.
+- **Quick changes:** “Too much cooking,” “Different food,” and “We’re running late” use existing review and scheduling flows. Dinner changes retain the selected title and restrictions; a recipe cannot be replaced after cooking begins.
+- **Two-person feedback:** each partner can save dinner feedback first, then rate viewing after starting the viewing timer. The most recently edited answer takes precedence, even when it belongs to an older evening. Our Night In respects either partner’s skips, favors positive responses, and prefers dinners outside the last three saved evenings when suitable alternatives exist. Feedback can be removed from its saved evening.
+- **Shared reveal:** both screens show the top-voted dinner and title, with cook/dinner/watch estimates. Ties are labeled, no choice is saved automatically, and the brief animation is skippable and respects reduced motion.
+
+Partner numbers are shared household profiles, separate from kitchen jobs, not authenticated personal accounts. Keep the same number across evenings. Anyone with the private cooking link can update its evening, including role tasks and feedback; the existing link expiration and revocation still apply. The original browser planner shares the matching model and backend, while these interaction panels live in the TV/phone experience at /tv/.
 
 ## Matching, with or without live AI
 
