@@ -1,3 +1,4 @@
+import {eveningTheme} from './theme';
 import {Text} from './TVText';
 import React,{useState} from 'react';
 import {ScrollView,StyleSheet,View,useWindowDimensions} from 'react-native';
@@ -14,4 +15,4 @@ export function PhoneHandoff({night,share,syncError,onClose,onOpenPhone}:any){
  {night.prefs.people===2&&<Text style={s.copy}>Cooking together? Scan this same code on both phones. Choose your partner number, then pick cooking or preparation as your job tonight. Both share the dinner schedule.</Text>}<Button onPress={()=>onOpenPhone(share)}>Open cooking companion here ↗</Button><Button primary preferred onPress={onClose}>{recent?'Leave the schedule on TV →':'Back to my evening'}</Button><Text style={s.note}>Private link · expires in 4 hours. Anyone with it can update this evening’s cooking progress.</Text>
  </ScrollView>;
 }
-const s=StyleSheet.create({card:{backgroundColor:'#0C121D',padding:28,gap:20,borderWidth:2,borderColor:'#526792',borderRadius:22},label:{fontSize:20,lineHeight:28,color:'#FFCAA5',fontWeight:'800',letterSpacing:1},title:{fontSize:40,lineHeight:48,color:'#FFF',fontWeight:'900'},copy:{fontSize:25,lineHeight:35,color:'#EEF2FA'},note:{fontSize:19,lineHeight:28,color:'#BBC8DB'}});
+const s=StyleSheet.create({card:{backgroundColor:eveningTheme.surface,padding:28,gap:20,borderWidth:2,borderColor:eveningTheme.border,borderRadius:22},label:{fontSize:20,lineHeight:28,color:'#FFCAA5',fontWeight:'800',letterSpacing:1},title:{fontSize:40,lineHeight:48,color:'#FFF',fontWeight:'900'},copy:{fontSize:25,lineHeight:35,color:'#EEF2FA'},note:{fontSize:19,lineHeight:28,color:eveningTheme.muted}});

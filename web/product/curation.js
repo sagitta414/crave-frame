@@ -1,3 +1,4 @@
+import {viewingFit} from './viewing-fit.js';
 import {tonightScore} from './tonight-personality.js';
 import {foodReferences,referenceFits} from './food-references.js';
 import {ingredientBlocked} from './food-restrictions.js';
@@ -24,6 +25,8 @@ export function connection(meal,show,actualIngredients){
  const storyCue=angle?angle+'.':firstSentence(show.description)||`${show.name} is presented as a ${String(show.genre||show.mood).toLowerCase()} ${show.kind==='TV episode'?'episode':'movie'}.`;
  const ingredients=actualIngredients?.length?actualIngredients.slice(0,2).map(i=>String(typeof i==='string'?i:i.name).toLowerCase()).join(' and '):ingredientPhrase(meal),sharedMood=meal.moods.includes(show.mood),format=String(meal.category||meal.cuisine||'supper').toLowerCase();
  if(show.cuisine&&show.cuisine!=='Any'&&meal.cuisine===show.cuisine){const tableEcho=`${meal.name} extends the setting through ${meal.cuisine} cuisine, using ${ingredients}; this is a creative interpretation rather than a claim that the dish appears on screen.`,fit=practicalFit(meal,show);return {kind:'Setting',storyCue,tableEcho,practicalFit:fit,text:`${storyCue} ${tableEcho} ${fit}`};}
+ const viewing=viewingFit(meal,show);
+ if(viewing){const fit=practicalFit(meal,show),tableEcho=viewing.line+' Based on viewing style, not a dish from the story.';return {kind:'Mood',pairingType:'practical',storyCue:'',tableEcho,practicalFit:fit,text:tableEcho};}
  const handheld=/pizza|flatbread|sandwich|toast|taco|wrap|quesadilla|burger/i.test(meal.name);
  const tableEcho=handheld?meal.name+' can be portioned before '+show.name+', keeping serving simple when you settle in. An everyday pairing, rather than a dish from the story.':meal.name+' gives you a '+meal.minutes+'-minute dinner before the '+show.minutes+'-minute '+(show.kind==='TV episode'?'episode':'movie')+'. An everyday pairing chosen for the evening’s pace.';
  const fit=practicalFit(meal,show);return {kind:'Mood',pairingType:'practical',storyCue:'',tableEcho,practicalFit:fit,text:tableEcho};

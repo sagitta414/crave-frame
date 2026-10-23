@@ -2,7 +2,7 @@ export function eveningTimeline(night,meal,show){
  meal={...meal,minutes:meal.minutes+(night.fulfillment==='delivery'?0:Number(night.timingAllowanceMinutes)||0)};
  if(night.fulfillment==='delivery'&&night.orderPlan){
   const order=night.orderPlan,dinner=night.dinnerMinutes||25,watch=night.watchStarted||Math.max(order.previousWatchAt||0,order.arrivalAt+dinner*60000);
-  return [{label:'Order marked placed',at:order.orderAt,minutes:5},{label:'Estimated delivery window',at:order.orderAt+5*60000,minutes:Math.max(0,(order.arrivalAt-order.orderAt)/60000-5)},{label:'Sit down to dinner',at:order.arrivalAt,minutes:dinner},{label:'Start watching',at:watch,minutes:show.minutes},{label:'Evening finishes',at:watch+show.minutes*60000,minutes:0}];
+  return [{label:'Order marked placed',at:order.orderAt,minutes:5},{label:'Estimated delivery window',at:Math.min(order.arrivalAt,order.orderAt+5*60000),minutes:Math.max(0,(order.arrivalAt-order.orderAt)/60000-5)},{label:'Sit down to dinner',at:order.arrivalAt,minutes:dinner},{label:'Start watching',at:watch,minutes:show.minutes},{label:'Evening finishes',at:watch+show.minutes*60000,minutes:0}];
  }
  const plannedStart=night.planStart||Date.parse(night.created),start=Number(night.cookingStartedAt)||Math.min(plannedStart,Number(night.readyAt)||plannedStart),prep=Math.min(10,Math.max(3,Math.round(meal.minutes/4))),dinner=night.dinnerMinutes||25;
  return [{label:'Prep your ingredients',at:start,minutes:prep},{label:'Cook supper',at:Math.min(start+prep*60000,Number(night.readyAt)||Infinity),minutes:meal.minutes-prep},{label:'Sit down to dinner',at:Number(night.readyAt)||start+meal.minutes*60000,minutes:dinner},{label:'Start watching',at:night.watchStarted||start+(meal.minutes+dinner)*60000,minutes:show.minutes},{label:'Evening finishes',at:(night.watchStarted||start+(meal.minutes+dinner)*60000)+show.minutes*60000,minutes:0}];
@@ -22,7 +22,7 @@ export function orderBrief(meal,prefs={}){
 }
 export function orderOutEvening(night,meal,show,etaMinutes,now=Date.now(),estimateAt=now){
  if(night.status!=='planned'||night.watchStarted)throw Error('Order-out changes are available before cooking or viewing begins.');
- if(!Number.isInteger(etaMinutes)||etaMinutes<15||etaMinutes>120)throw Error('Enter a delivery estimate from 15 to 120 minutes.');
+ if(!Number.isInteger(etaMinutes)||etaMinutes<1||etaMinutes>120)throw Error('Enter a delivery estimate from 1 to 120 minutes.');
  const baseNight={...night,planStart:night.scheduleChange?.kind==='order-out'?night.scheduleChange.previousStart:night.planStart,fulfillment:null,orderPlan:null},current=eveningTimeline(baseNight,meal,show),previousWatchAt=current[3].at,arrivalAt=estimateAt+etaMinutes*60000,watchAt=Math.max(previousWatchAt,arrivalAt+(night.dinnerMinutes||25)*60000),shiftMinutes=Math.max(0,Math.ceil((watchAt-previousWatchAt)/60000));
  return {...night,fulfillment:'delivery',planStart:now,orderPlan:{etaMinutes,orderAt:now,arrivalAt,watchAt,previousWatchAt},scheduleChange:{kind:'order-out',minutes:shiftMinutes,previousStart:baseNight.planStart||Date.parse(night.created),planStart:now,previousWatchAt,watchAt,at:new Date(now).toISOString()}};
 }

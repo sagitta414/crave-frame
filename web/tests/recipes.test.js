@@ -13,7 +13,7 @@ test('watch choices favor grounded story dishes and retain familiar practical al
  const ids=['grand-budapest','detectorists','only-murders','chef','ratatouille','paddington','before-sunrise','avengers'];
  const leads=ids.map(sourceId=>curate({mode:'watch',sourceId,prefs:{...defaults,cookTime:60,watchTime:180},memory:{},titles:[]})[0]?.meal);
  assert.ok(leads.every(Boolean));
- assert.ok(leads.every(meal=>meal.familiar||meal.id==='story-ratatouille'||meal.id==='turkey-pita-pockets'),leads.map(meal=>meal.name).join(', '));
+ assert.ok(leads.every(meal=>meal.familiar||meal.id==='mushroom-toast'||meal.id==='story-ratatouille'||meal.id==='turkey-pita-pockets'),leads.map(meal=>meal.name).join(', '));
  assert.ok(new Set(leads.map(meal=>meal.id)).size>=6,leads.map(meal=>meal.name).join(', '));
 });
 test('ingredient, category and cooking-time filters work together',()=>{

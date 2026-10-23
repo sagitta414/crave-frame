@@ -16,7 +16,7 @@ export function cinemaRows(pairs,favorites=[],hasPhoto=(meal)=>false){
   const groups=new Map();for(const p of items){if(!p?.meal||!p?.show)continue;const key=browseTitleKey(p.show);if(!repeat&&claimed.has(key))continue;groups.set(key,[...(groups.get(key)||[]),p]);}
   const usedMeals=new Set(),usedCategories=new Set(),selected=[];
   for(const candidates of groups.values()){
-   const score=p=>(!usedMeals.has(p.meal.id)?8:0)+(!shelfMeals.has(p.meal.id)?12:0)+(hasPhoto(p.meal)?3:0)+(p.meal.category&&!usedCategories.has(p.meal.category)?2:0)+(p.meal.familiar?1:0);
+   const score=p=>(signatureFor(p.meal,p.show)?24:0)+(!usedMeals.has(p.meal.id)?8:0)+(!shelfMeals.has(p.meal.id)?12:0)+(hasPhoto(p.meal)?3:0)+(p.meal.category&&!usedCategories.has(p.meal.category)?2:0)+(p.meal.familiar?1:0);
    const pick=[...candidates].sort((a,b)=>score(b)-score(a))[0];selected.push(pick);if(!repeat)claimed.add(browseTitleKey(pick.show));usedMeals.add(pick.meal.id);if(!repeat)shelfMeals.add(pick.meal.id);if(pick.meal.category)usedCategories.add(pick.meal.category);if(selected.length===limit)break;
   }return selected;
  };

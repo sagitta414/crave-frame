@@ -1,3 +1,4 @@
+import {eveningTheme} from '../src/theme.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -11,7 +12,7 @@ test('preview uses adapted cooking ingredients and scoped Back respects pending 
  const effects=[],cleanups=[];let scoped,backs=0,resolveStart;
  const React={useState:v=>[v,()=>{}],useRef:v=>({current:v}),useContext:()=>true,useEffect:f=>effects.push(f)};
  const jsx=(type,props)=>({type,props});
- const modules={'./PairingReason':{PairingReason:'PairingReason'},'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'Scroll',View:'View',Animated:{Value:class{stopAnimation(){}},View:'Animated'},AccessibilityInfo:{},useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./RecipeArt':{RecipeArt:'Art'},'./Motion':{MotionContext:{}},'./catalog/night-director':{openingScene:()=>({})},'./useRemoteResource':{useRemoteResource:()=>({status:'ready',data:{prefs,ways:[{id:'easy',label:'Easy',pair}]}})},'./api':{api:()=>{}},'./catalog/engine':{ingredients}};
+ const modules={'./theme':{eveningTheme},'./PairingReason':{PairingReason:'PairingReason'},'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'Scroll',View:'View',Animated:{Value:class{stopAnimation(){}},View:'Animated'},AccessibilityInfo:{},useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./RecipeArt':{RecipeArt:'Art'},'./Motion':{MotionContext:{}},'./catalog/night-director':{openingScene:()=>({})},'./useRemoteResource':{useRemoteResource:()=>({status:'ready',data:{prefs,ways:[{id:'easy',label:'Easy',pair}]}})},'./api':{api:()=>{}},'./catalog/engine':{ingredients}};
  const exports={};
  vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/NightDirector.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>{assert.ok(modules[id],id);return modules[id];}});
  const tree=exports.NightDirector({pair,prefs,onBack:()=>backs++,onStart:()=>new Promise(r=>resolveStart=r),registerPreviewBack:fn=>{scoped=fn;return()=>{scoped=null;};}});

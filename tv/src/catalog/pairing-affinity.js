@@ -1,14 +1,15 @@
+import {viewingFit} from './viewing-fit.js';
 const hash=value=>{let result=0;for(const char of String(value))result=(result*31+char.charCodeAt(0))>>>0;return result;};
 
 const titleFavorites={
- 'grand-budapest':['spaghetti-meatballs','chicken-potatoes','mac-cheese-peas'],
- 'tmdb-movie-120467':['spaghetti-meatballs','chicken-potatoes','mac-cheese-peas'],
+ 'grand-budapest':['mushroom-toast','chicken-potatoes','tomato-pasta'],
+ 'tmdb-movie-120467':['mushroom-toast','chicken-potatoes','tomato-pasta'],
  detectorists:['loaded-baked-potatoes','grilled-cheese-soup','chicken-potatoes'],
  'only-murders':['pepperoni-pizza','spaghetti-meatballs','grilled-cheese-soup'],
  chef:['chicken-quesadillas','cheeseburgers-fries','pepperoni-pizza'],
  'tmdb-movie-212778':['chicken-quesadillas','cheeseburgers-fries','pepperoni-pizza'],
- ratatouille:['margherita','tomato-pasta','mac-cheese-peas'],
- 'tmdb-movie-2062':['margherita','tomato-pasta','mac-cheese-peas'],
+ ratatouille:['story-ratatouille','tomato-pasta','roasted-pasta'],
+ 'tmdb-movie-2062':['story-ratatouille','tomato-pasta','roasted-pasta'],
  paddington:['grilled-cheese-soup','mac-cheese-peas','loaded-baked-potatoes'],
  'tmdb-movie-116149':['grilled-cheese-soup','mac-cheese-peas','loaded-baked-potatoes'],
  'before-sunrise':['spaghetti-meatballs','tomato-pasta','chicken-basil-pasta'],
@@ -26,5 +27,5 @@ export function pairingAffinity(meal,show){
  if(/comedy|lighthearted/.test(genre)&&/pizza|burger|mac|taco|quesadilla/.test(name+' '+category))score+=20;
  if(/romance|romantic/.test(genre)&&/pasta|chicken|pizza/.test(name+' '+category))score+=22;
  if(/food|chef|cooking/.test(genre)&&/pasta|pizza|quesadilla/.test(name+' '+category))score+=20;
- return score+hash(id+'|'+meal.id)%17;
+ return score+(viewingFit(meal,show)?.score||0)+hash(id+'|'+meal.id)%17;
 }

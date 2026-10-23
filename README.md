@@ -20,11 +20,23 @@ A shared evening, from the first choice to the moment you keep. Choose dinner an
 
 ---
 
-## Why Crave Frame?
+## Why I made Crave Frame
 
-“What should we eat?” and “What should we watch?” can consume the evening before it starts. Crave Frame brings those decisions together: a title, a dinner, an explanation of the pairing, and a plan you can follow.
+I started with what sounded like a fun idea: pick a movie or a show, and find a dinner to go with it. I was building for a Fire TV hackathon, and I liked the possibility of making dinner and watching something feel like one evening instead of two separate decisions.
 
-The television is the shared place to choose. The phone becomes the cooking companion. When dinner runs late, the evening can change with it.
+Then I opened it on my own TV.
+
+From the couch, I couldn’t read parts of it. The logo was too small. Scrolling with the remote was frustrating. I would choose something different to watch and still get dinners that felt much the same. Some recipes were more unusual than I wanted for an ordinary night at home. I kept taking pictures of the screen and going back to fix things. Seeing it on a laptop hadn’t told me what it felt like to use it in the living room.
+
+That changed the question I was asking. I still wanted it to look impressive, but I started asking whether I would actually use it once the hackathon was over.
+
+I wanted a reason to open it with someone. Something that could help us agree on dinner and a movie without turning the evening into another project. Familiar food. A choice that feels like it belongs to both people. Instructions that help a less confident cook join in. And some room for dinner to run late without feeling like the whole plan has gone wrong.
+
+As I kept building, the time together became the part I cared about most. Choosing on the TV gives you a shared place to start. Taking the recipe to your phone means you can leave the couch and get cooking. Splitting the kitchen jobs gives both people a part in making the evening happen. Keeping a little memory afterwards is there if you want it; it doesn’t have to become another thing to complete.
+
+There have been plenty of bugs and revisions along the way. I’m still working on it. But the reason to keep going is clearer now: I want Crave Frame to help turn “What do you want to do tonight?” into something you actually do together.
+
+It doesn’t need to be a special occasion. Dinner at home and a good movie can be enough of a reason to make time for each other.
 
 ## What’s new
 
@@ -35,22 +47,39 @@ The latest source update brings the dinner-and-viewing experience into a warmer,
 | **Together identity** | A sculptural gold-and-teal logo, coordinated navigation and couples panels, and the tagline “Make a little time for each other.” |
 | **Clearer first screen** | One featured evening leads. The introduction explains choosing on TV, cooking with a phone, and adjusting when dinner runs late. |
 | **Quieter discovery** | Two dinner-focused previews follow the first recommendation shelf. Shared voting, personal touches, and Our Night In are available through Explore more. |
-| **Compact navigation** | Narrow screens use a smaller logo and omit the navigation tagline; destination controls continue to wrap. |
-| **Signature evenings** | Eligible editorial pairings receive extra priority in the featured recommendation, while photo-quality checks remain in place. Mood inspiration is distinguished from documented food connections. |
+| **Compact navigation** | Narrow screens use a smaller logo, omit the tagline, and place the four destinations in one row below the brand. Content buttons can wrap to fit their available space. |
+| **Deeper pairing coverage** | 20 editorial pairings provide at least two dinner choices for each built-in real title. Eligible signature pairings receive extra priority; imported titles can use genre-based ranking and practical explanations. Interpretations are distinguished from documented food connections, and food and time limits still apply. |
+| **Simpler couples planning** | Choose an evening and go directly to ingredient review. The preview and dinner alternatives are optional. |
+| **Phone delivery updates** | Enter the provider’s remaining estimate from 1–120 minutes on the phone. Successful saves update the shared schedule, close the editor, and show confirmation. Crave Frame does not receive live delivery tracking. |
+| **Phone memory saving** | Name and privately save Tonight’s Edition on the phone or TV. A saved confirmation prevents unchanged repeat submissions. The cooking link can save only its own evening’s edition. |
 | **A shared evening** | Separate cooking roles, partner feedback, reviewed dinner changes, a shared reveal, and the optional Tonight’s Edition keepsake. |
 
 These changes are in the repository. **The AWS demo requires a separate deployment**; the demo link alone does not prove it is running this revision.
 
-## From choosing to cooking
+## One evening first
+
+The main journey is **choose an evening → check ingredients → cook → watch**. Start with the featured pairing or search for something you already have in mind. Review the ingredients and save the plan, then cook on the TV or take the steps to your phone. When you’re ready to watch, open your streaming service.
+
+You do not need to join a voting room, build a pantry list, choose cooking roles, or save a memory to complete an evening. Those tools are optional. The home screen leads with the featured pairing and recommendations; additional ideas sit below the first shelf, with more behind **Explore more**.
+
+| Core step | Your action | The experience |
+| --- | --- | --- |
+| **Choose** | Pick a dinner and title | An explanation of the pairing, within your preferences |
+| **Check** | Review ingredients and portions, then save | A recipe and shared evening schedule |
+| **Cook** | Follow the steps on TV or phone | Cooking guidance, timers and synchronized progress |
+| **Watch** | Open your streaming service | Settle in with the title you chose |
+
+## Help when you want it
 
 | Step | Your action | The experience |
 | --- | --- | --- |
-| **Discover** | Start with a title or a meal | Explained dinner-and-show suggestions |
-| **Agree** | Compare choices together | Household food, time, effort and family preferences |
-| **Plan** | Review and save an evening | Ingredients, portions and a schedule |
-| **Cook** | Open the scoped phone handoff | Steps, timers and synchronized progress |
+| **Choose together** | Invite another person to vote | A shared shortlist and optional reveal |
+| **Use what you have** | Enter a few pantry ingredients | Suggestions that consider your kitchen |
 | **Adapt** | Report a delay or change dinner | A proposed revision to review before applying |
+| **Order out** | Finish checkout with a delivery provider | A shared schedule based on the estimate you enter |
 | **Remember** | Rate dinner and viewing separately; optionally keep a moment | Partner feedback and a privately saved Tonight’s Edition card |
+
+Kids Kitchen is a separate parent-controlled experience. Collections and personal touches are available for evenings when you want them; they are not steps to finish before dinner.
 
 ## Built around a night at home
 
@@ -67,7 +96,9 @@ This is a hackathon prototype. It does not stream films, place orders, track del
 
 After viewing begins and dinner is ready, open the optional keepsake on your saved evening or phone companion. Each person submits a moment (up to 280 characters) or skips. Answers are shared household data when submitted; the UI reveals the complete card once both have responded. This is not a secret-message system.
 
-The TV offers an editable title, explicit private saving to the existing collection, and a way to plan another evening. If the existing card is already shared publicly, stop sharing before saving the personal edition. Saved cards are snapshots; later answers do not silently rewrite them. No relationship score, streak, or pressure to participate.
+Both the phone companion and TV offer an editable title and explicit private saving. You can finish the keepsake on your phone without returning to the TV. After a successful save, the action shows **Saved privately ✓** and stays disabled until the title or submitted answers change. The phone cooking link is limited to saving its own evening’s edition; it does not grant access to other collections.
+
+If the existing card is already shared publicly, stop sharing before saving the personal edition. Saved cards are snapshots; later answers do not silently rewrite them. The TV also offers a way to plan another evening. No relationship score, streak, or pressure to participate.
 
 ## A more personal night for two
 

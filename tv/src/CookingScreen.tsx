@@ -1,3 +1,4 @@
+import {eveningTheme} from './theme';
 import {PartnerKitchen} from './PartnerKitchen';
 import {CoupleMoment} from './CoupleMoment';
 import {DeliveryCompanion} from './DeliveryCompanion';
@@ -13,7 +14,7 @@ import {RecipeArt} from './RecipeArt';
 import {ingredients,recipeSteps} from './catalog/engine';
 import {mealById} from './catalog/catalog';
 import {cookingProgress} from './cooking-state';
-export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onStart,onUpdate,onBack,onHelp,tick,busy,syncError,helpRequest=0}:any){
+export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onStart,onUpdate,onSaveEdition,onBack,onHelp,tick,busy,syncError,helpRequest=0}:any){
  preview=!!preview&&night.status==='planned';
  const {width}=useWindowDimensions(),small=width<900,[details,setDetails]=useState(false),m=mealById(night.mealId),steps=recipeSteps(m,night.adapted,night.prefs.cookLevel||'Regular',night.prefs.people),index=Math.max(0,Math.min(steps.length-1,Number.isInteger(preview?previewStep:night.step)?(preview?previewStep:night.step):0)),step=steps[index],ready=['ready','complete'].includes(night.status),progress=cookingProgress(night,steps.length,preview),left=Math.max(0,Math.ceil(((night.timer||0)-tick)/1000));
  const scroll=useRef<ScrollView>(null);
@@ -23,18 +24,18 @@ export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onS
  useEffect(()=>setChecked(false),[night.id,night.mealId,night.prefs.people,night.adapted,night.prefs.cookLevel]);
  useEffect(()=>setShowCoaching(false),[night.id,index,preview]);
  useEffect(()=>{if(helpRequest){setDetails(true);setShowCoaching(true);}},[helpRequest]);
- if(night.fulfillment==='delivery')return <DeliveryCompanion night={night} phone={phone} onBack={onBack} syncError={syncError}/>;
+ if(night.fulfillment==='delivery')return <DeliveryCompanion night={night} phone={phone} onBack={onBack} onUpdate={onUpdate} busy={busy} syncError={syncError}/>;
  const baseStep=recipeSteps(m,night.adapted,'Confident',night.prefs.people)[index];
  const copy=cookingCopy(step.instruction,baseStep.instruction);
  return <ScrollView ref={scroll} testID="main-scroll" contentContainerStyle={{padding:small?20:40,paddingBottom:90,gap:20,maxWidth:1200,width:'100%',alignSelf:'center'}}>
  <Text style={s.kicker}>{preview?'RECIPE PREVIEW':phone?'YOUR KITCHEN COMPANION':'COOK AT YOUR PACE'}</Text><Text style={[s.title,{fontSize:small?32:44}]}>{m.name}</Text>
  {ready&&!preview&&<><DinnerReady night={night} phone={phone} onBack={onBack}/><CoupleMoment key={night.id} night={night}/></>}
- {night.prefs.people===2&&!preview&&<PartnerKitchen phone={phone} night={night} meal={m} onUpdate={onUpdate} busy={busy} tick={tick} onRoleChange={setPartnerRole}/>}
+ {night.prefs.people===2&&!preview&&<PartnerKitchen onSaveEdition={onSaveEdition} phone={phone} night={night} meal={m} onUpdate={onUpdate} busy={busy} tick={tick} onRoleChange={setPartnerRole}/>}
  {preview&&<CookingChecklist key={JSON.stringify([night.id,night.mealId,night.prefs.people,night.adapted,night.prefs.cookLevel])} night={night} meal={m} onReady={setChecked}/>}
  {partnerRole===2&&!preview&&!ready&&<Button quiet selected={showSharedRecipe} onPress={()=>setShowSharedRecipe(!showSharedRecipe)}>{showSharedRecipe?'Hide shared recipe':'Check the full recipe'}</Button>}
- {(partnerRole!==2||preview||ready||showSharedRecipe)&&<View style={{flexDirection:small?'column':'row',gap:24}}><View style={{width:small?'100%':'32%',gap:12}}><RecipeArt meal={m} resizeMode="cover" style={{width:'100%',height:small?180:260,borderRadius:20}}/><Text style={s.meta}>{night.prefs.people} servings · {night.prefs.cookLevel||'Regular'} guidance</Text><Text style={s.meta}>Later tonight · {night.show?.name||'Your selected story'}</Text></View>
- <LinearGradient colors={['#1C2A3C','#111B2A']} style={[s.panel,{flex:1}]}><Text style={s.encourage}>{preview?'Take a look before you begin.':ready?'✦ You made dinner happen.':index===0?'Let’s make something good.':index===steps.length-1?'The finishing touches. You’ve got this.':'One step at a time. You’re getting there.'}</Text>
- <Text style={s.meta}>{preview?'PREVIEW':'STEP'} {index+1} OF {steps.length}</Text><View accessibilityRole="progressbar" accessibilityLabel="Completed cooking steps" accessibilityValue={{min:0,max:steps.length,now:progress.completed}} style={{height:7,backgroundColor:'#34465D',borderRadius:7,overflow:'hidden'}}><View style={{height:7,width:(progress.percent+'%') as `${number}%`,backgroundColor:'#FFCA9F'}}/></View>
+ {(partnerRole!==2||preview||ready||showSharedRecipe)&&<View style={{flexDirection:small?'column':'row',gap:24}}><View style={{width:small?'100%':'32%',gap:12}}><RecipeArt adapted={night.adapted} meal={m} resizeMode="cover" style={{width:'100%',height:small?180:260,borderRadius:20}}/><Text style={s.meta}>{night.prefs.people} servings · {night.prefs.cookLevel||'Regular'} guidance</Text><Text style={s.meta}>Later tonight · {night.show?.name||'Your selected story'}</Text></View>
+ <LinearGradient colors={[eveningTheme.surface,eveningTheme.deep]} style={[s.panel,{flex:1}]}><Text style={s.encourage}>{preview?'Take a look before you begin.':ready?'✦ You made dinner happen.':index===0?'Let’s make something good.':index===steps.length-1?'The finishing touches. You’ve got this.':'One step at a time. You’re getting there.'}</Text>
+ <Text style={s.meta}>{preview?'PREVIEW':'STEP'} {index+1} OF {steps.length}</Text><View accessibilityRole="progressbar" accessibilityLabel="Completed cooking steps" accessibilityValue={{min:0,max:steps.length,now:progress.completed}} style={{height:7,backgroundColor:eveningTheme.border,borderRadius:7,overflow:'hidden'}}><View style={{height:7,width:(progress.percent+'%') as `${number}%`,backgroundColor:'#FFCA9F'}}/></View>
  {preview&&<Text style={s.meta}>Previewing does not advance saved progress or start timers.</Text>}<Text style={[s.title,{fontSize:small?30:40}]}>{step.title}</Text><Text style={[s.body,{fontSize:small?20:28,lineHeight:small?32:41}]}>{copy.action}</Text>
  {copy.safety.map((tip:string)=><Text key={tip} style={s.body}>{tip}</Text>)}
  {!!copy.tips.length&&<><Button compact quiet selected={showCoaching} onPress={()=>setShowCoaching(!showCoaching)}>{showCoaching?'Hide extra guidance':'Show me how'}</Button>{showCoaching&&copy.tips.map((tip:string)=><Text key={tip} style={s.body}>{tip}</Text>)}</>}
@@ -46,4 +47,4 @@ export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onS
  <Text style={s.meta}>{phone?'Progress is shared with your TV. Keep this private link within your household.':'Use Send to phone from your evening plan to cook in the kitchen.'}</Text>
  </LinearGradient></View>}</ScrollView>;
 }
-const s=StyleSheet.create({panel:{padding:24,borderRadius:24,borderWidth:1,borderColor:'#35475F',gap:20},title:{color:'#FFF6EE',fontWeight:'800',lineHeight:46},kicker:{fontSize:17,color:'#FFCA9F',fontWeight:'800',letterSpacing:1.4},meta:{color:'#C4D2E3',fontSize:18,lineHeight:28},body:{color:'#EAF0F8',fontSize:23,lineHeight:34},encourage:{color:'#FFCA9F',fontSize:20,lineHeight:29,fontWeight:'600'},row:{flexDirection:'row',flexWrap:'wrap',gap:12},timer:{padding:20,gap:12,borderRadius:18,backgroundColor:'#0C1726'},digits:{fontSize:44,color:'#FFF',fontWeight:'800',fontVariant:['tabular-nums']},ready:{padding:20,gap:12,borderRadius:18,backgroundColor:'#14392E'},warning:{color:'#FFD3AA',fontSize:20,lineHeight:28}});
+const s=StyleSheet.create({panel:{padding:24,borderRadius:24,borderWidth:1,borderColor:eveningTheme.border,gap:20},title:{color:'#FFF6EE',fontWeight:'800',lineHeight:46},kicker:{fontSize:17,color:'#FFCA9F',fontWeight:'800',letterSpacing:1.4},meta:{color:eveningTheme.muted,fontSize:18,lineHeight:28},body:{color:'#EAF0F8',fontSize:23,lineHeight:34},encourage:{color:'#FFCA9F',fontSize:20,lineHeight:29,fontWeight:'600'},row:{flexDirection:'row',flexWrap:'wrap',gap:12},timer:{padding:20,gap:12,borderRadius:18,backgroundColor:eveningTheme.deep},digits:{fontSize:44,color:'#FFF',fontWeight:'800',fontVariant:['tabular-nums']},ready:{padding:20,gap:12,borderRadius:18,backgroundColor:'#14392E'},warning:{color:'#FFD3AA',fontSize:20,lineHeight:28}});

@@ -32,7 +32,7 @@ test('order out preserves the pairing and rebuilds the timeline around delivery'
  assert.equal(ordered.mealId,night.mealId);assert.equal(ordered.showId,night.showId);assert.equal(ordered.fulfillment,'delivery');
  assert.equal(ordered.orderPlan.arrivalAt,now+35*60000);assert.equal(timeline[0].label,'Order marked placed');assert.equal(timeline[1].label,'Estimated delivery window');assert.equal(timeline[2].at,ordered.orderPlan.arrivalAt);assert.equal(timeline[3].at,ordered.orderPlan.watchAt);
  const exact=orderOutEvening(night,meal,show,42,now);assert.equal(exact.orderPlan.etaMinutes,42);
- assert.throws(()=>orderOutEvening(night,meal,show,10,now));assert.throws(()=>orderOutEvening(night,meal,show,121,now));
+ for(const eta of [1,5,10]){const short=orderOutEvening(night,meal,show,eta,now),rows=eveningTimeline(short,meal,show);assert.equal(rows[2].at,now+eta*60000);assert.ok(rows[1].at<=rows[2].at);}assert.throws(()=>orderOutEvening(night,meal,show,0,now));assert.throws(()=>orderOutEvening(night,meal,show,121,now));
 });
 test('ready together moves serving and watch estimates when cooking runs late',()=>{
  const now=1_800_000_000_000,meal={minutes:30},show={minutes:90},steps=[{},{},{},{}];
