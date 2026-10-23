@@ -11,7 +11,7 @@ export function PremiereLoading({reduced=false,boot=false,onCancel,context}:{con
  const [seconds,setSeconds]=useState(0),[shown,setShown]=useState(boot),[paused,setPaused]=useState(false);
  const drift=useRef(new Animated.Value(0)).current,still=reduced||paused;
  useEffect(()=>{const reveal=setTimeout(()=>setShown(true),350),clock=setInterval(()=>setSeconds(s=>s+1),1000);return()=>{clearTimeout(reveal);clearInterval(clock);};},[]);
- useEffect(()=>{if(!shown||still){drift.setValue(.5);return;}const loop=Animated.loop(Animated.sequence([Animated.timing(drift,{toValue:1,duration:4200,easing:Easing.inOut(Easing.sin),useNativeDriver:true}),Animated.timing(drift,{toValue:0,duration:4200,easing:Easing.inOut(Easing.sin),useNativeDriver:true})]));loop.start();return()=>loop.stop();},[shown,still]);
+ useEffect(()=>{if(!shown||still){drift.setValue(.5);return;}const loop=Animated.loop(Animated.sequence([Animated.timing(drift,{toValue:1,duration:4200,easing:Easing.inOut(Easing.sin),useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'}),Animated.timing(drift,{toValue:0,duration:4200,easing:Easing.inOut(Easing.sin),useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'})]));loop.start();return()=>loop.stop();},[shown,still]);
  useEffect(()=>{if(!shown||Platform.OS!=='web')return;const previous=document.activeElement as HTMLElement;const frame=requestAnimationFrame(()=>[...document.querySelectorAll<HTMLElement>('[data-testid="premiere-loading"] [role="button"]')].at(-1)?.focus({preventScroll:true}));return()=>{cancelAnimationFrame(frame);if(previous?.isConnected)previous.focus({preventScroll:true});};},[shown]);
  if(!shown)return null;
  const float=drift.interpolate({inputRange:[0,1],outputRange:[-9,9]});

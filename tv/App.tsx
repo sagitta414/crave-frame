@@ -130,7 +130,7 @@ export default function App(){
  useEffect(()=>{startingSources.current[mode]=source;},[mode,source]);
  useEffect(()=>{if(Platform.OS==='web'){const handler=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();back();}};window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler);}const sub=BackHandler.addEventListener('hardwareBackPress',back);return()=>sub.remove();},[back]);
  useEffect(()=>{AsyncStorage.getItem('cf-reduced-motion').then(v=>setReduceMotion(v==='true'));AsyncStorage.getItem('cf-sound-enabled').then(v=>setSoundEnabled(v!=='false'));AccessibilityInfo.isReduceMotionEnabled().then(setSystemMotion);const subscription=AccessibilityInfo.addEventListener('reduceMotionChanged',setSystemMotion);return()=>subscription.remove();},[]);
- useEffect(()=>{if(page==='home'||reduceMotion||systemMotion){fade.setValue(1);return;}fade.setValue(0);Animated.timing(fade,{toValue:1,duration:240,useNativeDriver:true}).start();},[page,reduceMotion,systemMotion]);
+ useEffect(()=>{if(page==='home'||reduceMotion||systemMotion){fade.setValue(1);return;}fade.setValue(0);Animated.timing(fade,{toValue:1,duration:240,useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'}).start();},[page,reduceMotion,systemMotion]);
  useEffect(()=>{if(!notice)return;const id=setTimeout(()=>setNotice(''),5000);return()=>clearTimeout(id);},[notice]);
  useEffect(()=>{if(!['night','cook'].includes(page))return;const id=setInterval(()=>setTick(Date.now()),1000);return()=>clearInterval(id);},[page]);
  useEffect(()=>{
@@ -152,7 +152,7 @@ export default function App(){
   sync.setActive(!AppState.currentState||AppState.currentState==='active');void sync.refresh();
   return()=>{sync.stop();subscription.remove();};
  },[night?.id,page,cookKey]);
- function focusHero(show:any){if(hero?.id===show.id)return;setHero(show);if(reduceMotion||systemMotion){heroFade.setValue(1);return;}heroFade.setValue(.55);Animated.timing(heroFade,{toValue:1,duration:350,useNativeDriver:true}).start();}
+ function focusHero(show:any){if(hero?.id===show.id)return;setHero(show);if(reduceMotion||systemMotion){heroFade.setValue(1);return;}heroFade.setValue(.55);Animated.timing(heroFade,{toValue:1,duration:350,useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'}).start();}
  async function loadWatchDinners(show:any){const next={...selectedWatchPrefs(prefs,show),format:'Any'};setGroupKey('');setMode('watch');setSource(show);setPrefs(next);setPair(null);setAdvanced(false);setDinnerOptions(false);const r=await api('recommendations','POST',{mode:'watch',sourceId:show.id,prefs:next,options});registerShows(r.picks.map((p:any)=>p.show));setPicks(r.picks);setAiResult(r);nav('pairings');}
 
  async function startWatch(show:any){await run(async()=>{let resolved=show;if(show.provider&&!house.titles?.some((t:any)=>t.id===show.id)){resolved=await api('catalog/select','POST',{provider:show.provider,minutes:show.minutes,mood:show.mood,cuisine:show.cuisine||'Any'});registerShows([resolved]);await refresh();}await loadWatchDinners(resolved);});}

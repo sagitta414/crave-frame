@@ -41,4 +41,11 @@ test('recipe help opens ingredients and coaching, and can reopen after closing',
  assert.ok(!buttons(render(2,false,0,{...handoffProps,phone:true})).some(b=>b.props.children==='Send to phone'));
  night.status='planned';night.fulfillment='delivery';assert.ok(find(render(2,true),'Delivery'),'delivery never exposes recipe preview or cooking controls');
  assert.equal(buttons(render(2,true)).length,0);
+
+ night.status='cooking';delete night.fulfillment;night.prefs.people=2;
+ const flatten=n=>!n||typeof n!=='object'?[]:Array.isArray(n)?n.flatMap(flatten):[n,...flatten(n.props?.children)];
+ const phoneTree=flatten(render(0,false,0,{phone:true}));
+ assert.ok(phoneTree.findIndex(n=>n.type==='PartnerKitchen')>phoneTree.findIndex(n=>n.type==='Gradient'),'phone recipe precedes optional partner roles');
+ assert.equal(phoneTree.some(n=>n.type==='Art'),false,'active phone recipe omits the tall photo');
+ night.status='ready';assert.ok(find(render(0,false,0,{phone:true}),'PartnerKitchen'),'ready dinner retains partner feedback and memories');
 });

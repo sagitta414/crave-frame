@@ -87,3 +87,14 @@ test('household mutations preserve current capabilities in catalog and connected
   }finally{DB.close();}
  }
 });
+
+test('personalized imported-episode choices use different dinner categories within saved limits',async()=>{
+ const show={id:'tmdb-tv-1405-1-1',name:'Dexter — S1 E1: Dexter',kind:'TV episode',minutes:53,mood:'Suspenseful',genre:'Crime',family:false,custom:true,description:'A crime drama in Miami.',provider:{type:'tv',id:1405,season:1,episode:1}};
+ const p={...defaults,cookTime:30,watchTime:120};
+ const house={memory:{dislikedIngredients:['mushroom']},titles:[show]};
+ const r=await curated({},house,{mode:'watch',sourceId:show.id,prefs:p,personalized:true});
+ assert.equal(r.picks.length,3);assert.equal(new Set(r.picks.map(x=>x.meal.category)).size,3);
+ assert.ok(r.picks.every(x=>x.show.id===show.id&&x.meal.minutes<=30&&!x.meal.ingredients.some(i=>/mushroom/i.test(i[0]))));
+ const repeated=await curated({}, {...house,recentPairings:r.picks.map(x=>({mealId:x.meal.id}))},{mode:'watch',sourceId:show.id,prefs:p,personalized:true});
+ assert.ok(repeated.picks.every(x=>!r.picks.some(old=>old.meal.id===x.meal.id)));
+});

@@ -20,3 +20,8 @@ test('return visits resume a current unfinished evening and exclude completed fe
  assert.equal(resumeEvening([{...n,status:'complete'}]),null);
  assert.equal(resumeEvening([{...n,created:'2020-01-01',planStart:1}]),null);
 });
+
+test('equal cooking effort does not label every choice as a winner',()=>{
+ const labels=choiceLabels([{meal:meal('one',20)},{meal:meal('two',20)},{meal:meal('three',20)}]);
+ assert.ok(labels.every(items=>!items.includes('Least cooking effort')));
+});

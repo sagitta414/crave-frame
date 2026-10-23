@@ -1,14 +1,14 @@
 import {Text} from './TVText';
 import React,{useContext,useEffect,useRef,useState} from 'react';
-import {Animated,Easing,Image,View,useWindowDimensions} from 'react-native';
+import {Animated,Easing,Image,View,useWindowDimensions,Platform} from 'react-native';
 import {STORY_SCENE_MS} from './EveningStory';
 import {MotionContext} from './Motion';
 const lines=[['Tonight deserves a plot twist.','Dinner. A good story. Your kind of evening.'],['Cue the cravings.','A little inspiration for your next big bite.'],['Give your sofa a supporting cast.','Something delicious belongs in this scene.'],['Less “what’s for dinner?”','More “let’s make a night of it.”']];
 export function MatchingStage({compact=false,sceneIndex}:{compact?:boolean,sceneIndex?:number}){
  const reduced=useContext(MotionContext),{width,height}=useWindowDimensions(),small=width<700,short=height<650;
  const [scene,setScene]=useState(0),float=useRef(new Animated.Value(0)).current,reveal=useRef(new Animated.Value(1)).current;
- useEffect(()=>{if(reduced){float.setValue(.5);return;}const loop=Animated.loop(Animated.sequence([Animated.timing(float,{toValue:1,duration:2200,easing:Easing.inOut(Easing.sin),useNativeDriver:true}),Animated.timing(float,{toValue:0,duration:2200,easing:Easing.inOut(Easing.sin),useNativeDriver:true})]));loop.start();const timer=setInterval(()=>setScene(v=>sceneIndex===undefined?(v+1)%lines.length:v),STORY_SCENE_MS);return()=>{loop.stop();clearInterval(timer);};},[reduced,sceneIndex]);
- useEffect(()=>{if(reduced){reveal.setValue(1);return;}reveal.setValue(0);const a=Animated.timing(reveal,{toValue:1,duration:450,easing:Easing.out(Easing.cubic),useNativeDriver:true});a.start();return()=>a.stop();},[scene,sceneIndex,reduced]);
+ useEffect(()=>{if(reduced){float.setValue(.5);return;}const loop=Animated.loop(Animated.sequence([Animated.timing(float,{toValue:1,duration:2200,easing:Easing.inOut(Easing.sin),useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'}),Animated.timing(float,{toValue:0,duration:2200,easing:Easing.inOut(Easing.sin),useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'})]));loop.start();const timer=setInterval(()=>setScene(v=>sceneIndex===undefined?(v+1)%lines.length:v),STORY_SCENE_MS);return()=>{loop.stop();clearInterval(timer);};},[reduced,sceneIndex]);
+ useEffect(()=>{if(reduced){reveal.setValue(1);return;}reveal.setValue(0);const a=Animated.timing(reveal,{toValue:1,duration:450,easing:Easing.out(Easing.cubic),useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'});a.start();return()=>a.stop();},[scene,sceneIndex,reduced]);
  const cardWidth=small?108:compact||short?160:220,cardHeight=small?90:compact||short?116:166;
  return <View style={{alignItems:'center',justifyContent:'center',gap:compact||short?14:24,paddingVertical:compact?20:8,width:'100%'}}>
  <View accessible={false} pointerEvents="none" style={{height:cardHeight+28,flexDirection:'row',alignItems:'center',justifyContent:'center',gap:small?14:32}}>

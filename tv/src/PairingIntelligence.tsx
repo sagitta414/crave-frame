@@ -32,7 +32,7 @@ function signalData(pair:any,prefs:any){
 export function PairingDNA({pair,prefs,compact=false}:any){
  const reduced=useContext(MotionContext),signals=useMemo(()=>signalData(pair,prefs),[pair,prefs]);
  const reveal=useRef(signals.map(()=>new Animated.Value(reduced?1:0))).current;
- useEffect(()=>{if(reduced){reveal.forEach(x=>x.setValue(1));return;}Animated.stagger(80,reveal.map(x=>Animated.timing(x,{toValue:1,duration:380,useNativeDriver:true}))).start();},[pair?.meal?.id,pair?.show?.id,reduced]);
+ useEffect(()=>{if(reduced){reveal.forEach(x=>x.setValue(1));return;}Animated.stagger(80,reveal.map(x=>Animated.timing(x,{toValue:1,duration:380,useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'}))).start();},[pair?.meal?.id,pair?.show?.id,reduced]);
  if(compact)return <View style={i.dnaCompact} accessibilityLabel={'Meal and story facts: '+signals.map(x=>x.label+' '+x.value).join(', ')}><Text style={i.eyebrow}>MEAL & STORY FACTS</Text>{signals.map((x,n)=><Animated.View key={x.label} style={[i.dot,{backgroundColor:x.color,opacity:reveal[n],transform:[{scale:reveal[n]}]}]}/>)}</View>;
  return <View style={i.panel}><View style={i.rowBetween}><View><Text style={i.eyebrow}>MEAL & STORY FACTS</Text><Text style={i.title}>About this meal and story</Text></View></View>{signals.map((x,n)=><View key={x.label} style={i.signal}><View style={i.rowBetween}><Text style={i.signalLabel}>{x.label}</Text><Text style={[i.signalValue,{color:x.color}]}>{x.value}</Text></View></View>)}<Text style={i.note}>From the recipe, title listing and your preferences.</Text></View>;
 }

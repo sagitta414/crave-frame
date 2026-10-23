@@ -32,10 +32,10 @@ test('featured explanations remain brief and retain the full editorial wording s
  const line=heroPairingLine({meal:{minutes:20},show:{name:'Unknown movie'}});assert.match(line,/20 minutes/);assert.doesNotMatch(line,/scene|on-screen/);
 });
 test('celebration is a single entrance, cleans up, and becomes static with reduced motion',()=>{
- let reduced=false,ref,previous,cleanup,starts=0,stops=0,current=1;
+ let reduced=false,ref,previous,cleanup,starts=0,stops=0,current=1;const platform={OS:"web"},drivers=[];
  class Value{constructor(n){current=n;}stopAnimation(){}setValue(n){current=n;}interpolate(){return 1;}}
  const React={useContext:()=>reduced,useRef:v=>ref||=( {current:v}),useEffect:(fn,deps)=>{if(!previous||deps.some((v,i)=>v!==previous[i])){cleanup?.();cleanup=fn();}previous=deps;}};
- const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/MomentReveal.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>id==='react'?React:id==='react/jsx-runtime'?{jsx,jsxs:jsx}:id==='./Motion'?{MotionContext:{}}:{Animated:{View:'Animated',Value,timing:()=>({start:()=>starts++,stop:()=>stops++})}}});
+ const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/MomentReveal.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>id==='react'?React:id==='react/jsx-runtime'?{jsx,jsxs:jsx}:id==='./Motion'?{MotionContext:{}}:{Platform:platform,Animated:{View:'Animated',Value,timing:(_value,config)=>{drivers.push(config.useNativeDriver);return {start:()=>starts++,stop:()=>stops++};}}}});
  exports.MomentReveal({active:false});assert.equal(starts,0);exports.MomentReveal({active:true});assert.equal(starts,1);exports.MomentReveal({active:true});assert.equal(starts,1);
- reduced=true;exports.MomentReveal({active:true});assert.equal(stops,1);assert.equal(current,1);assert.equal(starts,1);
+ reduced=true;exports.MomentReveal({active:true});assert.equal(stops,1);assert.equal(current,1);assert.equal(starts,1);assert.deepEqual(drivers,[false]);platform.OS="android";reduced=false;exports.MomentReveal({active:true});assert.deepEqual(drivers,[false,true]);
 });

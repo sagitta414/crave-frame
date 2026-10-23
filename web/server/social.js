@@ -40,7 +40,7 @@ export async function curated(env,house,b,members=[]){
  const candidates=members.length?[]:[...ranked];
  while(picks.length<3&&candidates.length){
   if(b.personalized&&picks.length&&picks.filter(p=>p.meal.familiar).length<2){const familiar=candidates.findIndex(p=>p.meal.familiar&&!seenMeals.has(p.meal.id)&&(b.mode==='watch'||!seenShows.has(p.show.id)));if(familiar>=0)candidates.unshift(...candidates.splice(familiar,1));}
-  const distinctCategory=b.personalized?-1:b.mode==='watch'?candidates.findIndex(p=>!seenCategories.has(p.meal.category)):-1;
+  const distinctCategory=b.mode==='watch'?candidates.findIndex(p=>!seenMeals.has(p.meal.id)&&!seenCategories.has(p.meal.category)):-1;
   const index=distinctCategory>=0?distinctCategory:candidates.findIndex(p=>b.mode==='meal'?!seenShows.has(p.show.id):b.mode==='watch'?!seenMeals.has(p.meal.id):!seenShows.has(p.show.id)&&!seenMeals.has(p.meal.id));
   if(index<0)break;
   const [pick]=candidates.splice(index,1);if((b.mode!=='meal'&&seenMeals.has(pick.meal.id))||(b.mode!=='watch'&&seenShows.has(pick.show.id)))continue;

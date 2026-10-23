@@ -1,6 +1,6 @@
 import {Text} from './TVText';
 import React,{useEffect,useRef,useState} from 'react';
-import {Animated,Easing,Image,StyleSheet,View,useWindowDimensions} from 'react-native';
+import {Animated,Easing,Image,StyleSheet,View,useWindowDimensions,Platform} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {BrandMark} from './Brand';
 
@@ -14,7 +14,7 @@ export function AnimatedGuide({reduced=false}:{reduced?:boolean}){
  const {width,height}=useWindowDimensions(),wide=width>=900;
  const [step,setStep]=useState(0),reveal=useRef(new Animated.Value(0)).current;
  useEffect(()=>{if(reduced)return;const a=setTimeout(()=>setStep(1),2400),b=setTimeout(()=>setStep(2),4800);return()=>{clearTimeout(a);clearTimeout(b);};},[reduced]);
- useEffect(()=>{if(reduced){reveal.setValue(1);return;}reveal.setValue(0);const animation=Animated.timing(reveal,{toValue:1,duration:620,easing:Easing.out(Easing.back(1.15)),useNativeDriver:true});animation.start();return()=>animation.stop();},[step,reduced]);
+ useEffect(()=>{if(reduced){reveal.setValue(1);return;}reveal.setValue(0);const animation=Animated.timing(reveal,{toValue:1,duration:620,easing:Easing.out(Easing.back(1.15)),useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'});animation.start();return()=>animation.stop();},[step,reduced]);
  const scene=scenes[step],artHeight=Math.min(height*(wide?.4:.23),360);
  if(reduced)return <View style={{maxWidth:1000,gap:20}}><Text style={s.eyebrow}>YOUR NIGHT IN THREE STEPS</Text>{scenes.map((item,i)=><View key={item.title} style={{flexDirection:'row',gap:20,alignItems:'center'}}><Image source={item.image} style={{width:90,height:70,borderRadius:12}}/><Text style={[s.detail,{flex:1}]}>{i+1}. {item.detail}</Text></View>)}<Text style={s.hint}>Arrows move • Center selects • Back returns</Text></View>;
  return <View style={{width:Math.min(width-48,1340),gap:24}}>

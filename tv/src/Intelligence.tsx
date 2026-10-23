@@ -1,7 +1,7 @@
 import {tasteSummary} from './taste-summary';
 import {Text} from './TVText';
 import React,{useContext,useEffect,useRef,useState} from 'react';
-import {Animated,View,StyleSheet} from 'react-native';
+import {Animated,View,StyleSheet,Platform} from 'react-native';
 import {TVButton as Button} from './TVButton';
 import {RecipeArt} from './RecipeArt';
 import {MotionContext} from './Motion';
@@ -13,7 +13,7 @@ export function TasteTwin({house,onOpen}:any){const memory=house?.memory||{},sum
 export function TasteMemory({house,onUpdate}:any){const [busy,setBusy]=useState(false),[error,setError]=useState('');const m=house.memory||{};const entries:any[]=[];if(m.shorter)entries.push({field:'shorter',label:'You prefer episodes under 45 minutes'});if(m.preferredMood)entries.push({field:'preferredMood',label:'You prefer a '+m.preferredMood.toLowerCase()+' mood'});if(m.preferredEffort==='Easy')entries.push({field:'preferredEffort',label:'You prefer easier cooking'});for(const field of ['dislikedMeals','favoriteMeals','favoriteCuisines','dislikedIngredients','dislikedPairs','watched'])for(const value of m[field]||[]){let label=field==='dislikedMeals'?'Don’t recommend '+(mealById(value)?.name||value):field==='favoriteMeals'?'You liked '+(mealById(value)?.name||value):field==='favoriteCuisines'?'You prefer '+value+' cuisine':field==='dislikedIngredients'?'Avoid '+value:field==='watched'?'Already watched: '+(house.titles?.find((t:any)=>t.id===value)?.name||showById(value)?.name||value):'You disliked the pairing '+value;entries.push({field,value,label});}return <View style={s.panel}><Text style={s.title}>What shapes your recommendations</Text><Text style={s.body}>These saved preferences affect your next choices. Remove one to stop using it; your saved evenings remain.</Text>{!entries.length&&<Text style={s.body}>No taste preferences saved yet. Rate an evening to teach us what you enjoy.</Text>}{entries.map(e=><View key={e.field+e.value} style={s.row}><Text style={[s.body,{flex:1}]}>{e.label}</Text><Button disabled={busy} onPress={async()=>{setBusy(true);setError('');try{onUpdate(await api('memory','PATCH',{field:e.field,value:e.value}));}catch(e){setError(e.message);}finally{setBusy(false);}}}>Remove</Button></View>)}{!!error&&<Text style={s.body}>{error}</Text>}</View>;}
 export function ChangeComparison({night,rescue,adapted}:any){
  const reduced=useContext(MotionContext),motion=useRef(new Animated.Value(reduced?1:0)).current;
- useEffect(()=>{if(reduced){motion.setValue(1);return;}Animated.timing(motion,{toValue:1,duration:720,useNativeDriver:true}).start();},[rescue.choice.mealId,reduced]);
+ useEffect(()=>{if(reduced){motion.setValue(1);return;}Animated.timing(motion,{toValue:1,duration:720,useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'}).start();},[rescue.choice.mealId,reduced]);
  const old=mealById(night.mealId),next=mealById(rescue.choice.mealId),before=ingredients(old,night.prefs.people,night.adapted),after=ingredients(next,rescue.request.people,adapted),start=Math.max(night.planStart||Date.parse(night.created),Date.now())+rescue.request.delay*60000,dinner=night.dinnerMinutes||25,watch=night.show||showById(night.showId);const time=(n:number)=>new Date(n).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
  const changes=[
   {label:'WATCH',before:watch.name,after:rescue.choice.showName,kept:!rescue.request.allowWatchChange},

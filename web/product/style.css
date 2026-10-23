@@ -78,3 +78,7 @@ body:has(.page-phone) .topbar .badge{font-size:11px}
 .pantry-grid [hidden]{display:none!important}.pantry-grid{max-height:28rem;overflow:auto;overscroll-behavior:contain}#pantry-search{width:100%;padding:14px;border-radius:12px;margin-block:8px}#pantry-summary{line-height:1.5}
 
 @media(max-width:800px){.topbar nav{display:flex;flex-wrap:wrap;overflow:visible;gap:6px}.topbar nav a{flex:1 1 calc(33.33% - 6px);min-width:0;white-space:normal;padding:12px 8px}}
+
+/* Compact mobile destinations remain visible without horizontal scrolling. */
+.nav-short{display:none}
+@media(max-width:800px){.topbar{padding:10px 4vw;gap:8px}.topbar .brand{font-size:22px}.topbar .brand img{width:32px;height:32px}.topbar .avatar{width:36px;height:36px}.topbar nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}.topbar nav a{display:flex;justify-content:center;align-items:center;min-height:44px;padding:6px 2px;font-size:12px;white-space:nowrap}.topbar nav .nav-long,.topbar nav .nav-count{display:none}.topbar nav .nav-short{display:inline}}

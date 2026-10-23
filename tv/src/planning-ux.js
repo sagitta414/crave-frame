@@ -8,7 +8,7 @@ export function choiceLabels(picks,memory={}){
  return picks.map((p,i)=>[
   closest>0&&strength(p)===closest?'Closest story connection':null,
   memory.favoriteMeals?.includes(p.meal.id)?'Familiar favorite':p.meal.familiar?'Familiar choice':null,
-  picks.length>1&&effort[i]===least?'Least cooking effort':null
+  picks.length>1&&effort[i]===least&&effort.filter(v=>v===least).length===1?'Least cooking effort':null
  ].filter(Boolean));
 }
 export function pairingSummary(pair){

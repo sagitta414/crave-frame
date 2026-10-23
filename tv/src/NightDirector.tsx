@@ -1,6 +1,6 @@
 import {eveningTheme} from './theme';
 import React,{useState,useEffect,useRef,useContext} from 'react';
-import {ScrollView,View,Animated,AccessibilityInfo,useWindowDimensions} from 'react-native';
+import {ScrollView,View,Animated,AccessibilityInfo,useWindowDimensions,Platform} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {Text} from './TVText';
 import {TVButton as Button} from './TVButton';
@@ -17,7 +17,7 @@ export function NightDirector({pair,prefs,onBack,onStart,registerPreviewBack}:an
  useEffect(()=>registerPreviewBack?.(leave),[registerPreviewBack,onBack]);
  const resource=useRemoteResource('night-ways-'+pair.show.id,()=>api('our-night/ways','POST',{showId:pair.show.id}));
  const scene=openingScene(chosen),fade=useRef(new Animated.Value(1)).current,reduced=useContext(MotionContext);
- useEffect(()=>{let live=true;if(!reduced)AccessibilityInfo.isReduceMotionEnabled().then(noMotion=>{if(!live||noMotion)return;fade.setValue(0);Animated.timing(fade,{toValue:1,duration:550,useNativeDriver:true}).start();}).catch(()=>{});return()=>{live=false;fade.stopAnimation();};},[reduced]);
+ useEffect(()=>{let live=true;if(!reduced)AccessibilityInfo.isReduceMotionEnabled().then(noMotion=>{if(!live||noMotion)return;fade.setValue(0);Animated.timing(fade,{toValue:1,duration:550,useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'}).start();}).catch(()=>{});return()=>{live=false;fade.stopAnimation();};},[reduced]);
  return <ScrollView testID="main-scroll" contentContainerStyle={{padding:width<700?20:40,paddingBottom:100,gap:22,backgroundColor:eveningTheme.canvas}}><Button compact quiet disabled={starting} onPress={leave}>← Back to our choices</Button>
  <Animated.View style={{opacity:fade}}><LinearGradient colors={[eveningTheme.raised,'#183B3C',eveningTheme.deep]} style={{padding:28,borderRadius:26,gap:16,borderWidth:1,borderColor:eveningTheme.border}}><Text style={{fontSize:19,letterSpacing:3,color:'#F5C7AC'}}>THE OPENING SCENE</Text><Text style={{fontSize:width<700?38:54,lineHeight:width<700?46:64,color:'#FFF4E8',fontWeight:'800'}}>{scene.title}</Text><RecipeArt adapted={chosen.adapted} meal={chosen.meal} style={{width:'100%',height:width<700?220:300,borderRadius:18}}/><Text style={{fontSize:30,lineHeight:39,color:'#FFE2C9'}}>{scene.line}</Text><Text style={{fontSize:25,lineHeight:35,color:'#E5EAF1'}}>With {scene.story}</Text><Text style={{fontSize:22,lineHeight:30,color:'#C5DCD6'}}>{scene.detail}</Text><PairingReason pair={chosen}/><Text style={{fontSize:22,lineHeight:31,color:'#E9DCE4'}}>A little dinner. A good story. Time for each other.</Text><Button primary disabled={starting} onPress={async()=>{if(lock.current)return;lock.current=true;setStarting(true);try{await onStart(chosen,tab==='original'?prefs:resource.data.prefs);}finally{lock.current=false;setStarting(false);}}}>Start our evening →</Button><Text style={{fontSize:18,lineHeight:26,color:'#C5DCD6'}}>Next: review the ingredients before saving. Nothing starts playing or cooking automatically.</Text></LinearGradient></Animated.View>
  <Text style={{fontSize:28,color:'#FFF3E7',fontWeight:'700'}}>Same story. Your kind of effort.</Text><Button selected={tab==='original'} disabled={starting} onPress={()=>{setChosen(pair);setTab('original');}}>Keep our original dinner</Button>

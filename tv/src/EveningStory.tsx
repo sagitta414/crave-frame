@@ -1,6 +1,6 @@
 import {Text} from './TVText';
 import React,{useEffect,useRef} from 'react';
-import {Animated,Easing,Image,StyleSheet,View,useWindowDimensions} from 'react-native';
+import {Animated,Easing,Image,StyleSheet,View,useWindowDimensions,Platform} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {BrandMark} from './Brand';
 
@@ -15,7 +15,7 @@ export const eveningStory=[
 export function StoryBackdrop({step,reduced=false}:{step:number,reduced?:boolean}){
  const {width}=useWindowDimensions();
  const motion=useRef(new Animated.Value(0)).current,fade=useRef(new Animated.Value(1)).current;
- useEffect(()=>{if(reduced){motion.setValue(0);fade.setValue(1);return;}motion.setValue(0);fade.setValue(.45);const animation=Animated.parallel([Animated.timing(motion,{toValue:1,duration:STORY_SCENE_MS,easing:Easing.out(Easing.quad),useNativeDriver:true}),Animated.timing(fade,{toValue:1,duration:500,useNativeDriver:true})]);animation.start();return()=>animation.stop();},[step,reduced]);
+ useEffect(()=>{if(reduced){motion.setValue(0);fade.setValue(1);return;}motion.setValue(0);fade.setValue(.45);const animation=Animated.parallel([Animated.timing(motion,{toValue:1,duration:STORY_SCENE_MS,easing:Easing.out(Easing.quad),useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'}),Animated.timing(fade,{toValue:1,duration:500,useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'})]);animation.start();return()=>animation.stop();},[step,reduced]);
  return <View pointerEvents="none" accessible={false} style={StyleSheet.absoluteFill}>
   <Image source={eveningStory[Math.min(2,step+1)].image} style={{position:'absolute',width:1,height:1,opacity:0}}/>
   <Animated.Image source={eveningStory[step].image} resizeMode="cover" style={[StyleSheet.absoluteFill,{width:'100%',height:'100%',opacity:fade,transform:[{scale:motion.interpolate({inputRange:[0,1],outputRange:[1,1.055]})}]}]}/>
@@ -27,7 +27,7 @@ export function StoryBackdrop({step,reduced=false}:{step:number,reduced?:boolean
 export function StoryBrand(){return <View style={{flexDirection:'row',gap:10,alignItems:'center'}}><BrandMark size={72}/><Text style={{fontSize:27,color:'#FFF7EF',fontWeight:'900',letterSpacing:.3}}>crave frame</Text></View>;}
 export function StoryCaption({step,reduced=false,loading=false}:{step:number,reduced?:boolean,loading?:boolean}){
  const {width,height}=useWindowDimensions(),small=width<900,short=height<700,scene=eveningStory[step],reveal=useRef(new Animated.Value(1)).current;
- useEffect(()=>{if(reduced){reveal.setValue(1);return;}reveal.setValue(0);const a=Animated.timing(reveal,{toValue:1,duration:450,easing:Easing.out(Easing.cubic),useNativeDriver:true});a.start();return()=>a.stop();},[step,reduced]);
+ useEffect(()=>{if(reduced){reveal.setValue(1);return;}reveal.setValue(0);const a=Animated.timing(reveal,{toValue:1,duration:450,easing:Easing.out(Easing.cubic),useNativeDriver:Platform?.OS==='android'||Platform?.OS==='ios'});a.start();return()=>a.stop();},[step,reduced]);
  return <Animated.View style={{maxWidth:small?620:Math.min(790,width*.6),opacity:reveal,transform:[{translateY:reveal.interpolate({inputRange:[0,1],outputRange:[18,0]})}]}}>
   <Text style={[storyStyles.chapter,{fontSize:small?17:22,color:scene.accent}]}>{scene.time}  /  {scene.chapter}</Text>
   <Text accessibilityRole="header" style={{color:'#FFF9F2',fontSize:short?36:small?38:64,lineHeight:short?42:small?44:72,fontWeight:'900',letterSpacing:-1.6,marginTop:short?8:14,marginBottom:short?8:16}}>{scene.title}</Text>
