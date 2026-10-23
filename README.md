@@ -1,153 +1,151 @@
+<div align="center">
+<img src="tv/assets/brand/crave-frame-3d-v5.png" width="144" alt="Crave Frame logo" />
+
 # Crave Frame
 
-<img src="tv/assets/brand/crave-frame-3d-v5.png" alt="Crave Frame logo" width="160" />
+### A good dinner. Something worth watching. A night together.
 
-**An evening you can agree on—dinner and something good to watch, planned together.**
+Choose on the TV. Cook with your phone. Spend less of the evening deciding.
 
-Crave Frame helps a household answer “what should we eat?” and “what should we watch?” as one evening. Start with a movie, TV episode, or meal, compare explained pairings, approve a dinner, and carry the recipe from the television to a phone. When plans change, preview a revised schedule or replacement dinner before applying it.
+[Explore the AWS demo](https://dcp5jtiiw3gji.cloudfront.net/tv/) · [Architecture](docs/ARCHITECTURE.md) · [Setup](docs/SETUP.md) · [Friction log](docs/FRICTION-LOG.md)
 
-[AWS TV/web demo](https://dcp5jtiiw3gji.cloudfront.net/tv/) · [Legacy demo](https://screen-to-supper-storyboard.sagitta107.chatgpt.site/tv/) · [Architecture](docs/ARCHITECTURE.md) · [Setup](docs/SETUP.md) · [Demo guide](docs/DEMO.md) · [Testing](docs/TESTING.md)
+![Node.js](https://img.shields.io/badge/Node.js-24%2B-417e38)
+![UI](https://img.shields.io/badge/UI-React_Native_%2B_Expo-087ea4)
+![Infrastructure](https://img.shields.io/badge/Infrastructure-AWS_CDK-ff9900)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
-> Hackathon prototype, not a streaming service or delivery marketplace. Crave Frame does not play films, place food orders, or connect to Alexa. The live deployment and this public source snapshot differ in bundled promotional artwork; see [asset provenance](docs/ASSETS.md).
+</div>
 
-## The evening in six steps
+---
 
-1. **Choose a story or dinner.** Search exact movies and editions; select an episode for a series.
-2. **Compare the matches.** See real recipe names, cooking time, viewing time, and the basis for each connection.
-3. **Make it yours.** Adjust people, food preferences, time, cooking skill, and household choices. Ask for familiar meals, less work, or another dinner.
-4. **Approve your evening.** Review ingredients and adaptations before saving. Choose cooking or an external order-out handoff.
-5. **Adapt and cook.** “I’m delayed” previews the changed schedule. A scoped QR link moves cooking steps to a phone and synchronizes progress.
-6. **Remember what worked.** Explicit feedback informs future recommendations and organizes loved evenings.
+## Why Crave Frame?
 
-The latest feature and content improvements, remaining validation gaps, and reproduction steps are recorded in [Feature review implementation](docs/FEATURE-REVIEW-IMPLEMENTATION.md).
+“What should we eat?” and “What should we watch?” can consume the evening before it starts. Crave Frame brings those decisions together: a title, a dinner, an explanation of the pairing, and a plan you can follow.
 
-## Features
+The television is the shared place to choose. The phone becomes the cooking companion. When dinner runs late, the evening can change with it.
 
-| Area | Included behavior |
-| --- | --- |
-| Matching | Preference-based catalog matching in the current deployment; optional Gemini selection when configured, with up to six proposed candidates and three validated finalists |
-| Explainability | Documented food references, synopsis-based setting interpretations, and plainly labeled practical choices |
-| Constraints | Deterministic food, time, effort, family, title, and rejected-ingredient filtering before AI selection |
-| Discovery | Meal-first and watch-first flows, TMDB search, exact movie/episode selection, pantry input, shared planning |
-| Recipes | 127 core recipes and 400 explicitly labeled variations; quantities, steps, timers, portion scaling, and supported adaptations |
-| Cooking guidance | Beginner, regular, confident, and kid-oriented guidance; recipe-aware AI questions |
-| Recovery | Delays, missing ingredients, guest changes, simpler dinners, and changed-mind alternatives with review |
-| TV experience | Large controls, remote focus navigation, scrolling assistance, reduced motion, animated matching and introduction |
-| Household | Saved evenings, explicit taste feedback, parental controls, and scoped phone sharing |
-| Order out | DoorDash/Uber Eats search handoff and user-entered delivery estimates; no checkout integration |
+## From choosing to cooking
 
-## Quick start
+| Step | Your action | The experience |
+| --- | --- | --- |
+| **Discover** | Start with a title or a meal | Explained dinner-and-show suggestions |
+| **Agree** | Compare choices together | Household food, time, effort and family preferences |
+| **Plan** | Review and save an evening | Ingredients, portions and a schedule |
+| **Cook** | Open the scoped phone handoff | Steps, timers and synchronized progress |
+| **Adapt** | Report a delay or change dinner | A proposed revision to review before applying |
+| **Remember** | Rate the evening | Saved nights and explicit taste feedback |
 
-Requires **Node.js 24+**, npm, and Git. Windows PowerShell is supported. Native Android tooling is not needed for the browser version.
+## Built around a night at home
 
-~~~sh
+- **TV controls:** directional focus, Back navigation and scrolling assistance.
+- **Pairings with explanations:** documented food connections, setting interpretations and practical choices are distinguished.
+- **Shared decisions:** household planning and a shared reveal.
+- **Guidance for different cooks:** portions, cooking-level instructions and kid-oriented guidance with parent controls.
+- **Phone handoff:** a scoped link carries cooking away from the television.
+- **Flexible plans:** delays, simpler dinners and external order-out alternatives.
+
+This is a hackathon prototype. It does not stream films, place orders, track deliveries or integrate with Alexa. Streaming and delivery services open through external handoffs; delivery estimates come from the user.
+
+## Matching, with or without live AI
+
+**Catalog mode** applies deterministic preferences and restrictions to recipe/title candidates. **Connected AI mode** adds Gemini selection and explanations through Vertex AI when configured. TMDB discovery is a separate integration requiring its own token.
+
+The model selects eligible candidates rather than inventing arbitrary recipes. Returned IDs, timing and supporting excerpts are checked. Unsupported connections fall back to practical explanations. These checks do not guarantee every interpretation or make recipes allergy-certified.
+
+[AI design](docs/AI.md) · [Recorded evaluation](docs/AI-EVALUATION.md) · [Asset provenance](docs/ASSETS.md)
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Devices[TV / browser / phone] --> Edge[CloudFront HTTPS]
+  Edge --> Static[Private S3 static assets]
+  Edge --> Gateway[API Gateway HTTP API]
+  Gateway --> Runtime[Node.js Lambda]
+  Runtime --> Logic[Planning and authorization]
+  Runtime --> Data[(Aurora PostgreSQL)]
+  Runtime --> Media[(Private S3 media)]
+  Runtime --> Secrets[Secrets Manager / KMS]
+  Runtime --> Logs[CloudWatch]
+  Logic -. configured .-> Titles[TMDB]
+  Logic -. optional .-> AI[Gemini / Vertex AI]
+```
+
+The AWS adapter reuses application routes and product logic. The full CDK design adds RDS Proxy, WAF and multi-AZ networking; the existing deployment has a separate configuration and repair history. This is a component overview, not a fresh inventory of deployed resources.
+
+Local development uses SQLite. The retained Cloudflare runtime uses D1/R2. These environments have separate data stores; publishing code does not migrate data or deploy a release.
+
+[Detailed architecture](docs/ARCHITECTURE.md) · [AWS deployment and rollback](docs/AWS-DEPLOYMENT.md) · [Security boundaries](docs/SECURITY.md)
+
+## Run locally
+
+Requires **Node.js 24+**, npm and Git. Windows PowerShell is supported.
+
+```sh
 git clone https://github.com/sagitta414/crave-frame.git
 cd crave-frame
 npm run setup
 npm run build
 npm run dev
-~~~
+```
 
-Open **http://127.0.0.1:4178/tv/**. The companion web interface is at **http://127.0.0.1:4178/app/**.
+| Surface | Address |
+| --- | --- |
+| TV / responsive app | http://127.0.0.1:4178/tv/ |
+| Browser planner | http://127.0.0.1:4178/app/ |
 
-The initial build exports the editable Expo app and assembles the Worker-compatible site. The local server uses SQLite and applies checked-in migrations. Local data stays in ignored files under web/.local/.
+Catalog planning works without provider credentials. Live AI and TMDB need configuration. A phone needs a backend it can reach; its own localhost is not your computer. Never commit credentials.
 
-**Without credentials:** catalog planning, recipes, and local persistence work. Live AI and TMDB search require your own credentials; AI failure is reported rather than silently represented as an AI match. See [configuration and native setup](docs/SETUP.md).
+[Configuration guide](docs/SETUP.md) · [Fire TV installation](docs/FIRE-TV-INSTALL.md)
 
-## Runtime architecture
+## Quality and release status
 
-The AWS demo and the legacy deployment are separate environments. The diagram below describes the retained Cloudflare runtime; the AWS adapter and infrastructure design are documented in [AWS deployment](docs/AWS-DEPLOYMENT.md). A source change is not evidence that either live site has been updated.
+**Updated 22 October 2026.** The local remediation workspace passed **211 web + 55 TV + 10 AWS tests**, TV type checking, remote/paging checks, a production build and the configured secret-pattern scan. These results include app repairs that remain uncommitted at this documentation update. They are not a claim about this published commit or the live demo.
 
-### Retained Cloudflare runtime
-
-~~~mermaid
-flowchart LR
-    TV[TV UI: Expo / React Native Web] --> API[Worker API]
-    Phone[Phone cooking companion] --> API
-    Browser[Web planning UI] --> API
-    API --> Rules[Deterministic planning and constraints]
-    Rules --> AI[Gemini on Vertex AI]
-    AI --> Validate[ID validation / evidence checks / variety]
-    Validate --> API
-    API --> TMDB[TMDB title lookup and availability]
-    API --> DB[(D1 production / SQLite local)]
-    API --> R2[(R2 media: production)]
-    TV -. external handoff .-> Providers[Streaming / delivery providers]
-~~~
-
-Full component, AI request, trust-boundary, and data-model diagrams are in [ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-## AWS environment
-
-The `aws/` directory provides CDK infrastructure, a PostgreSQL/S3 Lambda adapter,
-checksummed database migrations with snapshot gating, and post-deploy smoke tests
-for **CraveFrameAmazon2026**. It preserves the existing Cloudflare deployment.
-See [AWS deployment, cost estimate, verification and rollback](docs/AWS-DEPLOYMENT.md).
-AWS deployment and physical-device verification are not implied by a passing local build.
-
-## Repository map
-
-~~~text
-crave-frame/
-  tv/                    Editable TV application and native Android project
-    App.tsx              Application navigation and evening workflows
-    src/                 UI, API client, matching animation, recipe/catalog copies
-    assets/              Generated brand, food, story imagery and audio
-    android/             Native Android configuration; no signing keys/build output
-  web/
-    product/             Browser planner, phone companion, canonical catalog/logic
-    server/              Worker routes, Gemini integration, title lookup, sharing
-    db/                  Drizzle schema
-    drizzle/             Checked-in database migrations
-    tests/               Node regression tests with mocked external services
-    build-app.mjs        Worker + static site assembly
-  docs/                  Setup, diagrams, AI design, security, demo, testing, assets
-  scripts/               Cross-platform setup/build/test and credential-pattern checks
-  .github/workflows/     Automated tests, type-checking, credential scan and build
-~~~
-
-TV catalog modules are currently duplicated from web/product; edits to shared logic must keep both copies aligned. Consolidating these into a shared package is a future maintenance improvement.
-
-## How the AI works
-
-Crave Frame does not ask a model to invent arbitrary recipes. The backend builds a legal candidate set from the existing recipes and title metadata, applies household restrictions, and then asks Gemini to choose and explain candidates. Returned recipe/title IDs must resolve to that set. Recent dinners and explicit dislikes affect eligibility.
-
-A setting label requires an exact excerpt from the selected title’s supplied synopsis. The excerpt check proves text presence, **not that every interpretation is correct**. Unsupported links are replaced with practical explanations. Known documented food references follow curated evidence. Actual recipe and viewing durations replace model-written timing. A final ranking favors grounded links, familiar food, and different meal formats.
-
-See [AI matching design and limits](docs/AI.md). The AI provider is **Gemini on Vertex AI**, not an AWS runtime.
-
-## Validation and current limitations
-
-~~~sh
+```sh
 npm test
+npm --prefix aws test
 npm run check:secrets
 npm run build
-~~~
+```
 
-The current backend suite contains **77 tests**. Tests cover filtering, IDs, source excerpts, variety, planning, persistence, sharing, family constraints, and mocked provider behavior. They do not establish real-world recipe safety, model taste, production reliability, or smooth Fire TV performance. See the [manual device and live AI checklist](docs/TESTING.md).
+| Evidence | What it establishes |
+| --- | --- |
+| Automated regressions | Checked scheduling, request races, capability state and navigation cases |
+| Build/type checks | The local source compiles and exports |
+| Friction log | Observed failures, impact, remediation and acceptance work |
+| Physical-device acceptance | Still required for the latest changes |
+| Production release | Must be verified separately against its deployment version |
 
-Known limitations:
+Interactive local browser review was blocked by tooling policy during the latest pass. Couch-distance readability, physical remote navigation and a real two-device reconnect remain open. Dependency findings recorded in the friction log are also unresolved. Passing tests is not a security certification.
 
-- Recipes are prototype content, not professionally kitchen-tested or allergy-certified.
-- Images illustrate meals and atmosphere; they are not proof of an actual dish or scene.
-- Browser/native features vary by device. The latest UI needs a full Fire TV remote-only rehearsal.
-- Streaming and ordering happen outside Crave Frame; prices, checkout, and delivery tracking are not integrated.
-- Local media upload lacks the production R2 binding. Phone testing requires a backend reachable by the phone.
-- AI response quality and latency vary. Daily limits are 1,000 AI actions per household and 2,000 globally (testing limits) per UTC day.
-- A synopsis excerpt can still be semantically misused by a model; human evaluation remains necessary.
+[Testing guide](docs/TESTING.md) · [Detailed friction log](docs/FRICTION-LOG.md)
 
-## Hackathon materials
+## Repository guide
 
-[Demo script](docs/DEMO.md) · [Submission checklist](docs/SUBMISSION.md) · [Tool feedback template](docs/TOOL-FEEDBACK.md)
+```text
+tv/                  Expo / React Native TV app and Android project
+web/product/         Browser planner, companion, recipes and planning logic
+web/server/          API, authorization, matching and integrations
+web/drizzle/         SQLite / D1 migrations
+aws/infrastructure/  CDK infrastructure
+aws/runtime/         Lambda, PostgreSQL and private-media adapters
+aws/migrations/      PostgreSQL migrations
+aws/scripts/         Build, deployment, migration and smoke checks
+docs/                Architecture, setup, reviews and demo materials
+.github/workflows/   Repository validation
+```
 
-A public repository alone is not a completed submission. The entry still needs a recorded demo, accurate tool feedback, final track details, and a submission receipt. For Fire TV, demonstrate the app running on a Fire TV device or the specified simulator. This repository does not claim Amazon endorsement or Alexa integration.
+Some catalog logic is copied between web and TV. Keep both copies aligned when editing; a shared package is a future maintenance improvement.
 
-## Contributing, security, and license
+## Demo and project materials
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before editing shared catalog logic. Do not commit service-account JSON, household keys, cooking links, API tokens, or native signing files. Read [SECURITY.md](SECURITY.md) for reporting guidance and [security architecture](docs/SECURITY.md) for known boundaries.
+[Demo guide](docs/DEMO.md) · [Submission checklist](docs/SUBMISSION.md) · [Development friction](docs/FRICTION-LOG.md) · [Tool feedback](docs/TOOL-FEEDBACK.md)
 
-Project-authored source is available under the [MIT License](LICENSE). Third-party dependencies and marks retain their own terms. Generated artwork provenance and exclusions are documented in [ASSETS.md](docs/ASSETS.md).
+A useful demo follows one complete evening: choose together, inspect the pairing, save dinner, open the phone companion, then apply a delay and compare the schedule. A public repository is not evidence of a completed submission.
 
-## Latest AI evaluation
+## Contributing, security and license
 
-See the [live eight-title evaluation](docs/AI-EVALUATION.md): 24 distinct recipes, 20 catalog-familiar choices, and remaining weak links disclosed. A separate model review now checks proposed connections; factual validation and household limits still bind.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing shared logic and [SECURITY.md](SECURITY.md) for reporting guidance. Recipes are prototype content, not professionally kitchen-tested. Generated food imagery is illustrative; third-party imagery and marks retain their terms.
+
+Project-authored source is available under the [MIT License](LICENSE). See [asset provenance](docs/ASSETS.md) for artwork details and exclusions.

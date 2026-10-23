@@ -4,7 +4,7 @@ I built Crave Frame around a simple evening: choose something to watch on the TV
 
 This is the friction I actually ran into, including my own messages from testing, failures reproduced during code review, and the workarounds we used. Some problems came from my app, some from the development environment, and some from not knowing which Fire TV setup route applied. I have kept those distinctions visible.
 
-Updated from the development record through 18 October 2026. Earlier observations without a recorded date are marked accordingly. Time lost, reproduction frequency, device model and OS version were not measured consistently and are not estimated here.
+Updated from the development record through 22 October 2026. Earlier observations without a recorded date are marked accordingly. Time lost, reproduction frequency, device model and OS version were not measured consistently and are not estimated here.
 
 ## Summary
 
@@ -12,9 +12,11 @@ The largest practical obstacle was turning a desktop interface into something co
 
 The strongest improvements would be a clearer device-to-installation guide, a remote-navigation test example, and more dependable dependency remediation for the TV framework stack. Product-side lessons were to share schedule calculations across screens and make cross-device confirmations safe to retry.
 
-Source fixes through commit `0ce2d25` are on GitHub main. That does not establish that the latest fixes are running on AWS or installed on a physical Fire TV. The latest verification covered 130 web tests, 41 TV tests, TypeScript, remote-scroll regressions and a production web build.
+Historical checkpoint: source fixes through commit 0ce2d25 were on GitHub main on 18 October. The 22 October local remediation workspace passed 211 web, 55 TV and 10 AWS tests (276 total), TV type checking, remote/paging regressions, a production build and the configured secret-pattern scan. The latest application repairs remain uncommitted at this documentation update. Publishing this log does not publish those repairs or deploy them. Physical-device acceptance remains open.
 
 ## Status definitions
+
+- **Fixed locally:** An uncommitted repair passed the recorded checks; publication, deployment and device acceptance are separate.
 
 - **Reported improved:** The user confirmed improvement on their television; not a certification of all devices.
 - **Fixed in source:** A committed fix has automated verification; device acceptance remains separate.
@@ -235,6 +237,71 @@ One review also raised a possible React remount problem and then ruled it out af
 **What I would change:** Every release note should show four separate facts: commit tested, commit pushed, version deployed, and version actually exercised on the TV. Every defect should say whether it came from a photo, source inspection, a deterministic probe, a rendered-component test or a physical-device reproduction. This avoids both overstating confidence and repeatedly investigating an already ruled-out issue.
 
 **Evidence:** Deployment checks, correction in the review conversation, and the source/build verification recorded in [review fix notes](TV-PLANNING-REVIEW-FIXES.md).
+
+## 22 October: recovery and journey follow-up
+
+These findings came from source inspection, deterministic probes and automated regressions. They are not new physical-TV observations. Interactive localhost review was blocked by tooling policy; the public deployment was not substituted for the local build.
+
+| ID | Friction | Current status | Acceptance still needed |
+| --- | --- | --- | --- |
+| F13 | Older reads could undo a visible group reveal | Fixed locally | Two phones voting on a slow connection |
+| F14 | Recovered connections could still look broken | Fixed locally | Real disconnect/reconnect and saved-progress checks |
+| F15 | Shared-phone Back opened household discovery | Fixed locally | Browser and installed-device Back rehearsal |
+| F16 | Parent/photo setup had no initial-read retry | Fixed locally | Network failure and recovery on device |
+| F17 | Wrapped navigation and hero presentation needed refinement | Fixed locally | Small-screen and couch-distance inspection |
+| F18 | Catalog, delay and delivery states disagreed | Fixed locally | Complete cross-screen cooking/takeout journey |
+
+### F13 Group voting could show an older phase
+
+**Goal:** Vote together and keep the revealed result visible. **Impact:** The group could appear to lose its decision, even without server data loss.
+
+**Reproduction and evidence:** Hold an earlier room read, complete a vote/reveal, then allow the old read to return. The original interval accepted each completion. A deterministic probe resolved a newer read before an older one and observed the phase regress to voting.
+
+**Repair:** Serialize polling; guard results with the local write revision; discard responses after room changes or unmount. Regression checks cover stale results and obsolete errors. **Status:** Fixed locally. A real multi-phone session is still required.
+
+### F14 A recovered connection still displayed an error
+
+**Goal:** Reconnect and continue without wondering whether progress was saved. **Actual:** Successful reads updated room data without clearing the earlier connection error.
+
+**Repair:** Separate connection errors from action/form errors. A successful read clears the connection message without erasing useful validation. Cooking synchronization rejects reads from an earlier connection and refreshes after reconnecting; this does not imply automatic replay of mutations.
+
+**Verification:** Controlled failure/recovery and stale-read tests. **Status:** Fixed locally. Physical disconnection, progress retention and duplicate-action checks remain open.
+
+### F15 Shared cooking Back left the companion flow
+
+**Goal:** Close an overlay or remain with the recipe. **Actual:** At the shared cooking root, Back could enter discovery with partial household state.
+
+**Evidence:** A probe executed the actual Back callback with a shared cooking context. This was a navigation defect, not evidence of expanded server authorization.
+
+**Repair:** Dismiss dialogs/errors first and keep the shared root in cooking. Ordinary household navigation still pops normally. Two regressions execute the actual handler. **Status:** Fixed locally; device Back behavior remains unverified.
+
+### F16 Temporary read failures stranded secondary screens
+
+**Goal:** Open parent controls or a photo editor. **Actual:** A failed initial read left controls unavailable without Retry; the photo editor also lacked a stale-load guard.
+
+**Repair:** Explicit loading/error/ready states and Retry through the cancellable resource loader. Its tests cover retry, failure versus empty state, cancellation and stale results. **Status:** Fixed locally. Helper tests do not prove that every rendered control is reachable on a TV.
+
+### F17 Navigation and first-screen polish needed another pass
+
+**Goal:** Reach every destination and understand the featured dinner. **Friction:** Wrapped navigation needed predictable directional movement; disabled controls could regain focus; long names and missing images weakened the hero.
+
+**Repair:** Wrapped-row navigation checks, disabled-focus guards, narrow-layout sizing and short readable meal names. Spotlight selection favors eligible meals with reviewed imagery when available. Missing-photo cases retain honest fallbacks instead of unrelated dishes.
+
+**Status:** Fixed locally at code/regression level. Image accuracy, clipping and couch readability still need rendered and physical inspection. No visual certification is claimed.
+
+### F18 Planning needed consistent state across surfaces
+
+**Goal:** Save in catalog mode, adapt dinner and see the same schedule everywhere. Earlier review found unavailable-AI routes, lost capability settings after edits, inconsistent delayed times and an assumed takeout estimate before user input.
+
+**Local remediation:** Catalog-aware routing and capability responses, shared schedule projection, explicit delivery estimates and restriction checks across plan transitions. Content work also corrected recipe guidance and selection behavior.
+
+**Verification:** API and pure-function regressions, including schedule, restriction-transition and review-loop cases. **Status:** Fixed locally. Actual taste, kitchen outcomes and cross-device usability are not established by these tests.
+
+### Evidence ledger and release decision
+
+The fresh post-repair review reran 266 web/TV tests successfully. The preceding repair pass also passed 10 AWS tests, the production build and secret-pattern scan. No new defect was confirmed in that focused recheck; this was not an exhaustive visual review.
+
+Before marking these entries released: commit the app repairs, record the tested commit, publish it, deploy deliberately, record the deployment version and complete the device journey. Older entries retain their historical evidence and checkpoint-specific status. Time lost and reproduction frequency were not measured and are not invented here.
 
 ## Next evidence to collect
 

@@ -1,9 +1,6 @@
 # Architecture
 
-The diagrams below describe the existing Cloudflare/local runtime. The parallel
-AWS target, adapters, trust boundaries and deployment status are documented in
-[AWS-DEPLOYMENT.md](AWS-DEPLOYMENT.md). It reuses the API and product logic while
-serving static documents through CloudFront/private S3 and data through Aurora.
+Crave Frame separates client surfaces, shared product rules and deployment adapters. AWS and the retained Cloudflare environment have separate data stores. The diagrams describe source responsibilities, not a live inventory. See [AWS deployment](AWS-DEPLOYMENT.md) for configuration, migrations and rollback.
 
 ## Runtime components
 
@@ -136,3 +133,52 @@ Relationships above are logical application relationships, not a claim that all 
 Root build exports tv/web-export, copies it into web/product/tv, then assembles web/dist/client and web/dist/server/index.js. The Worker expects DB, ASSETS, and production MEDIA bindings. Checked-in web/.openai/hosting.json identifies the existing Sites deployment; a new operator must use their own project/bindings before deploying. The repository is not automatically deployed to the live site by GitHub Actions.
 
 The local Node server runs the same request handler with a SQLite adapter and static-file adapter. It does not emulate all Cloudflare services. No native SDKs, local databases, cloud credentials, generated exports, or prior development history are included in the repository.
+
+## AWS runtime and trust boundaries
+
+```mermaid
+flowchart TB
+  Clients[TV / browser / scoped phone companion] --> Edge[CloudFront HTTPS and security headers]
+  Edge --> Static[Private S3 static releases]
+  Edge --> API[API Gateway HTTP API]
+  API --> Lambda[Node.js Lambda live alias]
+  Lambda --> Auth[Household and share authorization]
+  Auth --> Rules[Planning / constraints / schedule]
+  Lambda --> Adapter[PostgreSQL adapter]
+  Adapter --> DB[(Aurora PostgreSQL)]
+  Lambda --> Media[(Private S3 application media)]
+  Lambda --> Secrets[Secrets Manager / KMS]
+  Lambda --> Logs[CloudWatch diagnostics]
+  Rules -. optional .-> Gemini[Vertex AI / Gemini]
+  Rules -. configured .-> TMDB[TMDB metadata]
+```
+
+The full CDK design includes RDS Proxy, WAF and multi-AZ networking. Existing-stack tooling also supports a separately configured database authentication path. The current account is not assumed to match that full topology. Review deployment outputs and configuration before changing infrastructure.
+
+Static assets pass through CloudFront. Private media is served through application authorization. Secrets are retrieved at runtime, not embedded in frontend bundles. Household revisions detect conflicting writes; client capabilities do not replace server authorization.
+
+## Evening and phone handoff
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant TV as TV / planner
+  participant API as Shared API
+  participant DB as Household store
+  participant Phone as Phone companion
+  User->>TV: Review and approve pairing
+  TV->>API: Save evening
+  API->>DB: Write authorized household revision
+  API-->>TV: Saved evening
+  TV->>API: Create scoped cooking link
+  API-->>TV: Expiring handoff
+  User->>Phone: Open handoff
+  Phone->>API: Read shared cooking state
+  API-->>Phone: Authorized evening
+  Phone->>API: Save progress or delay
+  API->>DB: Validate and persist revision
+  TV->>API: Refresh evening
+  API-->>TV: Updated schedule and progress
+```
+
+Synchronization uses requests and polling, not WebSocket delivery. Latest local repairs serialize reads and reject obsolete responses around writes and reconnection; those app repairs remain pending publication at this documentation update. See the dated [friction log](FRICTION-LOG.md) for verification boundaries.
