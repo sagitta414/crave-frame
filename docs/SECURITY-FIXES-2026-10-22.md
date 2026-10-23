@@ -52,3 +52,11 @@ Follow-up validation: 218 web + 55 TV + 10 AWS tests passed (283 total), with TV
 - Cleanup still checks collection references before deletion and is driven by subsequent collection requests. Grace periods are longer than the deployed Lambda request lifetime. This does not introduce a background scheduler.
 
 Validation: 222 web + 55 TV + 10 AWS tests passed (287 total), plus TV type/remote checks, production build and secret scans. Four new regressions cover referenced-entry starvation, failed-delete starvation, post-upload database failure and journal failure before upload.
+
+## GitHub verification of main (00eb4f7)
+
+[GitHub Actions run 39889976337](https://github.com/sagitta414/crave-frame/actions/runs/39889976337) completed with the verification job passing: web/TV tests, production build, AWS build and synthesis, AWS tests, four Python deployment tests, and working-tree/history secret scans. This is automated verification, not a physical Fire TV test or AWS deployment.
+
+Fresh registry audits still report zero vulnerabilities for web and AWS, and 14 high-severity affected dependency entries for TV. The security job fails on that TV audit. GitHub's advisory API still reports `first_patched_version: null` for both advisories above; npm still reports braces 3.0.3 and node-forge 1.4.0 as latest. No safe published dependency upgrade was identified in this check. The security gate remains enforced; the project is not fully security-cleared.
+
+All application fixes through 00eb4f7 are on GitHub main. This follow-up records the independently completed CI results and outstanding upstream remediation, without changing dependencies or deploying AWS.
