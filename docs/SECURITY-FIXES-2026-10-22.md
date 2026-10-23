@@ -1,3 +1,5 @@
+> Current update: the historical failing TV audit described below is now covered by [tested, expiring local mitigations](TV-SECURITY-PATCHES.md). Raw registry findings remain; this is not an upstream patched release or a security certification.
+
 # Security remediation — 22 October 2026
 
 ## Implemented

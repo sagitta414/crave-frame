@@ -137,7 +137,7 @@ npm run build
 | Physical-device acceptance | Still required for the latest changes |
 | Production release | Must be verified separately against its deployment version |
 
-Interactive local browser review was blocked by tooling policy during the latest pass. Couch-distance readability, physical remote navigation and a real two-device reconnect remain open. Photo-access revocation and secret-scanning improvements are recorded in the [security remediation notes](docs/SECURITY-FIXES-2026-10-22.md). Two upstream TV dependency advisories and provider token rotation remain unresolved. Passing tests is not a security certification.
+Interactive local browser review was blocked by tooling policy during the latest pass. Couch-distance readability, physical remote navigation and a real two-device reconnect remain open. Photo-access revocation and secret-scanning improvements are recorded in the [security remediation notes](docs/SECURITY-FIXES-2026-10-22.md). Two upstream TV dependency advisories now have [tested temporary local mitigations](docs/TV-SECURITY-PATCHES.md), expiring November 5; official patched releases and provider token rotation remain outstanding. Passing tests is not a security certification.
 
 [Testing guide](docs/TESTING.md) · [Detailed friction log](docs/FRICTION-LOG.md)
 
