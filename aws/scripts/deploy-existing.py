@@ -18,6 +18,16 @@ def distribution_for_update(config):
             origin['S3OriginConfig'].setdefault('OriginAccessIdentity', '')
     return result
 
+def response_policy_for_update(config):
+    result = copy.deepcopy(config)
+    # An unset optional legacy XSS policy can round-trip from GET as {}.
+    # UPDATE requires Protection/Override when the block is present. Omit only
+    # the empty block; preserve configured values and reject partial settings.
+    security = result.get('SecurityHeadersConfig', {})
+    if security.get('XSSProtection') == {}:
+        del security['XSSProtection']
+    return result
+
 def report_error(error):
     print('Failure type:', type(error).__name__, flush=True)
     if isinstance(error, RuntimeError):
@@ -83,6 +93,7 @@ def main():
         path_changed = target.get('OriginPath') != path
         target['OriginPath'] = path
         policy = edge.get_response_headers_policy_config(Id=saved['policy_id'])
+        policy['ResponseHeadersPolicyConfig'] = response_policy_for_update(policy['ResponseHeadersPolicyConfig'])
         headers = policy['ResponseHeadersPolicyConfig']['CustomHeadersConfig']['Items']
         header = next(h for h in headers if h['Header'].lower() == 'x-crave-version')
         require(header['Value'] in (saved['old_marker'], saved['version']), 'Version marker changed by another deployment')

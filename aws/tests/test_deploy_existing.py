@@ -50,5 +50,35 @@ class CloudFrontRoundtripTests(unittest.TestCase):
         self.assertNotIn('private-test-value', output.getvalue())
         self.assertIn('ParamValidationError', output.getvalue())
 
+    def validate_policy(self, config):
+        shape = get_session().get_service_model('cloudfront').operation_model('UpdateResponseHeadersPolicy').input_shape
+        validate_parameters({'Id':'policy','IfMatch':'etag','ResponseHeadersPolicyConfig':config}, shape)
+
+    def test_empty_optional_xss_block_is_omitted_without_changing_other_headers(self):
+        config = {'Name':'test', 'SecurityHeadersConfig':{
+            'XSSProtection':{}, 'ContentTypeOptions':{'Override':True},
+            'FrameOptions':{'Override':True,'FrameOption':'DENY'},
+            'ContentSecurityPolicy':{'Override':True,'ContentSecurityPolicy':"default-src 'self'"}}}
+        with self.assertRaisesRegex(ParamValidationError, 'XSSProtection'):
+            self.validate_policy(config)
+        repaired = deployer.response_policy_for_update(config)
+        self.validate_policy(repaired)
+        self.assertNotIn('XSSProtection', repaired['SecurityHeadersConfig'])
+        self.assertEqual(config['SecurityHeadersConfig']['XSSProtection'], {})
+        for name in ('ContentTypeOptions','FrameOptions','ContentSecurityPolicy'):
+            self.assertEqual(config['SecurityHeadersConfig'][name], repaired['SecurityHeadersConfig'][name])
+
+    def test_configured_xss_settings_are_preserved_including_false(self):
+        for protection in (True,False):
+            config = {'Name':'test','SecurityHeadersConfig':{'XSSProtection':{'Override':False,'Protection':protection}}}
+            repaired = deployer.response_policy_for_update(config)
+            self.validate_policy(repaired)
+            self.assertEqual(repaired, config)
+
+    def test_partial_xss_settings_are_not_silently_discarded(self):
+        config = {'Name':'test','SecurityHeadersConfig':{'XSSProtection':{'Protection':True}}}
+        with self.assertRaises(ParamValidationError):
+            self.validate_policy(deployer.response_policy_for_update(config))
+
 if __name__ == '__main__':
     unittest.main()
