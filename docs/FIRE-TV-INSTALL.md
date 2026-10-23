@@ -22,7 +22,7 @@ The Android project in `tv/android` targets **Fire OS / Android TV**. It does no
 Install TV dependencies with `npm ci` in `tv/`. Set `JAVA_HOME` and `ANDROID_HOME` to a compatible JDK and Android SDK. Then run from `tv/`:
 
 ```powershell
-./scripts/build-tv.ps1 -ApiOrigin 'https://screen-to-supper-storyboard.sagitta107.chatgpt.site'
+./scripts/build-tv.ps1 -ApiOrigin 'https://dcp5jtiiw3gji.cloudfront.net'
 ```
 
 On Windows, use a short build-cache path to avoid the compiler's 260-character dependency path limit, for example `-GradleCache 'D:\cf-gradle'`. This also keeps large downloaded dependencies off the system drive. The drive must be available during the build.

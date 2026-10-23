@@ -27,7 +27,7 @@ See [the follow-up closure report](REVIEW-CLOSURE-2026-10-18.md) for subsequent 
 | Pantry | The phone flow suggests starting with a few ingredients. Photo recognition is shown only when the server reports connected AI. Typing remains available in catalog mode. |
 | Connection and delivery copy | Interrupted synchronization distinguishes last saved progress from new changes. Delivery timing is explicitly described as the user's entered estimate. |
 | Technical wording | “AI CHANGED,” “ingredient delta” and “Save my reflection” are replaced with plain, accurate language. |
-| Documentation | README links both AWS and legacy demos and distinguishes source changes from deployed releases. |
+| Documentation | README links the AWS demo and distinguishes source changes from deployed releases. |
 
 ## Existing features retained and reinforced
 

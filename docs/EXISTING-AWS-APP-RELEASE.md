@@ -30,7 +30,7 @@ The separately installed NAT gateway continues to incur its existing charges.
 Blast radius: all users of the AWS site and clients using its API. There can be a
 brief frontend/backend version mismatch during CloudFront propagation. The backend
 must remain compatible with the previous frontend. These changes do not deploy
-an APK or update the older chatgpt.site deployment.
+an APK or update the initial prototype deployment.
 
 ## Rollback and verification
 

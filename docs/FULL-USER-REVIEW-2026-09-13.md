@@ -1,6 +1,6 @@
 # Live user review — 13 September 2026
 
-Reviewed the deployed Crave Frame app at https://screen-to-supper-storyboard.sagitta107.chatgpt.site/tv/ (v103), using the browser UI at 1280 × 720. This was a hands-on user review, not a source-code audit or physical Fire TV certification. No app code was changed.
+Historical review of the initial ChatGPT-hosted prototype (v103), before the AWS deployment, using the browser UI at 1280 × 720. This was a hands-on user review, not a source-code audit or physical Fire TV certification. No app code was changed.
 
 ## Assessment
 
