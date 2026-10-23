@@ -13,10 +13,10 @@ export function PairingHero({pair,prefs,watchArt,onChoose,onChangeDinner,onChang
   <LinearGradient colors={['#070C17FA','#080C16DD','#080C1630']} locations={[0,.48,1]} start={{x:0,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill}/>
   <LinearGradient colors={['#080C1600','#080C16']} locations={[.55,1]} style={StyleSheet.absoluteFill}/>
   <View style={[s.layout,{paddingHorizontal:wide?58:24,flexDirection:wide?'row':'column'}]}>
-   <View style={{flex:1,gap:12}}>
+   <View style={{flex:1,gap:12,minWidth:0,width:wide?undefined:'100%'}}>
     <Text style={[s.eyebrow,{color:accent}]}>LESS DECIDING. MORE EVENING.</Text>
     <Text accessibilityRole="header" style={[s.title,{fontSize:wide?64:40,lineHeight:wide?72:48}]}>{pair.show.name}</Text>
-    <Text style={s.meal}>{pair.meal.name}</Text>
+    <Text accessibilityLabel={pair.meal.name} numberOfLines={2} style={s.meal}>{pair.meal.shortName||pair.meal.name}</Text>
     <Text style={s.meta}>{pair.meal.minutes} min cooking · {pair.show.minutes} min watching</Text>
     <View style={s.actions}><Button primary compact preferred focusKey="hero-choose" onPress={()=>onChoose(pair)}>Plan this evening →</Button>{onChangeDinner&&<Button compact quiet onPress={()=>onChangeDinner(pair)}>Change dinner</Button>}{onChangeShow&&<Button compact quiet onPress={()=>onChangeShow(pair)}>Change show</Button>}</View><Button compact quiet selected={details} onPress={()=>setDetails(!details)}>{details?'Hide timing & ingredients':'Timing, ingredients & pairing details'}</Button>{details&&<DinnerDecision key={pair.meal.id+pair.show.id} pair={pair} prefs={prefs} pantry={pantry}/>}
    </View>

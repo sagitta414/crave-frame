@@ -12,7 +12,7 @@ The largest practical obstacle was turning a desktop interface into something co
 
 The strongest improvements would be a clearer device-to-installation guide, a remote-navigation test example, and more dependable dependency remediation for the TV framework stack. Product-side lessons were to share schedule calculations across screens and make cross-device confirmations safe to retry.
 
-Historical checkpoint: source fixes through commit 0ce2d25 were on GitHub main on 18 October. The 22 October local remediation workspace passed 211 web, 55 TV and 10 AWS tests (276 total), TV type checking, remote/paging regressions, a production build and the configured secret-pattern scan. The latest application repairs remain uncommitted at this documentation update. Publishing this log does not publish those repairs or deploy them. Physical-device acceptance remains open.
+Historical checkpoint: source fixes through commit 0ce2d25 were on GitHub main on 18 October. The 22 October local remediation workspace passed 211 web, 55 TV and 10 AWS tests (276 total), TV type checking, remote/paging regressions, a production build and the configured secret-pattern scan. The latest application repairs are now included in the source update for main. All 276 tests and the production build were rerun before publication. Publishing source does not deploy it. Physical-device acceptance remains open.
 
 ## Status definitions
 
@@ -239,6 +239,8 @@ One review also raised a possible React remount problem and then ruled it out af
 **Evidence:** Deployment checks, correction in the review conversation, and the source/build verification recorded in [review fix notes](TV-PLANNING-REVIEW-FIXES.md).
 
 ## 22 October: recovery and journey follow-up
+
+**Publication update:** The repairs described below are included in the main-branch source update. The original “Fixed locally” labels describe the review checkpoint; their current source status is “Fixed in source.” Deployment and device acceptance remain open.
 
 These findings came from source inspection, deterministic probes and automated regressions. They are not new physical-TV observations. Interactive localhost review was blocked by tooling policy; the public deployment was not substituted for the local build.
 

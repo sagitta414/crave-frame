@@ -38,13 +38,14 @@ export function curate({mode,sourceId,prefs,memory={},titles=[],members=[],pantr
  const matched=members.filter(m=>show.mood===m.mood||meal.moods.includes(m.mood)).length;
  const mealMatches=members.filter(m=>m.mealPreference&&m.mealPreference!=='Any'&&(meal.category||'').toLowerCase()===m.mealPreference.toLowerCase()).length;
  const pantryFound=pantryMatches(mealIngredients,pantry).map(i=>i.name);
- const score=tonightScore(meal,prefs)+(c.kind==='On-screen food'?340:c.kind==='Story inspiration'?300:0)+pairingAffinity(meal,show)+pantryFound.length*8+matched*40+mealMatches*40+(show.mood===prefs.mood?30:0)+(meal.moods.includes(show.mood)?20:0)+(memory.favoriteMeals?.includes(meal.id)?15:0)+(memory.shorter&&show.minutes<=45?25:0)-(memory.dislikedPairs?.includes(meal.id+':'+show.id)?60:0)-(memory.watched?.includes(show.id)?15:0)+(memory.favoriteCuisines?.includes(meal.cuisine)?15:0)-meal.minutes/10;
+ const score=tonightScore(meal,prefs)+(meal.familiar?24:0)+(meal.hasDishPhoto?12:0)+(c.kind==='On-screen food'?340:c.kind==='Story inspiration'?300:0)+pairingAffinity(meal,show)+pantryFound.length*8+matched*40+mealMatches*40+(show.mood===prefs.mood?30:0)+(meal.moods.includes(show.mood)?20:0)+(memory.favoriteMeals?.includes(meal.id)?15:0)+(memory.shorter&&show.minutes<=45?25:0)-(memory.dislikedPairs?.includes(meal.id+':'+show.id)?60:0)-(memory.watched?.includes(show.id)?15:0)+(memory.favoriteCuisines?.includes(meal.cuisine)?15:0)-meal.minutes/10;
  out.push({meal,show,adapted,score,pantryMatches:pantryFound,connection:c,tradeoff:`Allow ${meal.minutes+show.minutes} minutes plus eating time if cooking before watching. ${meal.recipeNote||'Cooking times are estimates.'}`,ritual:'Finish the cooking, set the table, then start your movie or episode.',reasons:[c.text,members.length?`${matched} of ${members.length} mood preferences match. All submitted food, ingredient and viewing limits are respected.`:`${meal.minutes} min cooking · ${show.minutes} min viewing`]});}}
  return out.sort((a,b)=>b.score-a.score);
 }
 export function scheduleDinner(night,meal,dinnerAt,dinnerMinutes=25,now=Date.now()){
+ if(night.fulfillment==='delivery')throw Error('Update the delivery estimate on the delivery plan instead.');
  const at=Date.parse(dinnerAt);if(!Number.isFinite(at)||at<now||at>now+7*86400000||!Number.isInteger(dinnerMinutes)||dinnerMinutes<10||dinnerMinutes>120)throw Error('Choose a future dinner time within seven days and 10–120 minutes at the table.');
- const start=at-meal.minutes*60000;if(start<now)throw Error('There is not enough cooking time before dinner. Choose a later time or a faster recipe.');
+ const start=at-(meal.minutes+(Number(night.timingAllowanceMinutes)||0))*60000;if(start<now)throw Error('There is not enough cooking time before dinner. Choose a later time or a faster recipe.');
  return {...night,planStart:start,dinnerAt:at,dinnerMinutes};
 }
 

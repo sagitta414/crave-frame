@@ -27,7 +27,7 @@ export function recommend({mode,sourceId,prefs=defaults,memory={},pantry=[],them
  if(ingredients(meal,prefs.people,adapted).some(i=>ingredientBlocked(i.name,memory)))return null;
  if((memory.dislikedIngredients||[]).some(term=>meal.ingredients.some(i=>i[0].toLowerCase().includes(term.toLowerCase()))))return null;
  const foodLink=foodReferences(show).find(r=>referenceFits(r,meal,ingredients(meal,prefs.people,adapted).map(i=>i.name)));
- let score=20+tonightScore(meal,prefs)+(mode==='watch'&&!themedMealId&&!demoId&&(prefs.pairingStyle||'Atmosphere')==='Atmosphere'?(meal.id==='story-ratatouille'&&titleKey(show)==='tmdb-movie-2062'?340:foodLink?300:0):0);const reasons=[];if(prefs.diet==='No preference'&&meal.foodType)score+=12;
+ let score=20+tonightScore(meal,prefs)+(meal.familiar?24:0)+(meal.hasDishPhoto?12:0)+(mode==='watch'&&!themedMealId&&!demoId&&(prefs.pairingStyle||'Atmosphere')==='Atmosphere'?(meal.id==='story-ratatouille'&&titleKey(show)==='tmdb-movie-2062'?340:foodLink?300:0):0);const reasons=[];if(prefs.diet==='No preference'&&meal.foodType)score+=12;
  if(mode==='watch'&&(prefs.pairingStyle||'Atmosphere')==='Atmosphere')score+=pairingAffinity(meal,show);
  if(votes.some(v=>v.veto===meal.id+':'+show.id))return null;
  const fits=voteFit(meal,show,votes);if(fits.length){const count=fits.filter(f=>f.matched).length;score+=count*35;reasons.push(count===fits.length?'Common ground: both mood choices fit this pairing.':'A compromise: '+count+' of '+fits.length+' mood choices fit; review it together.');}
@@ -56,10 +56,11 @@ export function recommend({mode,sourceId,prefs=defaults,memory={},pantry=[],them
  return picks;
 }
 export function ingredients(meal,people,adapted){return meal.ingredients.map(([name,amount,unit])=>adapted&&name===meal.swap.from?{name:meal.swap.to,amount:meal.swap.amount*people/2,unit:meal.swap.unit}:{name,amount:amount*people/2,unit}).map(i=>meal.twoAppetites?{...i,amount:Math.round(i.amount*100)/100}:i);}
-export function recipeSteps(meal,adapted,cookLevel='Confident',people=2){return meal.steps.map(([title,instruction,seconds],stepIndex)=>{
+export function recipeSteps(meal,adapted,cookLevel='Confident',people=2){const seenTips=new Set();return meal.steps.map(([title,instruction,seconds],stepIndex)=>{
  const courseIndex=meal.stepCourses?.[stepIndex],course=courseIndex==null?null:meal.courses?.[courseIndex];
  const contextMeal=course?{...meal,name:course.name,ingredients:course.ingredients}:meal;
+ const batchNote=stepIndex===0&&people!==2?'For '+people+' '+(people===1?'person':'people')+': use the scaled ingredient quantities. Keep pieces the same size; use extra pans or cook in batches rather than crowding. Check doneness and allow extra time for batches; do not multiply cooking time by the serving count.\n\n':'';
  const quantities=course?'For this course ('+people+' people): '+ingredients(contextMeal,people,adapted).map(i=>i.amount+' '+i.unit+' '+i.name).join(', ')+'.\n\n':'';
- return {title,instruction:quantities+instructionForLevel(instruction.replace('{fat}',adapted?meal.swap.to.toLowerCase():meal.swap.from.toLowerCase()).replace('{finish}',adapted?meal.swap.to.toLowerCase():meal.swap.from.toLowerCase()),cookLevel,{meal:contextMeal,stepIndex,adapted}),seconds};
+ return {title,instruction:batchNote+quantities+instructionForLevel(instruction.replace('{fat}',adapted?meal.swap.to.toLowerCase():meal.swap.from.toLowerCase()).replace('{finish}',adapted?meal.swap.to.toLowerCase():meal.swap.from.toLowerCase()),cookLevel,{meal:contextMeal,stepIndex,adapted,seenTips}),seconds};
  });}
 export function feedbackMemory(memory,night,feedback){const pair=night.mealId+':'+night.showId;return {...memory,dislikedMeals:feedback.meal==='skip'?[...new Set([...(memory.dislikedMeals||[]),night.mealId])]:(memory.dislikedMeals||[]).filter(x=>x!==night.mealId),favoriteCuisines:feedback.rememberCuisine?[...new Set([...(memory.favoriteCuisines||[]),mealById(night.mealId).cuisine])]:memory.favoriteCuisines,preferredEffort:feedback.preferEasy?'Easy':memory.preferredEffort,shorter:feedback.shorter,preferredMood:feedback.rememberMood?night.prefs.mood:memory.preferredMood,favoriteMeals:feedback.meal==='again'?[...new Set([...(memory.favoriteMeals||[]),night.mealId])]:(memory.favoriteMeals||[]).filter(x=>x!==night.mealId),dislikedPairs:feedback.pairing==='miss'?[...new Set([...(memory.dislikedPairs||[]),pair])]:(memory.dislikedPairs||[]).filter(x=>x!==pair),watched:[...new Set([...(memory.watched||[]),night.showId])]};}

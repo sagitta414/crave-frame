@@ -1,3 +1,4 @@
+import {reviewedDishImages} from './catalog/reviewed-dish-images';
 import {TonightShortcuts} from './TonightShortcuts';
 import {DinnerDecision} from './DinnerDecision';
 import {emptyMatchAdvice,nextCookingLabel} from './catalog/evening-guidance';
@@ -11,7 +12,7 @@ import {browseTitleKey} from './catalog/identity';
 import {cookingTimeLabel} from './catalog/recipe-presentation';
 import {CoursePlan} from './CoursePlan';
 import {proteinOptions} from './catalog/protein-options';
-import {cinemaRows,eveningPalette} from './cinema-model';
+import {cinemaRows,eveningPalette,chooseSpotlight} from './cinema-model';
 import {Text} from './TVText';
 import {MatchingStage} from './MatchingStage';
 import {PairingReason} from './PairingReason';
@@ -55,8 +56,7 @@ export function Discover({onOurNight,house,prefs,options,watchArt,onChoose,onDet
   Promise.allSettled([entry.load(()=>api('recommendations','POST',{prefs,options,refresh:retry>0})),api('browse','POST',{prefs,options})]).then(([personal,browse])=>{if(!active)return;if(personal.status==='fulfilled')setResult(personal.value);if(browse.status==='fulfilled')setCatalog(browse.value.picks||[]);if(personal.status==='rejected'||browse.status==='rejected')setError('Some evening picks could not load. You can retry or search for a title.');setPending(false);});return()=>{active=false;};
  },[requestKey,retry]);
  const choices=result?.requestKey===requestKey?result.picks||[]:[],all=[...choices,...catalog];
- const initial=choices[0]||catalog[0];
- const spotlight=initial;
+ const spotlight=chooseSpotlight(all,(meal:any)=>!!mealPhotos[meal.mainMealId||meal.id],(meal:any)=>reviewedDishImages.has(meal.mainMealId||meal.id));
  const resume=resumeEvening(house.nights);
  const favorites=house.nights.filter((n:any)=>n.feedback?.meal==='again'&&n.feedback?.pairing!=='miss').map((n:any)=>({meal:mealById(n.mealId),show:n.show||shows.find((x:any)=>x.id===n.showId),saved:n,preservedDinner:{adapted:n.adapted,prefs:n.prefs},adapted:n.adapted})).filter((p:any)=>p.show&&p.meal);
  const rows=cinemaRows(all,favorites,(meal:any)=>!!mealPhotos[meal.mainMealId||meal.id]);
@@ -81,19 +81,19 @@ export function Discover({onOurNight,house,prefs,options,watchArt,onChoose,onDet
 export function PairingComparison({onBrowseRecipes,onProtein,memory,selectedTitle,selectedShow,onDifferentTitle,discovery,message,source,receipt,picks,prefs,region,onChoose,onBack,onDetails,refinements,timeAlternative,onTimeAlternative,watchArt}:any){
  const emptyAdvice=emptyMatchAdvice(prefs,selectedShow);const labels=choiceLabels(picks,memory),[active,setActive]=useState(0),[more,setMore]=useState(false);
  useEffect(()=>{setActive(0);setMore(false);},[picks.map((p:any)=>p.meal.id+p.show.id).join('|')]);
- const {width}=useWindowDimensions(),silk=Platform.OS==='web'&&isSilk(navigator.userAgent),wide=!silk&&width>=1100;
+ const {width,height}=useWindowDimensions(),silk=Platform.OS==='web'&&isSilk(navigator.userAgent),wide=!silk&&width>=1100,short=height<=800;
  const dinnerFirst=picks.length>0&&picks.every((p:any)=>p.meal.id===picks[0].meal.id)&&new Set(picks.map((p:any)=>p.show.id)).size>1,sameTitle=picks.length>0&&picks.every((p:any)=>browseTitleKey(p.show)===browseTitleKey(picks[0].show));
  const visible=silk?picks.slice(Math.min(active,picks.length-1),Math.min(active,picks.length-1)+1):picks;
- return <BrowseScroll memoryKey="pair-comparison" contentContainerStyle={{padding:width<900?24:40,paddingBottom:120}}>
+ return <BrowseScroll memoryKey="pair-comparison" contentContainerStyle={{padding:width<900?20:short?24:40,paddingBottom:120}}>
   <Button compact quiet style={{alignSelf:'flex-start'}} onPress={onBack}>← Preferences</Button>
-  <Text style={[b.h2,{marginTop:24}]}>{dinnerFirst?'Choose what to watch':sameTitle?picks[0].show.name:selectedTitle||(discovery?'Discover an evening':'Choose your evening')}</Text>
+  <Text style={[b.h2,{marginTop:short?8:24}]}>{dinnerFirst?'Choose what to watch':sameTitle?picks[0].show.name:selectedTitle||(discovery?'Discover an evening':'Choose your evening')}</Text>
   <Text style={b.meta}>{dinnerFirst?picks[0].meal.name:prefs.people+' people · '+prefs.cookTime+' min cooking limit'}</Text>
   {dinnerFirst&&onProtein&&<Button onPress={()=>onProtein(picks[0],true)}>Choose another meal</Button>}
   {silk&&picks.length>1&&<View style={b.actions}>{picks.map((p:any,i:number)=><Button compact key={p.meal.id+p.show.id} selected={active===i} onPress={()=>setActive(i)}>{(dinnerFirst?'Watch ':'Dinner ')+(i+1)}</Button>)}</View>}
   {timeAlternative&&<View style={{backgroundColor:'#192A3D',padding:24,borderRadius:16,marginVertical:20}}><Text style={b.foodName}>{timeAlternative.pair.meal.name}</Text><Text style={b.small}>{timeAlternative.extraMinutes} min above your limit. Other preferences stay the same.</Text><Button onPress={()=>onTimeAlternative(timeAlternative)}>{'Use '+timeAlternative.prefs.cookTime+'-minute limit & review'}</Button></View>}
-  {!picks.length?<View style={b.empty}><Text style={b.description}>{message||'No dinners fit these limits.'}</Text><Text style={b.small}>{emptyAdvice.text}</Text><Button primary onPress={emptyAdvice.destination==='choose'&&onDifferentTitle?onDifferentTitle:onBack}>{emptyAdvice.action}</Button></View>:<View style={{flexDirection:wide?'row':'column',gap:24,marginTop:24}}>{visible.map((p:any)=><View key={p.meal.id+p.show.id} style={[b.comparison,{flex:wide?1:undefined,flexDirection:silk?'row':'column'}]}>
-   {dinnerFirst?<Image source={watchArt(p.show,true)} accessibilityLabel={p.show.name} resizeMode="cover" style={silk?{width:'36%',minHeight:320}:{width:'100%',height:210}}/>:<RecipeArt meal={p.meal} resizeMode="contain" style={silk?{width:'36%',minHeight:320,backgroundColor:'#111927'}:{width:'100%',height:210,backgroundColor:'#111927'}}/>}
-   <View style={{padding:24,flex:1,gap:14}}>{!sameTitle&&!dinnerFirst&&<Text style={b.small}>{p.show.name}</Text>}<Text style={b.h3}>{dinnerFirst?p.show.name:p.meal.name}</Text><Text style={b.small}>{dinnerFirst?p.show.minutes+' min watching':cookingTimeLabel(p.meal)}</Text><Text style={b.foodName}>{labels[picks.indexOf(p)].join(' · ')||'Another evening to try'}</Text><Button primary={silk||picks.indexOf(p)===0} compact focusKey={'pick'+p.meal.id+p.show.id} onPress={()=>onChoose(p,'cook')}>Review this evening</Button><Button compact quiet focusKey={'info'+p.meal.id+p.show.id} onPress={()=>onDetails(p)}>Why this evening?</Button>{!dinnerFirst&&<PairingReason compact pair={p}/>}<DinnerDecision pair={p} prefs={prefs}/><CoursePlan meal={p.meal} people={prefs.people} compact/>{onProtein&&<Button compact quiet onPress={()=>onProtein(p,proteinOptions(p.meal,prefs,memory).length===0)}>Change protein or meal</Button>}{dinnerFirst&&<AvailabilityBadge show={p.show} region={region}/>}</View>
+  {!picks.length?<View style={b.empty}><Text style={b.description}>{message||'No dinners fit these limits.'}</Text><Text style={b.small}>{emptyAdvice.text}</Text><Button primary onPress={emptyAdvice.destination==='choose'&&onDifferentTitle?onDifferentTitle:onBack}>{emptyAdvice.action}</Button></View>:<View style={{flexDirection:wide?'row':'column',gap:24,marginTop:short?12:24}}>{visible.map((p:any)=><View key={p.meal.id+p.show.id} style={[b.comparison,{flex:wide?1:undefined,flexDirection:silk?'row':'column'}]}>
+   {dinnerFirst?<Image source={watchArt(p.show,true)} accessibilityLabel={p.show.name} resizeMode="cover" style={silk?{width:'36%',minHeight:320}:{width:'100%',height:short?120:210}}/>:<RecipeArt meal={p.meal} resizeMode="contain" style={silk?{width:'36%',minHeight:320,backgroundColor:'#111927'}:{width:'100%',height:short?120:210,backgroundColor:'#111927'}}/>}
+   <View style={{padding:short?16:24,flex:1,gap:short?8:14}}>{!sameTitle&&!dinnerFirst&&<Text style={b.small}>{p.show.name}</Text>}<Text style={b.h3}>{dinnerFirst?p.show.name:p.meal.name}</Text><Text style={b.small}>{dinnerFirst?p.show.minutes+' min watching':cookingTimeLabel(p.meal)}</Text><Text style={b.foodName}>{labels[picks.indexOf(p)].join(' · ')||'Another evening to try'}</Text><Button primary={silk||picks.indexOf(p)===0} compact focusKey={'pick'+p.meal.id+p.show.id} onPress={()=>onChoose(p,'cook')}>Review this evening</Button><Button compact quiet focusKey={'info'+p.meal.id+p.show.id} onPress={()=>onDetails(p)}>Why this evening?</Button>{!dinnerFirst&&<PairingReason compact pair={p}/>}<DinnerDecision pair={p} prefs={prefs}/><CoursePlan meal={p.meal} people={prefs.people} compact/>{onProtein&&<Button compact quiet onPress={()=>onProtein(p,proteinOptions(p.meal,prefs,memory).length===0)}>Change protein or meal</Button>}{dinnerFirst&&<AvailabilityBadge show={p.show} region={region}/>}</View>
   </View>)}</View>}
   <Button quiet onPress={()=>setMore(!more)}>{more?'Hide dinner options':'More dinner options'}</Button>{more&&<>{refinements}<DecisionReceipt receipt={receipt}/>{source==='catalog'&&<Text style={b.small}>Matched from the recipe library using your preferences; no live AI was used.</Text>}{onBrowseRecipes&&<Button onPress={onBrowseRecipes}>Browse more choices</Button>}</>}
   <Text style={b.small}>Recipes are not kitchen-tested. Times are estimates.</Text>{sameTitle&&<AvailabilityBadge show={picks[0].show} region={region}/>}

@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
-const source=readFileSync(new URL('../product/main.js',import.meta.url),'utf8').split('\n').find(line=>line.startsWith('async function loadRoute('));
+const mainSource=readFileSync(new URL('../product/main.js',import.meta.url),'utf8');
+const source=mainSource.slice(mainSource.indexOf('async function loadRoute('),mainSource.indexOf('function button('));
 const saveSource=readFileSync(new URL('../product/main.js',import.meta.url),'utf8').split('\n').find(line=>line.startsWith('async function cookUpdate('));
 function setup(){
  const pending=[],events=[];
- const context={routeRevision:0,location:{hash:'#cook/A'},night:null,household:{memory:{}},syncError:true,route:()=>context.location.hash.slice(1).split('/')[0],routeId:()=>context.location.hash.split('/')[1],api:path=>new Promise((resolve,reject)=>pending.push({path,resolve,reject})),render:()=>events.push('render'),toast:message=>events.push(message),go:path=>events.push('go:'+path)};
+ const context={app:{innerHTML:''},header:()=>'',footer:()=>'',button:(label,action)=>'<button data-action="'+action+'">'+label+'</button>',esc:s=>s.replaceAll('<','&lt;'),$:()=>({focus:()=>events.push('focus-recovery')}),routeRevision:0,location:{hash:'#cook/A'},night:null,household:{memory:{}},syncError:true,route:()=>context.location.hash.slice(1).split('/')[0],routeId:()=>context.location.hash.split('/')[1],api:path=>new Promise((resolve,reject)=>pending.push({path,resolve,reject})),render:()=>events.push('render'),toast:message=>events.push(message),go:path=>events.push('go:'+path)};
  vm.createContext(context);vm.runInContext(source,context);return {context,pending,events};
 }
 test('slower old evening responses cannot replace the current route or feedback',async()=>{
@@ -24,7 +25,7 @@ test('even repeated loads of the same URL apply only the newest response',async(
  assert.equal(c.night.step,2);
 });
 test('active route failures still provide recovery',async()=>{
- const {context:c,pending:p,events}=setup();const load=c.loadRoute();p[0].reject(Error('Expired'));await load;assert.deepEqual(events,['Expired','go:saved']);
+ const {context:c,pending:p,events}=setup();const load=c.loadRoute();p[0].reject(Error('Expired'));await load;assert.match(c.app.innerHTML,/Expired/);assert.match(c.app.innerHTML,/data-action="retry-route"/);assert.deepEqual(events,['focus-recovery']);
 });
 test('late cooking save completes without overwriting a newly selected evening',async()=>{
  const {context:c,pending:p,events}=setup();c.night={id:'A',mealId:'pepper-pasta'};c.sharedKey='';vm.runInContext(saveSource,c);

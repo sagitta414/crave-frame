@@ -120,7 +120,7 @@ Catalog planning works without provider credentials. Live AI and TMDB need confi
 
 ## Quality and release status
 
-**Updated 22 October 2026.** The local remediation workspace passed **211 web + 55 TV + 10 AWS tests**, TV type checking, remote/paging checks, a production build and the configured secret-pattern scan. These results include app repairs that remain uncommitted at this documentation update. They are not a claim about this published commit or the live demo.
+**Updated 22 October 2026.** The local remediation workspace passed **211 web + 55 TV + 10 AWS tests**, TV type checking, remote/paging checks, a production build and the configured secret-pattern scan. The application repairs are included in this source update, and the checks were rerun before publication to main. These results do not establish that the live demo has been updated.
 
 ```sh
 npm test

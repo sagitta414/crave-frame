@@ -83,7 +83,7 @@ sequenceDiagram
   API-->>TV: Updated schedule and progress
 ```
 
-Synchronization uses requests and polling, not WebSocket delivery. Latest local repairs serialize reads and reject obsolete responses around writes and reconnection; those app repairs remain pending publication at this documentation update. See the dated [friction log](FRICTION-LOG.md) for verification boundaries.
+Synchronization uses requests and polling, not WebSocket delivery. Latest local repairs serialize reads and reject obsolete responses around writes and reconnection; those repairs are included in the 22 October source update. See the dated [friction log](FRICTION-LOG.md) for verification boundaries.
 
 ## Retained Cloudflare and local runtime reference
 
@@ -216,4 +216,3 @@ Relationships above are logical application relationships, not a claim that all 
 Root build exports tv/web-export, copies it into web/product/tv, then assembles web/dist/client and web/dist/server/index.js. The Worker expects DB, ASSETS, and production MEDIA bindings. Checked-in web/.openai/hosting.json identifies the existing Sites deployment; a new operator must use their own project/bindings before deploying. The repository is not automatically deployed to the live site by GitHub Actions.
 
 The local Node server runs the same request handler with a SQLite adapter and static-file adapter. It does not emulate all Cloudflare services. No native SDKs, local databases, cloud credentials, generated exports, or prior development history are included in the repository.
-

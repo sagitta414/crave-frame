@@ -17,7 +17,9 @@ export function pairingConnection(meal,show,adapted=false){
 export function voteFit(meal,show,votes){return (votes||[]).map(v=>({mood:v.mood,matched:show.mood===v.mood||meal.moods.includes(v.mood)}));}
 export function rescueOptions(night,request,memory={},extraShows=[],pantry=[]){
  const original=mealById(night.mealId),foundShow=night.show||shows.find(s=>titleKey(s)===titleKey(night.showId)),oldShow=foundShow&&{...foundShow,id:night.showId},dinner=night.dinnerMinutes||25;
- const available=original.minutes+dinner+oldShow.minutes-request.delay;
+ const allowance=Number(night.timingAllowanceMinutes)||0;
+ const proposedStart=Math.max(Number(night.planStart)||Date.now(),Date.now())+request.delay*60000;
+ const available=night.finishBy?(night.finishBy-proposedStart)/60000:original.minutes+allowance+dinner+oldShow.minutes-request.delay;
  const watchPool=distinctShows([oldShow,...shows,...extraShows].filter(s=>s&&(s.source||s.custom||night.prefs.catalog==='Original demo titles')));
  const blocked=[...(memory.dislikedIngredients||[]),...request.missing];
  const out=[];
@@ -28,7 +30,7 @@ export function rescueOptions(night,request,memory={},extraShows=[],pantry=[]){
   for(const show of watchPool){
    if(!request.allowWatchChange&&titleKey(show)!==titleKey(oldShow))continue;
    if(show.minutes>night.prefs.watchTime||(night.prefs.family&&!show.family)||(!request.allowWatchChange&&night.prefs.format!=='Any'&&show.kind!==night.prefs.format))continue;
-   const total=meal.minutes+dinner+show.minutes;if(total>available)continue;
+   const total=meal.minutes+allowance+dinner+show.minutes;if(total>available)continue;
    const saved=original.minutes+oldShow.minutes-meal.minutes-show.minutes;
    const pantryMatches=pantryEvidence(ingredients(meal,request.people,adapted),pantry).length;
    const score=(request.preferPantry?pantryMatches*30:0)+(titleKey(show)===titleKey(oldShow)?100:0)+(meal.id===original.id?65:0)+(show.mood===night.prefs.mood?20:0)+(meal.moods.includes(show.mood)?15:0)+(memory.favoriteCuisines?.includes(meal.cuisine)?10:0)-Math.max(0,saved-request.delay)/10;

@@ -18,8 +18,11 @@ export function instructionForLevel(instruction,level='Regular',context={}){
  if(/taco|wrap|pita/i.test(meal?.name||'')&&/fill|assemble|serve/i.test(instruction))specific.push('For '+meal.name+', divide the filling between the wraps before adding toppings. Leave space around the edges so each portion is easy to hold.');
  if(/pizza|flatbread/i.test(meal?.name||'')&&/\b(?:spread|top (?:the|each|your))\b/i.test(instruction))specific.push('Spread this recipe’s sauce in a thin layer, leaving a small clear rim. Distribute the toppings evenly so the center is not overloaded.');
  if(/rice bowl/i.test(meal?.name||'')&&/serve|divide|bowl/i.test(instruction))specific.push('For '+meal.name+', divide the rice between the serving bowls first, then divide the prepared topping equally.');
- const detail=specific[0]||'';
- const matches=cues.filter(([pattern])=>pattern.test(instruction));
+ const unseen=tip=>!context.seenTips?.has(tip);
+ const detail=specific.find(unseen)||'';
+ const matches=cues.filter(([pattern,tip])=>pattern.test(instruction)&&unseen(tip));
+ if(detail)context.seenTips?.add(detail);
+ for(const [,tip] of matches.slice(0,level==='Beginner'?(detail?1:2):detail?0:1))context.seenTips?.add(tip);
  if(level==='Beginner')return instruction+'\n\n'+([setup,detail,...matches.slice(0,detail?1:2).map(([,tip])=>tip)].filter(Boolean).join('\n\n')||'Read this step through first and set out the listed ingredients before starting.');
  if(detail)return instruction+'\n\nTip: '+detail;
  return instruction+(matches.length?'\n\nTip: '+matches[0][1]:'');

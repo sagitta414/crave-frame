@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScrollView,StyleSheet,View,useWindowDimensions} from 'react-native';
+import {StyleSheet,View,useWindowDimensions} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {Ionicons} from '@expo/vector-icons';
 import {BrandMark} from './Brand';
@@ -23,11 +23,11 @@ export function CinemaNavigation({active,onNavigate,phone=false}:any){
     <View style={{flexDirection:'row',alignItems:'baseline'}}><Text style={[s.wordmark,{fontSize:compact?28:34}]}>crave</Text><Text style={[s.wordmark,{fontSize:compact?28:34,color:'#FFD3AF'}]}> frame</Text></View>
    </View>
    {phone?<Text style={s.phone}>YOUR EVENING · ON YOUR PHONE</Text>:<View style={s.capsule}>
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabs}>
+    <View style={[s.tabs,{flexDirection:'row',flexWrap:'wrap'}]}>
      {destinations.map(item=>{const current=selected===item.id;return <Button navigation compact selected={current} key={item.id} focusKey={'navigation-'+item.id} accessibilityLabel={item.label} onPress={()=>onNavigate(item.id)}>
       <View style={s.tabContent}><Ionicons accessible={false} name={current?item.activeIcon:item.icon} size={compact?22:25} color={current?'#162135':'#C7D8EE'}/><Text style={[s.tabText,{fontSize:compact?21:26,color:current?'#162135':'#E3ECF8'}]}>{item.label}</Text></View>
      </Button>;})}
-    </ScrollView>
+    </View>
    </View>}
   </View>
   <LinearGradient pointerEvents="none" colors={['#A8CAFF00','#A8CAFF66','#FFD0AC66','#FFD0AC00']} start={{x:0,y:0}} end={{x:1,y:0}} style={s.edge}/>

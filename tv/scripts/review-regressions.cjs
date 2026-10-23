@@ -25,3 +25,17 @@ modal=false;doc.documentElement={getAttribute:()=> 'true'};doc.scrollingElement=
 assert.equal(exportsObject.mainPanel(doc),doc.scrollingElement);exportsObject.pageDown(doc);assert.equal(doc.scrollingElement.scrollTop,540);exportsObject.pageUp(doc);assert.equal(doc.scrollingElement.scrollTop,0);
 modal=true;assert.equal(exportsObject.pageDown(doc),false);
 console.log('PASS: Silk detection, document scrolling in both directions, modal isolation');
+
+// Exercise the actual directional handler with a two-line navigation row.
+let handler;const navRow={getBoundingClientRect:()=>({top:0})},contentRow={getBoundingClientRect:()=>({top:200})};
+const remoteDoc={activeElement:null,querySelector:()=>null,querySelectorAll:()=>controls};
+function control(name,x,y,row,disabled=false){return {name,closest:()=>row,matches:()=>false,getAttribute:()=>disabled?'true':null,hasAttribute:()=>false,getBoundingClientRect:()=>({x,y,top:y,width:100,height:50}),focus(){remoteDoc.activeElement=this;},scrollIntoView(){}};}
+const controls=[control('Tonight',0,0,navRow),control('Search',120,0,navRow),control('My evenings',0,60,navRow),control('Kitchen',120,60,navRow),control('Disabled',240,0,navRow,true),control('Content',0,200,contentRow)];
+remoteDoc.activeElement=controls[0];const remoteExports={};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/useWebRemote.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:remoteExports,navigator:{userAgent:'Chrome'},document:remoteDoc,window:{addEventListener:(_,fn)=>handler=fn,removeEventListener:()=>{}},require:name=>name==='react'?{useEffect:fn=>fn()}:name==='react-native'?{Platform:{OS:'web'}}:name==='./SilkPage'?{isSilk:()=>false}: {mainPanel:()=>null,pageDown:()=>false,pageUp:()=>false,backToTop:()=>false}});
+remoteExports.useWebRemote();const key=value=>handler({key:value,preventDefault(){}});
+key('ArrowDown');assert.equal(remoteDoc.activeElement.name,'My evenings');
+key('ArrowRight');assert.equal(remoteDoc.activeElement.name,'Kitchen');
+key('ArrowUp');assert.equal(remoteDoc.activeElement.name,'Search');
+key('ArrowDown');key('ArrowDown');assert.equal(remoteDoc.activeElement.name,'Content');
+console.log('PASS: wrapped navigation is reachable in both directions and exits to content');
