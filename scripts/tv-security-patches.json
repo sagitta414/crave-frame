@@ -1,0 +1,59 @@
+{
+  "expires": "2026-11-05",
+  "versions": {
+    "braces": "3.0.3",
+    "node-forge": "1.4.0"
+  },
+  "advisories": [
+    "GHSA-vfj7-8cjw-p6xm",
+    "GHSA-86w9-cpqp-85rv"
+  ],
+  "patches": [
+    {
+      "package": "braces",
+      "file": "lib/parse.js",
+      "before": "e572166565f15fa6ad9865ae49d678218e32aabfd1b3720f6d0d43d39800d310",
+      "after": "49789e0f2a6b47c54c606af6f33ce3002c9de64f1d3245958fbd246c875ab8d1",
+      "old": "      stack.push(block);",
+      "new": "      if (stack.length >= 100) throw new SyntaxError('Brace pattern nesting exceeds safety limit');\n      stack.push(block);"
+    },
+    {
+      "package": "braces",
+      "file": "lib/compile.js",
+      "before": "dc98f22eee3d511785d92a00758d5f0d48efed5f5813bdecc2de430c529b5c9f",
+      "after": "139c9048c8a2fbefa2d9e03a7e5e9cc144e72df6f3fdbba8062115a78b218ba8",
+      "old": "const compile = (ast, options = {}) => {",
+      "new": "const compile = (ast, options = {}) => {\n  require('./crave-depth-guard')(ast);"
+    },
+    {
+      "package": "braces",
+      "file": "lib/expand.js",
+      "before": "41ccc196ebfa7b7781a634e721eb744e4e7bcb54cba427a7e3d6806a1b9e58f7",
+      "after": "9174a426d981bc67d65422d4d33cb43ba9f3c912618c24ac9944342d0b33bfac",
+      "old": "const expand = (ast, options = {}) => {",
+      "new": "const expand = (ast, options = {}) => {\n  require('./crave-depth-guard')(ast);"
+    },
+    {
+      "package": "braces",
+      "file": "lib/stringify.js",
+      "before": "379f22d77bfa1478341ccd49c5e4267464aabcbba03558bab332aac23fc6f23a",
+      "after": "254a4c359a4ab6451a8c989454a278892856f93fc6e1f4cca354675a4457dfdf",
+      "old": "module.exports = (ast, options = {}) => {",
+      "new": "module.exports = (ast, options = {}) => {\n  require('./crave-depth-guard')(ast);"
+    },
+    {
+      "package": "node-forge",
+      "file": "lib/rsa.js",
+      "before": "fd4740238145ec26470eb3f06a627c72039538ce1307dbdce40521f94dfd0a50",
+      "after": "c9b1e3799e230528b6d6815c1f6cd3c6058b9d45975264b55d995abb976589af",
+      "old": "            obj.value.length !== 2) {",
+      "new": "            obj.value.length !== 2 ||\n            obj.value[0].value.length !==\n              (('parameters' in capture) ? 2 : 1)) {"
+    }
+  ],
+  "extra": {
+    "package": "braces",
+    "file": "lib/crave-depth-guard.js",
+    "content": "'use strict';\n// Bound caller-supplied ASTs as well as parsed patterns; iterative, never recursive.\nmodule.exports = ast => {\n  const pending = [[ast, 0]];\n  let visited = 0;\n  while (pending.length) {\n    const [node, depth] = pending.pop();\n    if (++visited > 10000 || depth > 100) throw new SyntaxError('Brace AST exceeds safety limit');\n    if (node && Array.isArray(node.nodes)) {\n      if (node.nodes.length + pending.length > 10000) throw new SyntaxError('Brace AST exceeds safety limit');\n      for (const child of node.nodes) pending.push([child, depth + 1]);\n    }\n  }\n};\n",
+    "after": "ba0ff5d638f893d0c0718cf79f922ccda6cbce511ec0564fb9e8782ae50700f9"
+  }
+}

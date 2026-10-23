@@ -9,7 +9,8 @@
     "test": "node scripts/project.mjs test",
     "dev": "npm --prefix web run dev",
     "check:secrets": "node scripts/check-secrets.mjs",
-    "check:secrets:history": "node scripts/check-secrets.mjs --history"
+    "check:secrets:history": "node scripts/check-secrets.mjs --history",
+    "check:security:tv": "node scripts/audit-tv.mjs"
   },
   "engines": {
     "node": ">=24"

@@ -48,7 +48,11 @@ jobs:
         with:
           node-version: 24
       - run: npm --prefix web audit --audit-level=high
-      - run: npm --prefix tv audit --audit-level=high
+      - name: Install TV dependencies and apply verified security patches
+        run: npm --prefix tv ci
+        if: always()
+      - name: Audit TV dependencies with tested, expiring mitigations
+        run: npm run check:security:tv
         if: always()
       - run: npm --prefix aws audit --audit-level=high
         if: always()
