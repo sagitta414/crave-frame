@@ -12,7 +12,7 @@
     "migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.0.0",
+    "@aws-sdk/client-secrets-manager": "^3.1153.0",
     "@aws-sdk/client-s3": "^3.0.0",
     "@aws-sdk/client-rds": "^3.0.0",
     "@aws-sdk/client-lambda": "^3.0.0",
