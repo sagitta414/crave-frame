@@ -1,5 +1,5 @@
 <div align="center">
-<img src="tv/assets/brand/crave-frame-3d-v5.png" width="144" alt="Crave Frame logo" />
+<img src="tv/assets/brand/crave-frame-together-lockup-v6.png" width="640" alt="Crave Frame: two gold and teal figures sharing a table. Make a little time for each other." />
 
 # Crave Frame
 
@@ -8,6 +8,8 @@
 A shared evening, from the first choice to the moment you keep. Choose dinner and a story on TV, cook together with your phones, and save a little of tonight.
 
 [Explore the AWS demo](https://dcp5jtiiw3gji.cloudfront.net/tv/) · [Architecture](docs/ARCHITECTURE.md) · [Setup](docs/SETUP.md) · [Friction log](docs/FRICTION-LOG.md)
+
+[![Validate Crave Frame](https://github.com/sagitta414/crave-frame/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/sagitta414/crave-frame/actions/workflows/ci.yml)
 
 ![Node.js](https://img.shields.io/badge/Node.js-24%2B-417e38)
 ![UI](https://img.shields.io/badge/UI-React_Native_%2B_Expo-087ea4)
@@ -24,6 +26,21 @@ A shared evening, from the first choice to the moment you keep. Choose dinner an
 
 The television is the shared place to choose. The phone becomes the cooking companion. When dinner runs late, the evening can change with it.
 
+## What’s new
+
+The latest source update brings the dinner-and-viewing experience into a warmer, more focused design:
+
+| Update | What changed |
+| --- | --- |
+| **Together identity** | A sculptural gold-and-teal logo, coordinated navigation and couples panels, and the tagline “Make a little time for each other.” |
+| **Clearer first screen** | One featured evening leads. The introduction explains choosing on TV, cooking with a phone, and adjusting when dinner runs late. |
+| **Quieter discovery** | Two dinner-focused previews follow the first recommendation shelf. Shared voting, personal touches, and Our Night In are available through Explore more. |
+| **Compact navigation** | Narrow screens use a smaller logo and omit the navigation tagline; destination controls continue to wrap. |
+| **Signature evenings** | Eligible editorial pairings receive extra priority in the featured recommendation, while photo-quality checks remain in place. Mood inspiration is distinguished from documented food connections. |
+| **A shared evening** | Separate cooking roles, partner feedback, reviewed dinner changes, a shared reveal, and the optional Tonight’s Edition keepsake. |
+
+These changes are in the repository. **The AWS demo requires a separate deployment**; the demo link alone does not prove it is running this revision.
+
 ## From choosing to cooking
 
 | Step | Your action | The experience |
@@ -33,7 +50,7 @@ The television is the shared place to choose. The phone becomes the cooking comp
 | **Plan** | Review and save an evening | Ingredients, portions and a schedule |
 | **Cook** | Open the scoped phone handoff | Steps, timers and synchronized progress |
 | **Adapt** | Report a delay or change dinner | A proposed revision to review before applying |
-| **Remember** | Rate the evening | Saved nights and explicit taste feedback |
+| **Remember** | Rate dinner and viewing separately; optionally keep a moment | Partner feedback and a privately saved Tonight’s Edition card |
 
 ## Built around a night at home
 
@@ -56,10 +73,10 @@ The TV offers an editable title, explicit private saving to the existing collect
 
 The TV/phone experience in the current source includes:
 
-- **Two cooking roles:** Each person keeps a stable partner number and independently chooses cooking or preparation for tonight. Swapping jobs does not switch feedback identity. Independent preparation checks sync across phones without advancing the recipe. Cooking steps retain their original order and time estimates.
+- **Two cooking roles:** Each person chooses a partner number for the evening and independently chooses cooking or preparation. Swapping jobs does not switch feedback identity. Independent preparation checks sync across phones without advancing the recipe. Cooking steps retain their original order and time estimates.
 - **Evidence labels:** documented food connections, story interpretations, setting interpretations, and mood/pace matches have distinct labels. Documented connections offer a reference link.
 - **Quick changes:** “Too much cooking,” “Different food,” and “We’re running late” use existing review and scheduling flows. Dinner changes retain the selected title and restrictions; a recipe cannot be replaced after cooking begins.
-- **Two-person feedback:** each partner can save dinner feedback first, then rate viewing after starting the viewing timer. The most recently edited answer takes precedence, even when it belongs to an older evening. Our Night In respects either partner’s skips, favors positive responses, and prefers dinners outside the last three saved evenings when suitable alternatives exist. Feedback can be removed from its saved evening.
+- **Two-person feedback:** each partner can save dinner feedback first, then rate viewing after starting the viewing timer. The most recently changed answer for each field takes precedence, even when it belongs to an older evening; resaving an unchanged answer does not create a new preference timestamp. Our Night In respects either partner’s skips, favors positive responses, and prefers dinners outside the last three saved evenings when suitable alternatives exist. Feedback can be removed from its saved evening.
 - **Shared reveal:** both screens show the top-voted dinner and title, with cook/dinner/watch estimates. Ties are labeled, no choice is saved automatically, and the brief animation is skippable and respects reduced motion.
 
 Partner numbers are shared household profiles, separate from kitchen jobs, not authenticated personal accounts. Keep the same number across evenings. Anyone with the private cooking link can update its evening, including role tasks and feedback; the existing link expiration and revocation still apply. The original browser planner shares the matching model and backend, while these interaction panels live in the TV/phone experience at /tv/.
@@ -138,7 +155,7 @@ Catalog planning works without provider credentials. Live AI and TMDB need confi
 
 ## Quality and release status
 
-**Updated 22 October 2026.** The local remediation workspace passed **211 web + 55 TV + 10 AWS tests**, TV type checking, remote/paging checks, a production build and the configured secret-pattern scan. The application repairs are included in this source update, and the checks were rerun before publication to main. These results do not establish that the live demo has been updated.
+**Verified 23 October 2026.** Source commit [9363d80](https://github.com/sagitta414/crave-frame/commit/9363d801200d01e7d69d625a4fc9dcedbdfe35f9) passed the [GitHub verification and security jobs](https://github.com/sagitta414/crave-frame/actions/runs/39902701887). Local verification passed **235 web + 83 TV + 10 AWS tests**, **7 Python deployment-script tests**, TV type checking, remote/paging checks, the production build, AWS packaging and CDK synthesis, and configured current-source/history secret scans. This records source verification, not a new AWS deployment or completed physical-device acceptance.
 
 ```sh
 npm test
@@ -155,9 +172,9 @@ npm run build
 | Physical-device acceptance | Still required for the latest changes |
 | Production release | Must be verified separately against its deployment version |
 
-Interactive local browser review was blocked by tooling policy during the latest pass. Couch-distance readability, physical remote navigation and a real two-device reconnect remain open. Photo-access revocation and secret-scanning improvements are recorded in the [security remediation notes](docs/SECURITY-FIXES-2026-10-22.md). Two upstream TV dependency advisories now have [tested temporary local mitigations](docs/TV-SECURITY-PATCHES.md), expiring November 5; official patched releases and provider token rotation remain outstanding. Passing tests is not a security certification.
+Interactive local browser review was blocked by tooling policy during the latest pass. Couch-distance readability, physical remote navigation and a real two-device reconnect remain open. Photo-access revocation and secret-scanning improvements are recorded in the [security remediation notes](docs/SECURITY-FIXES-2026-10-22.md). Web and AWS dependency audits reported zero vulnerabilities at verification. Two upstream TV dependency advisories affecting 14 dependency entries have [tested temporary local mitigations](docs/TV-SECURITY-PATCHES.md), expiring November 5; official patched releases and provider token rotation remain outstanding. Passing tests is not a security certification.
 
-[Testing guide](docs/TESTING.md) · [Detailed friction log](docs/FRICTION-LOG.md)
+[Testing guide](docs/TESTING.md) · [Device demonstration and acceptance checklist](docs/DEVICE-DEMO-CHECKLIST.md) · [Detailed friction log](docs/FRICTION-LOG.md)
 
 ## Repository guide
 
@@ -178,7 +195,7 @@ Some catalog logic is copied between web and TV. Keep both copies aligned when e
 
 ## Demo and project materials
 
-[Demo guide](docs/DEMO.md) · [Submission checklist](docs/SUBMISSION.md) · [Development friction](docs/FRICTION-LOG.md) · [Tool feedback](docs/TOOL-FEEDBACK.md)
+[Three-minute device walkthrough](docs/DEVICE-DEMO-CHECKLIST.md) · [Demo guide](docs/DEMO.md) · [Submission checklist](docs/SUBMISSION.md) · [Development friction](docs/FRICTION-LOG.md) · [Tool feedback](docs/TOOL-FEEDBACK.md)
 
 A useful demo follows one complete evening: choose together, inspect the pairing, save dinner, open the phone companion, then apply a delay and compare the schedule. A public repository is not evidence of a completed submission.
 
