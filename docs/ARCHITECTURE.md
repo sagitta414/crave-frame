@@ -1,8 +1,91 @@
-# Architecture
+# AWS architecture
 
-Crave Frame separates client surfaces, shared product rules and deployment adapters. AWS and the retained Cloudflare environment have separate data stores. The diagrams describe source responsibilities, not a live inventory. See [AWS deployment](AWS-DEPLOYMENT.md) for configuration, migrations and rollback.
+Crave Frame is hosted on **Amazon Web Services**, with an Amazon Fire TV experience and browser/phone companions. The AWS application architecture is shown first below. The full CDK design and the existing deployed stack can differ; these diagrams are not a fresh audit of account resources.
 
-## Runtime components
+[AWS deployment, migrations and rollback](AWS-DEPLOYMENT.md)
+
+## AWS runtime and trust boundaries
+
+```mermaid
+flowchart TB
+  Devices[Amazon Fire TV / browser / phone]
+  subgraph AWS[Amazon Web Services — application hosting]
+    Edge[Amazon CloudFront — HTTPS delivery]
+    Static[Amazon S3 — private static assets]
+    Gateway[Amazon API Gateway — HTTP API]
+    Runtime[AWS Lambda — Node.js backend]
+    Data[(Amazon Aurora PostgreSQL — application data)]
+    Media[(Amazon S3 — private media)]
+    Secrets[AWS Secrets Manager + AWS KMS]
+    Logs[Amazon CloudWatch — logs and diagnostics]
+    Edge --> Static
+    Edge --> Gateway
+    Gateway --> Runtime
+    Runtime --> Data
+    Runtime --> Media
+    Runtime --> Secrets
+    Runtime --> Logs
+  end
+  subgraph External[External integrations — separately configured]
+    Titles[TMDB — title metadata]
+    AI[Google Vertex AI / Gemini — optional matching]
+  end
+  Devices --> Edge
+  Runtime -. configured .-> Titles
+  Runtime -. optional .-> AI
+  classDef amazon fill:#232f3e,color:#fff,stroke:#ff9900,stroke-width:2px;
+  class Edge,Static,Gateway,Runtime,Data,Media,Secrets,Logs amazon;
+  style AWS fill:#fff7e8,stroke:#ff9900,stroke-width:2px
+  style External fill:#f3f4f6,stroke:#879196
+```
+
+The full CDK design includes RDS Proxy, WAF and multi-AZ networking. Existing-stack tooling also supports a separately configured database authentication path. The current account is not assumed to match that full topology. Review deployment outputs and configuration before changing infrastructure.
+
+Static assets pass through CloudFront. Private media is served through application authorization. Secrets are retrieved at runtime, not embedded in frontend bundles. Household revisions detect conflicting writes; client capabilities do not replace server authorization.
+
+## Amazon service responsibilities
+
+| Service | Role in Crave Frame |
+| --- | --- |
+| **Amazon CloudFront** | Public HTTPS entry point and static/API routing |
+| **Amazon S3** | Private static releases and a separate private media store |
+| **Amazon API Gateway** | HTTP API entry point for backend requests |
+| **AWS Lambda** | Node.js API, authorization and planning logic |
+| **Amazon Aurora PostgreSQL** | Durable household, evening and sharing data |
+| **AWS Secrets Manager / AWS KMS** | Runtime secret storage and encryption |
+| **Amazon CloudWatch** | Runtime logs and deployment diagnostics |
+| **AWS CloudFormation / AWS CDK** | Infrastructure definition and deployment tooling |
+| **Amazon RDS Proxy / AWS WAF** | Included in the full CDK design; verify presence in the existing deployment |
+
+Amazon Fire TV is the intended living-room client. TMDB and Google Vertex AI/Gemini are external integrations, not Amazon services. The AI provider has not been migrated to Amazon Bedrock.
+
+## Evening and phone handoff
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant TV as TV / planner
+  participant API as Shared API
+  participant DB as Household store
+  participant Phone as Phone companion
+  User->>TV: Review and approve pairing
+  TV->>API: Save evening
+  API->>DB: Write authorized household revision
+  API-->>TV: Saved evening
+  TV->>API: Create scoped cooking link
+  API-->>TV: Expiring handoff
+  User->>Phone: Open handoff
+  Phone->>API: Read shared cooking state
+  API-->>Phone: Authorized evening
+  Phone->>API: Save progress or delay
+  API->>DB: Validate and persist revision
+  TV->>API: Refresh evening
+  API-->>TV: Updated schedule and progress
+```
+
+Synchronization uses requests and polling, not WebSocket delivery. Latest local repairs serialize reads and reject obsolete responses around writes and reconnection; those app repairs remain pending publication at this documentation update. See the dated [friction log](FRICTION-LOG.md) for verification boundaries.
+
+## Retained Cloudflare and local runtime reference
 
 The main TV experience is authored in tv/App.tsx and tv/src. Expo exports a React Native Web bundle under /tv/. The browser planner and phone companion are separate product surfaces, sharing the same Worker API and household data. The native Android wrapper uses the same React Native source and an HTTPS backend.
 
@@ -134,51 +217,3 @@ Root build exports tv/web-export, copies it into web/product/tv, then assembles 
 
 The local Node server runs the same request handler with a SQLite adapter and static-file adapter. It does not emulate all Cloudflare services. No native SDKs, local databases, cloud credentials, generated exports, or prior development history are included in the repository.
 
-## AWS runtime and trust boundaries
-
-```mermaid
-flowchart TB
-  Clients[TV / browser / scoped phone companion] --> Edge[CloudFront HTTPS and security headers]
-  Edge --> Static[Private S3 static releases]
-  Edge --> API[API Gateway HTTP API]
-  API --> Lambda[Node.js Lambda live alias]
-  Lambda --> Auth[Household and share authorization]
-  Auth --> Rules[Planning / constraints / schedule]
-  Lambda --> Adapter[PostgreSQL adapter]
-  Adapter --> DB[(Aurora PostgreSQL)]
-  Lambda --> Media[(Private S3 application media)]
-  Lambda --> Secrets[Secrets Manager / KMS]
-  Lambda --> Logs[CloudWatch diagnostics]
-  Rules -. optional .-> Gemini[Vertex AI / Gemini]
-  Rules -. configured .-> TMDB[TMDB metadata]
-```
-
-The full CDK design includes RDS Proxy, WAF and multi-AZ networking. Existing-stack tooling also supports a separately configured database authentication path. The current account is not assumed to match that full topology. Review deployment outputs and configuration before changing infrastructure.
-
-Static assets pass through CloudFront. Private media is served through application authorization. Secrets are retrieved at runtime, not embedded in frontend bundles. Household revisions detect conflicting writes; client capabilities do not replace server authorization.
-
-## Evening and phone handoff
-
-```mermaid
-sequenceDiagram
-  actor User
-  participant TV as TV / planner
-  participant API as Shared API
-  participant DB as Household store
-  participant Phone as Phone companion
-  User->>TV: Review and approve pairing
-  TV->>API: Save evening
-  API->>DB: Write authorized household revision
-  API-->>TV: Saved evening
-  TV->>API: Create scoped cooking link
-  API-->>TV: Expiring handoff
-  User->>Phone: Open handoff
-  Phone->>API: Read shared cooking state
-  API-->>Phone: Authorized evening
-  Phone->>API: Save progress or delay
-  API->>DB: Validate and persist revision
-  TV->>API: Refresh evening
-  API-->>TV: Updated schedule and progress
-```
-
-Synchronization uses requests and polling, not WebSocket delivery. Latest local repairs serialize reads and reject obsolete responses around writes and reconnection; those app repairs remain pending publication at this documentation update. See the dated [friction log](FRICTION-LOG.md) for verification boundaries.

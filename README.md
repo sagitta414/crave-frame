@@ -54,22 +54,42 @@ The model selects eligible candidates rather than inventing arbitrary recipes. R
 
 [AI design](docs/AI.md) · [Recorded evaluation](docs/AI-EVALUATION.md) · [Asset provenance](docs/ASSETS.md)
 
-## Architecture
+## Built on Amazon Web Services
 
 ```mermaid
-flowchart LR
-  Devices[TV / browser / phone] --> Edge[CloudFront HTTPS]
-  Edge --> Static[Private S3 static assets]
-  Edge --> Gateway[API Gateway HTTP API]
-  Gateway --> Runtime[Node.js Lambda]
-  Runtime --> Logic[Planning and authorization]
-  Runtime --> Data[(Aurora PostgreSQL)]
-  Runtime --> Media[(Private S3 media)]
-  Runtime --> Secrets[Secrets Manager / KMS]
-  Runtime --> Logs[CloudWatch]
-  Logic -. configured .-> Titles[TMDB]
-  Logic -. optional .-> AI[Gemini / Vertex AI]
+flowchart TB
+  Devices[Amazon Fire TV / browser / phone]
+  subgraph AWS[Amazon Web Services — application hosting]
+    Edge[Amazon CloudFront — HTTPS delivery]
+    Static[Amazon S3 — private static assets]
+    Gateway[Amazon API Gateway — HTTP API]
+    Runtime[AWS Lambda — Node.js backend]
+    Data[(Amazon Aurora PostgreSQL — application data)]
+    Media[(Amazon S3 — private media)]
+    Secrets[AWS Secrets Manager + AWS KMS]
+    Logs[Amazon CloudWatch — logs and diagnostics]
+    Edge --> Static
+    Edge --> Gateway
+    Gateway --> Runtime
+    Runtime --> Data
+    Runtime --> Media
+    Runtime --> Secrets
+    Runtime --> Logs
+  end
+  subgraph External[External integrations — separately configured]
+    Titles[TMDB — title metadata]
+    AI[Google Vertex AI / Gemini — optional matching]
+  end
+  Devices --> Edge
+  Runtime -. configured .-> Titles
+  Runtime -. optional .-> AI
+  classDef amazon fill:#232f3e,color:#fff,stroke:#ff9900,stroke-width:2px;
+  class Edge,Static,Gateway,Runtime,Data,Media,Secrets,Logs amazon;
+  style AWS fill:#fff7e8,stroke:#ff9900,stroke-width:2px
+  style External fill:#f3f4f6,stroke:#879196
 ```
+
+**Amazon CloudFront delivers the app; Amazon API Gateway and AWS Lambda run the API; Amazon Aurora PostgreSQL stores application data; Amazon S3 stores assets and private media.** AWS Secrets Manager, AWS KMS and Amazon CloudWatch support runtime security and diagnostics.
 
 The AWS adapter reuses application routes and product logic. The full CDK design adds RDS Proxy, WAF and multi-AZ networking; the existing deployment has a separate configuration and repair history. This is a component overview, not a fresh inventory of deployed resources.
 
