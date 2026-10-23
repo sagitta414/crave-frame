@@ -34,3 +34,13 @@ The token previously disclosed in chat must be revoked/replaced through TMDB, th
 ## Deployment compatibility
 
 Deploy backend and frontend from this source together: the frontend now supplies photo grants and explicitly requests expiring editor links. Bare old photo/editor links intentionally stop working. Verify owner photos, new public viewing links and new editor links after deployment. Publishing main does not deploy AWS or revoke the provider token.
+
+## Collection regression follow-up
+
+Three regressions found during the post-fix review are corrected:
+
+- Saving name/notes without changing sharing preserves existing photo/editor grants.
+- Older shared collections initialize both owner and viewer photo grants, including when first opened through the shared viewing link. Bare object URLs remain rejected.
+- Old-photo cleanup is queued durably before retirement. Storage deletion failures do not turn an already saved edit or deletion into a misleading error. Later collection requests retry a bounded batch of cleanup, checking references before deletion. This is request-driven retry, not a scheduled background worker; an operator may need to trigger a collection read after a prolonged storage outage.
+
+Follow-up validation: 218 web + 55 TV + 10 AWS tests passed (283 total), with TV type/remote checks, production build and credential-pattern scan. The three new regressions reproduce the original failures. No AWS deployment was performed.
