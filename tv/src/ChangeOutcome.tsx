@@ -1,3 +1,4 @@
+import {changeSummary} from './evening-personalization';
 import {Text} from './TVText';
 import React from 'react';
 import {View,StyleSheet} from 'react-native';
@@ -9,8 +10,8 @@ import {mealById} from './catalog/catalog';
 export function ChangeOutcome({option,night,index,onReview}:any){
  const before=mealById(night.mealId),after=mealById(option.mealId);
  return <Reveal index={index}><View style={[s.card,index===0&&{borderColor:'#b78970'}]}>
-  <View style={s.heading}><RecipeArt meal={after} style={{width:110,height:95,borderRadius:12}}/><View style={{flex:1}}><Text style={s.tag}>{option.aiExplained?(index===0?'AI RECOMMENDS':'AI ALTERNATIVE'):'CATALOG ALTERNATIVE'}</Text><Text style={s.title}>{after.name}</Text></View></View>
-  <Text style={s.watch}>{option.showName}</Text>
+  <View style={s.heading}><RecipeArt adapted={option.adapted} meal={after} style={{width:110,height:95,borderRadius:12}}/><View style={{flex:1}}><Text style={s.tag}>{option.aiExplained?(index===0?'AI RECOMMENDS':'AI ALTERNATIVE'):'CATALOG ALTERNATIVE'}</Text><Text style={s.title}>{after.name}</Text></View></View>
+  <Text style={s.watch}>{option.showName}</Text><Text style={s.body}>{changeSummary(before,after,night,option)}</Text>
   <View style={s.metrics}>{[{label:'SERVINGS',value:night.prefs.people+' → '+option.people},{label:'COOKING',value:before.minutes+' → '+after.minutes+' min'},{label:'RECIPE STEPS',value:before.steps.length+' → '+after.steps.length}].map(m=><View style={s.metric} key={m.label}><Text style={s.tag}>{m.label}</Text><Text style={s.value}>{m.value}</Text></View>)}</View>
   <Text style={s.body}>{option.decisionReason||option.tradeoff}</Text>
   {!!option.decisionTradeoff&&<Text style={s.tradeoff}>Tradeoff: {option.decisionTradeoff}</Text>}

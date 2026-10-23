@@ -40,6 +40,10 @@ It doesn’t need to be a special occasion. Dinner at home and a good movie can 
 
 ## What’s new
 
+- **Personal evenings with clear reasons:** recommendations can explain a matching cooking limit, saved ingredient exclusions, or an explicitly saved favorite.
+- **Easier dinner, same evening:** preview a lower-effort meal while keeping the title and servings, then review ingredients before approving.
+- **Return to a loved evening:** keep dinner and find a new story, find a similar evening, or repeat the pairing. Saved planning settings are reused while current food preferences and exclusions still apply.
+
 The latest source update brings the dinner-and-viewing experience into a warmer, more focused design:
 
 | Update | What changed |
@@ -48,10 +52,10 @@ The latest source update brings the dinner-and-viewing experience into a warmer,
 | **Clearer first screen** | One featured evening leads. The introduction explains choosing on TV, cooking with a phone, and adjusting when dinner runs late. |
 | **Quieter discovery** | Two dinner-focused previews follow the first recommendation shelf. Shared voting, personal touches, and Our Night In are available through Explore more. |
 | **Compact navigation** | Narrow screens use a smaller logo, omit the tagline, and place the four destinations in one row below the brand. Content buttons can wrap to fit their available space. |
-| **Deeper pairing coverage** | 20 editorial pairings provide at least two dinner choices for each built-in real title. Eligible signature pairings receive extra priority; imported titles can use genre-based ranking and practical explanations. Interpretations are distinguished from documented food connections, and food and time limits still apply. |
+| **Deeper pairing coverage** | 30 editorial pairings provide at least three dinner choices for each built-in real title. Eligible signature pairings receive extra priority; imported titles can use genre-based ranking and practical explanations. Interpretations are distinguished from documented food connections, and food and time limits still apply. |
 | **Simpler couples planning** | Choose an evening and go directly to ingredient review. The preview and dinner alternatives are optional. |
-| **Phone delivery updates** | Enter the provider’s remaining estimate from 1–120 minutes on the phone. Successful saves update the shared schedule, close the editor, and show confirmation. Crave Frame does not receive live delivery tracking. |
-| **Phone memory saving** | Name and privately save Tonight’s Edition on the phone or TV. A saved confirmation prevents unchanged repeat submissions. The cooking link can save only its own evening’s edition. |
+| **Phone delivery updates** | Enter the provider’s remaining estimate from 1–120 minutes on the phone. Successful saves update the shared schedule, close the editor, and show confirmation. Confirm delivery arrival and viewing from the same phone screen, then optionally save a shared memory. Crave Frame does not receive live delivery tracking. |
+| **Phone memory saving** | Name and privately save Tonight’s Edition on the phone or TV. Reopening restores the saved title and confirmation; deliberate edits use “Update saved memory.” A failed lookup offers retry instead of presenting a blank card. Only open, eligible cards refresh periodically; they preserve typed titles, and require review when another screen changes the saved version. Stale revisions and changed partner answers are rejected before saving. Deleted editions can be explicitly recreated with fresh sharing and editor access; previous links remain revoked. The cooking link can save only its own evening’s edition. |
 | **A shared evening** | Separate cooking roles, partner feedback, reviewed dinner changes, a shared reveal, and the optional Tonight’s Edition keepsake. |
 
 These changes are in the repository. **The AWS demo requires a separate deployment**; the demo link alone does not prove it is running this revision.
@@ -96,7 +100,7 @@ This is a hackathon prototype. It does not stream films, place orders, track del
 
 After viewing begins and dinner is ready, open the optional keepsake on your saved evening or phone companion. Each person submits a moment (up to 280 characters) or skips. Answers are shared household data when submitted; the UI reveals the complete card once both have responded. This is not a secret-message system.
 
-Both the phone companion and TV offer an editable title and explicit private saving. You can finish the keepsake on your phone without returning to the TV. After a successful save, the action shows **Saved privately ✓** and stays disabled until the title or submitted answers change. The phone cooking link is limited to saving its own evening’s edition; it does not grant access to other collections.
+Both the phone companion and TV offer an editable title and explicit private saving. You can finish the keepsake on your phone without returning to the TV. After a successful save, the action shows **Saved privately ✓** and stays disabled until the title or submitted answers change. Takeout evenings can confirm dinner arrival and viewing on the same phone before opening the optional memory panel. Reopened editions load their saved title and status, and changed titles or answers can be explicitly saved again. The phone cooking link is limited to reading and saving its own evening’s edition; it does not grant access to other collections.
 
 If the existing card is already shared publicly, stop sharing before saving the personal edition. Saved cards are snapshots; later answers do not silently rewrite them. The TV also offers a way to plan another evening. No relationship score, streak, or pressure to participate.
 
@@ -186,7 +190,7 @@ Catalog planning works without provider credentials. Live AI and TMDB need confi
 
 ## Quality and release status
 
-**Verified 23 October 2026.** Source commit [9363d80](https://github.com/sagitta414/crave-frame/commit/9363d801200d01e7d69d625a4fc9dcedbdfe35f9) passed the [GitHub verification and security jobs](https://github.com/sagitta414/crave-frame/actions/runs/39902701887). Local verification passed **235 web + 83 TV + 10 AWS tests**, **7 Python deployment-script tests**, TV type checking, remote/paging checks, the production build, AWS packaging and CDK synthesis, and configured current-source/history secret scans. This records source verification, not a new AWS deployment or completed physical-device acceptance.
+**Verified 23 October 2026.** Pushed source commit [c81ba36](https://github.com/sagitta414/crave-frame/commit/c81ba3649fdb057ccd7b6fa8faebe0e43dc5a84c) passed the [GitHub verification and security jobs](https://github.com/sagitta414/crave-frame/actions/runs/39944733578). The subsequent local takeout and saved-memory fixes passed **244 web + 106 TV tests**, TV type checking, remote/paging checks, the production build and current-source secret scan. Those local changes have not yet been pushed or deployed. This local pass also verified **11 AWS integration/infrastructure tests and 7 Python deployment-script tests**, AWS packaging, CDK synthesis, current-source/history secret scanning, and the configured dependency security gates. Physical-device acceptance remains open.
 
 ```sh
 npm test

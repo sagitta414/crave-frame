@@ -1,8 +1,8 @@
 export function eveningTimeline(night,meal,show){
  meal={...meal,minutes:meal.minutes+(night.fulfillment==='delivery'?0:Number(night.timingAllowanceMinutes)||0)};
  if(night.fulfillment==='delivery'&&night.orderPlan){
-  const order=night.orderPlan,dinner=night.dinnerMinutes||25,watch=night.watchStarted||Math.max(order.previousWatchAt||0,order.arrivalAt+dinner*60000);
-  return [{label:'Order marked placed',at:order.orderAt,minutes:5},{label:'Estimated delivery window',at:Math.min(order.arrivalAt,order.orderAt+5*60000),minutes:Math.max(0,(order.arrivalAt-order.orderAt)/60000-5)},{label:'Sit down to dinner',at:order.arrivalAt,minutes:dinner},{label:'Start watching',at:watch,minutes:show.minutes},{label:'Evening finishes',at:watch+show.minutes*60000,minutes:0}];
+  const order=night.orderPlan,dinner=night.dinnerMinutes||25,arrival=night.readyAt||order.arrivalAt,watch=night.watchStarted||Math.max(order.previousWatchAt||0,arrival+dinner*60000);
+  return [{label:'Order marked placed',at:order.orderAt,minutes:Math.min(5,Math.max(0,(arrival-order.orderAt)/60000))},{label:night.readyAt?'Delivery completed':'Estimated delivery window',at:Math.min(arrival,order.orderAt+5*60000),minutes:Math.max(0,(arrival-order.orderAt)/60000-5)},{label:'Sit down to dinner',at:arrival,minutes:dinner},{label:'Start watching',at:watch,minutes:show.minutes},{label:'Evening finishes',at:watch+show.minutes*60000,minutes:0}];
  }
  const plannedStart=night.planStart||Date.parse(night.created),start=Number(night.cookingStartedAt)||Math.min(plannedStart,Number(night.readyAt)||plannedStart),prep=Math.min(10,Math.max(3,Math.round(meal.minutes/4))),dinner=night.dinnerMinutes||25;
  return [{label:'Prep your ingredients',at:start,minutes:prep},{label:'Cook supper',at:Math.min(start+prep*60000,Number(night.readyAt)||Infinity),minutes:meal.minutes-prep},{label:'Sit down to dinner',at:Number(night.readyAt)||start+meal.minutes*60000,minutes:dinner},{label:'Start watching',at:night.watchStarted||start+(meal.minutes+dinner)*60000,minutes:show.minutes},{label:'Evening finishes',at:(night.watchStarted||start+(meal.minutes+dinner)*60000)+show.minutes*60000,minutes:0}];
@@ -28,7 +28,7 @@ export function orderOutEvening(night,meal,show,etaMinutes,now=Date.now(),estima
 }
 export function readyTogetherPlan(night,meal,show,steps=[],now=Date.now()){
  const base=eveningTimeline(night,meal,show),schedule=base.map(item=>({...item}));
- if(night.fulfillment==='delivery')return {schedule,shiftMinutes:0,state:night.watchStarted?'watching':night.status==='complete'?'ready':'waiting'};
+ if(night.fulfillment==='delivery')return {schedule,shiftMinutes:0,state:night.watchStarted?'watching':['ready','complete'].includes(night.status)?'ready':'waiting'};
  let dinnerAt=base[2].at;
  if(night.status==='cooking'){
   const list=steps.length?steps:[{}],weights=list.map(step=>Math.max(60,Number(step.seconds)||0)),total=weights.reduce((sum,value)=>sum+value,0),durations=weights.map(value=>(meal.minutes+(Number(night.timingAllowanceMinutes)||0))*60000*value/total),current=Math.min(list.length-1,Math.max(0,night.step||0)),later=durations.slice(current+1).reduce((sum,value)=>sum+value,0),anchor=Number(night.progressAt)||Number(night.planStart)||now;

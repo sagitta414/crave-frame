@@ -25,7 +25,7 @@ export function CinemaNavigation({active,onNavigate,phone=false}:any){
    {phone?<Text style={s.phone}>COOKING COMPANION</Text>:<View style={s.capsule}>
     <View style={[s.tabs,{flexDirection:'row',flexWrap:'nowrap'}]}>
      {destinations.map(item=>{const current=selected===item.id;return <Button navigation compact style={compact?{flex:1,minWidth:0}:undefined} selected={current} key={item.id} focusKey={'navigation-'+item.id} accessibilityLabel={item.label} onPress={()=>onNavigate(item.id)}>
-      <View style={[s.tabContent,width<900&&{flexDirection:'column',gap:0}]}><Ionicons accessible={false} name={current?item.activeIcon:item.icon} size={width<900?18:23} color={current?'#102422':'#BCD7D1'}/><Text style={[s.tabText,{fontSize:width<900?14:28,lineHeight:width<900?20:38,color:current?'#102422':'#E3EEE9'}]}>{compact&&item.id==='saved'?'Evenings':item.label}</Text></View>
+      <View style={[s.tabContent,width<900&&{flexDirection:'column',gap:0}]}><Ionicons accessible={false} name={current?item.activeIcon:item.icon} size={width<900?18:23} color={current?'#102422':'#BCD7D1'}/><Text style={[s.tabText,{fontSize:width<600?16:width<900?24:28,lineHeight:width<600?24:width<900?32:38,color:current?'#102422':'#E3EEE9'}]}>{compact&&item.id==='saved'?'Evenings':item.label}</Text></View>
      </Button>;})}
     </View>
    </View>}

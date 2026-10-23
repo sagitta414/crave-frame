@@ -2,7 +2,7 @@
 // Schema stays text JSON to preserve serialization and optimistic revision checks.
 export function postgresSql(sql){
  let converted=sql.replace(/`([a-z_]+)`/gi,'"$1"');
- converted=converted.replace(/json_extract\(data,\s*'\$\.(photo|sourceNightId)'\)/gi,"(data::jsonb ->> '$1')");
+ converted=converted.replace(/json_extract\(data,\s*'\$\.(photo|sourceNightId|deleted)'\)/gi,"(data::jsonb ->> '$1')");
  if(/INSERT OR IGNORE INTO/i.test(converted))converted=converted.replace(/INSERT OR IGNORE INTO/i,'INSERT INTO')+' ON CONFLICT DO NOTHING';
  if(/ON CONFLICT\(id\) DO UPDATE SET count=/i.test(converted)){
   converted=converted.replace(/SET count=count/gi,'SET count=ai_usage.count').replace(/WHERE count/gi,'WHERE ai_usage.count');

@@ -80,3 +80,28 @@ test('migration ledger stages changes, detects checksum drift, and rolls back fa
   assert.equal((await pg.query('SELECT * FROM schema_migrations')).rows.length,1);
  }finally{await pg.close();}
 });
+
+test('PostgreSQL edition recreation rotates access and preserves conflict checks',async()=>{
+ const {pg,DB}=await open();let key='';const env={DB,AI_PROVIDER:'catalog',TRUSTED_CLIENT_IP:'192.0.2.88'};
+ const call=async(path,method='GET',body,auth=key)=>{const r=await api(new Request('https://test/api/'+path,{method,headers:{'x-household-key':auth},...(body?{body:JSON.stringify(body)}:{})}),env);return {status:r.status,data:await r.json()};};
+ try{
+ key=(await call('household','POST',{})).data.key;
+ const n=(await call('nights','POST',{mealId:'tomato-pasta',showId:'paddington',prefs:{...defaults,watchTime:180},adapted:false,fulfillment:'delivery',orderOut:{etaMinutes:20,provider:'doordash',confirmationId:'postgres-edition'}})).data;
+ assert.equal((await call('nights/'+n.id,'PATCH',{watchStarted:true})).status,409);
+ for(const b of [{deliveryArrived:true},{watchStarted:true},{edition:{person:1,skip:true}},{edition:{person:2,skip:true}}])assert.equal((await call('nights/'+n.id,'PATCH',b)).status,200);
+ const body={nightId:n.id,tonightsEdition:true,name:'Postgres memory',expectedRevision:null,expectedNotes:''};
+ const first=await call('collections','POST',body);assert.equal(first.status,201);
+ await call('collections/'+first.data.key,'PUT',{name:first.data.name,notes:first.data.notes,shared:true});
+ const current=(await call('nights/'+n.id+'/edition')).data.edition;
+ assert.equal((await call('nights/'+n.id+'/edition','POST',{action:'unshare',expectedRevision:current.revision-1})).status,409);
+ assert.equal((await call('nights/'+n.id+'/edition','POST',{action:'unshare',expectedRevision:current.revision})).status,200);
+ assert.equal((await call('nights/'+n.id+'/edition')).data.edition.shared,false);
+ assert.equal((await call('collections/'+first.data.key,'DELETE')).status,200);
+ assert.equal((await call('collections')).data.collections.length,0);
+ assert.equal((await call('nights/'+n.id+'/edition')).data.edition,null);
+ const restored=await call('collections','POST',body);assert.equal(restored.status,201);assert.notEqual(restored.data.key,first.data.key);
+ assert.equal((await call('collections')).data.collections.length,1);
+ assert.equal((await call('collections','POST',body)).status,409);
+ assert.equal((await call('collection-share/'+first.data.key,'GET',undefined,'')).status,404);
+ }finally{await pg.close();}
+});

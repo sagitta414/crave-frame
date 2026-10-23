@@ -10,8 +10,8 @@ test('quick changes preview the same title, block double submission and keep coo
  const calls=[];let resolve,review,delays=0;const h=harness('QuickEveningChanges.tsx',{'./api':{api:(...args)=>{calls.push(args);return new Promise(r=>resolve=r);}}});
  const night={id:'night',status:'planned',mealId:'old',showId:'film',prefs:{people:2},step:0};const props={night,onReview:r=>review=r,onDelay:()=>delays++,busy:false};
  let tree=h.render(props);const buttons=()=>nodes(tree).filter(n=>n.type==='Button');const find=label=>buttons().find(b=>b.props.children===label);
- const request=find('Too much cooking').props.onPress();find('Different food').props.onPress();assert.equal(calls.length,1);assert.equal(calls[0][0],'nights/night/rescue');assert.equal(calls[0][2].request.allowWatchChange,false);assert.equal(calls[0][2].request.easier,true);assert.equal(calls[0][2].apply,undefined);
+ const request=find('Make tonight easier').props.onPress();find('Different food').props.onPress();assert.equal(calls.length,1);assert.equal(calls[0][0],'nights/night/rescue');assert.equal(calls[0][2].request.allowWatchChange,false);assert.equal(calls[0][2].request.easier,true);assert.equal(calls[0][2].apply,undefined);
  resolve({options:[{mealId:'new',showId:'film'}],revision:7});await request;tree=h.render(props);nodes(tree).find(n=>n.type==='Outcome').props.onReview();assert.equal(review.revision,7);assert.equal(review.request.people,2);assert.equal(review.choice.showId,'film');assert.equal(night.mealId,'old');
- night.status='cooking';night.step=2;tree=h.render(props);assert.equal(find('Different food'),undefined);assert.equal(find('Too much cooking'),undefined);find('We’re running late').props.onPress();assert.equal(delays,1);assert.equal(night.step,2);
+ night.status='cooking';night.step=2;tree=h.render(props);assert.equal(find('Different food'),undefined);assert.equal(find('Make tonight easier'),undefined);find('We’re running late').props.onPress();assert.equal(delays,1);assert.equal(night.step,2);
  night.fulfillment='delivery';assert.equal(h.render(props),null);
 });

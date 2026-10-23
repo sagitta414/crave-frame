@@ -1,4 +1,4 @@
-import {titleKey} from './identity.js';
+import {titleKey,browseTitleKey} from './identity.js';
 // Editorial interpretations, never claims that a dish appears on screen.
 export const signatureEvenings=[
  {show:'ratatouille',meal:'tomato-pasta',title:'Simple ingredients, a little care',kind:'Mood',line:'Tomato and basil pasta echoes Ratatouille’s celebration of simple ingredients. A quick supper inspired by its spirit, not an on-screen dish.'},
@@ -20,6 +20,16 @@ export const signatureEvenings=[
  {"show": "only-murders", "meal": "pepperoni-pizza", "title": "A slice and a theory", "kind": "Mood", "line": "Cut pepperoni pizza into sharing slices before Only Murders, then compare theories as its three neighbors get drawn into the mystery.", "heroLine": "Share a slice, then compare your first suspects."},
  {"show": "only-murders", "meal": "spaghetti-meatballs", "title": "Dinner, then detective work", "kind": "Mood", "line": "Spaghetti and meatballs makes a familiar sit-down dinner before Only Murders. Clear the plates, settle in, and compare your first suspects.", "heroLine": "A familiar dinner before the detective work begins."},
  {"show": "avengers", "meal": "cheeseburgers-fries", "title": "Build your own team supper", "kind": "Mood", "line": "Let everyone assemble a burger before The Avengers brings its heroes together. A shared-table interpretation of teamwork, not a film dish.", "heroLine": "Assemble your own burgers before the heroes assemble."},
- {"show": "avengers", "meal": "chicken-quesadillas", "title": "Assemble dinner together", "kind": "Mood", "line": "Divide the filling and folding for chicken quesadillas before The Avengers. Your own small teamwork moment before the big-screen team-up.", "heroLine": "Share the filling and folding before the team-up."}
+ {"show": "avengers", "meal": "chicken-quesadillas", "title": "Assemble dinner together", "kind": "Mood", "line": "Divide the filling and folding for chicken quesadillas before The Avengers. Your own small teamwork moment before the big-screen team-up.", "heroLine": "Share the filling and folding before the team-up."},
+ {"show":"paddington","meal":"tomato-pasta","title":"Make room at the table","line":"A simple tomato pasta supper turns Paddington’s welcome into something you can offer each other: a seat, a plate, and time together.","kind":"Mood"},
+ {"show":"chef","meal":"flatbread","title":"Make it your own","line":"Top flatbreads together before Chef: a small shared cooking project inspired by its pleasure in making food for other people.","kind":"Mood"},
+ {"show":"ratatouille","meal":"roasted-pasta","title":"Give simple ingredients time","line":"Roasting tomatoes gives everyday pasta a little extra care, an interpretation of Ratatouille’s belief that modest ingredients deserve attention.","kind":"Mood"},
+ {"show":"grand-budapest","meal":"salmon-lemon-pasta","title":"Dress dinner for the occasion","line":"Plate lemon and salmon pasta with a little ceremony before The Grand Budapest Hotel. An interpretation of its presentation, not a film dish.","kind":"Mood"},
+ {"show":"before-sunrise","meal":"mushroom-toast","title":"Something small, a longer conversation","line":"Mushroom toast makes a small sit-down supper before Before Sunrise. Keep the food simple and save the evening for the conversation.","kind":"Mood"},
+ {"show":"before-sunset","meal":"flatbread","title":"More evening, less preparation","line":"Quick tomato flatbreads leave time to reconnect before Before Sunset. A practical interpretation of a reunion where time together matters.","kind":"Mood"},
+ {"show":"before-midnight","meal":"chicken-potatoes","title":"Start around the table","line":"Share chicken and potatoes at the table before Before Midnight. Take time for dinner before its more challenging relationship conversations.","kind":"Mood"},
+ {"show":"detectorists","meal":"mac-cheese-peas","title":"Ordinary comforts","line":"Mac and cheese with peas offers the kind of familiar comfort that suits Detectorists’ gentle friendships and small discoveries.","kind":"Mood"},
+ {"show":"only-murders","meal":"chicken-quesadillas","title":"Divide the supper, compare the clues","line":"Cut quesadillas into sharing wedges before Only Murders. Divide dinner, then bring your different theories to the same mystery.","kind":"Mood"},
+ {"show":"avengers","meal":"flatbread","title":"Everyone brings a topping","line":"Assemble flatbreads together before The Avengers. Sharing the small jobs makes dinner your own interpretation of a team coming together.","kind":"Mood"}
 ];
-export function signatureFor(meal,show){return signatureEvenings.find(s=>s.meal===meal?.id&&titleKey(s.show)===titleKey(show));}
+export function signatureFor(meal,show){return signatureEvenings.find(s=>s.meal===meal?.id&&(titleKey(s.show)===titleKey(show)||(['detectorists','only-murders'].includes(s.show)&&browseTitleKey({id:s.show,kind:'TV episode'})===browseTitleKey(show))));}

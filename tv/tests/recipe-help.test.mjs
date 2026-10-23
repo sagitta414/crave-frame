@@ -16,7 +16,7 @@ test('recipe help opens ingredients and coaching, and can reopen after closing',
  const modules={'./theme':{eveningTheme},'./PartnerKitchen':{PartnerKitchen:'PartnerKitchen'},'./CoupleMoment':{CoupleMoment:'CoupleMoment'},'react':React,'react/jsx-runtime':{jsx,jsxs:jsx},'react-native':{ScrollView:'ScrollView',View:'View',StyleSheet:{create:x=>x},useWindowDimensions:()=>({width:1200})},'expo-linear-gradient':{LinearGradient:'Gradient'},'./TVText':{Text:'Text'},'./TVButton':{TVButton:'Button'},'./DinnerReady':{DinnerReady:'DinnerReady'},'./DeliveryCompanion':{DeliveryCompanion:'Delivery'},'./CookingChecklist':{CookingChecklist:'Checklist'},'./RecipeArt':{RecipeArt:'Art'},'./catalog/engine':{ingredients,recipeSteps},'./catalog/catalog':{mealById},'./cooking-copy':{cookingCopy},'./cooking-state':{cookingProgress}};
  const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../src/CookingScreen.tsx',import.meta.url),'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:id=>{assert.ok(modules[id],id);return modules[id];}});
  const night={mealId:'pepper-pasta',prefs:{...defaults,cookLevel:'Beginner'},step:0,status:'cooking',adapted:false};
- const render=(request,preview=false,previewStep=0)=>{cursor=0;effectCursor=0;const tree=exports.CookingScreen({night,tick:Date.now(),helpRequest:request,preview,previewStep});while(effects.length)effects.shift()();return tree;};
+ const render=(request,preview=false,previewStep=0,extra={})=>{cursor=0;effectCursor=0;const tree=exports.CookingScreen({night,tick:Date.now(),helpRequest:request,preview,previewStep,...extra});while(effects.length)effects.shift()();return tree;};
  const buttons=tree=>{if(!tree||typeof tree!=='object')return [];if(Array.isArray(tree))return tree.flatMap(buttons);return [...(tree.type==='Button'?[tree]:[]),...buttons(tree.props?.children)];};
  render(0);assert.equal(states[0],false);
  render(1);assert.equal(states[0],true);assert.equal(states[3],true);
@@ -35,6 +35,10 @@ test('recipe help opens ingredients and coaching, and can reopen after closing',
  night.status='cooking';assert.ok(!find(render(2,true),'Checklist'),'remote cooking start exits preview');
  for(const status of ['ready','complete']){night.status=status;for(let i=0;i<mealById(night.mealId).steps.length;i++){night.step=i;const labels=buttons(render(2)).map(b=>b.props.children);assert.ok(!labels.some(label=>['Start timer','Stop timer','← Previous','Next step →','Dinner is ready ✓'].includes(label)));}}
  night.status='planned';night.mealId='chicken-couscous-bowls';assert.doesNotThrow(()=>render(2,true,4));night.mealId='story-ratatouille';assert.doesNotThrow(()=>render(2,true,4),'shorter replacement recipe clamps the previous step');assert.doesNotThrow(()=>render(2,true,-1));
+ let handoffs=0,starts=0;const handoffProps={onPhone:()=>handoffs++,onStart:()=>starts++};
+ for(const status of ['planned','cooking','ready']){night.status=status;const tree=render(2,status==='planned',0,handoffProps);const send=buttons(tree).find(b=>b.props.children==='Send to phone');assert.ok(send,'handoff remains reachable in '+status);send.props.onPress();assert.equal(starts,0);}
+ assert.equal(handoffs,3);assert.equal(buttons(render(2,false,0,{...handoffProps,busy:true})).find(b=>b.props.children==='Send to phone').props.disabled,true);
+ assert.ok(!buttons(render(2,false,0,{...handoffProps,phone:true})).some(b=>b.props.children==='Send to phone'));
  night.status='planned';night.fulfillment='delivery';assert.ok(find(render(2,true),'Delivery'),'delivery never exposes recipe preview or cooking controls');
  assert.equal(buttons(render(2,true)).length,0);
 });

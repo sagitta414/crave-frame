@@ -17,3 +17,9 @@ export function pairingSummary(pair){
  if(pair.pairingType==='practical'||c.pairingType==='practical')return echo||`${pair.meal.name}: ${pair.meal.minutes} minutes to cook before you settle in. An everyday pairing chosen for your time and preferences.`;
  return echo.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim()||echo||`${pair.meal.name} is a ${pair.meal.minutes}-minute option for tonight.`;
 }
+
+export function heroPairingLine(pair,signature){
+ if(signature?.heroLine)return signature.heroLine;
+ if(signature){const first=signature.line?.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim();return first&&first.length<=150?first:signature.title+'.';}
+ return pair.meal.minutes+' minutes in the kitchen, then time for '+pair.show.name+'.';
+}

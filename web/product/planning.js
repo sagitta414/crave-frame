@@ -25,7 +25,7 @@ export function rescueOptions(night,request,memory={},extraShows=[],pantry=[]){
  const out=[];
  for(const meal of meals){if(request.differentDinner&&meal.id===original.id)continue;const adapted=meal.id===original.id?night.adapted:night.prefs.diet==='Plant-based';
   if(ingredients(meal,request.people,adapted).some(i=>ingredientBlocked(i.name,memory)))continue;
-  if(request.easier&&(meal.effort!=='Easy'||(original.effort==='Easy'&&cookingProfile(meal).effortIndex>=cookingProfile(original).effortIndex)))continue;
+  if(request.easier&&(meal.effort!=='Easy'||cookingProfile(meal).effortIndex>=cookingProfile(original).effortIndex))continue;
   if((request.faster&&meal.minutes>=original.minutes)||(!meal.featuredRecipe&&meal.id!==original.id)||meal.minutes>(request.maxCookTime||night.prefs.cookTime)||!dietFits(meal,night.prefs.diet)||meal.minutes>night.prefs.cookTime||(night.prefs.effort==='Easy'&&meal.effort!=='Easy')||ingredients(meal,request.people,adapted).some(i=>blocked.some(b=>i.name.toLowerCase().includes(b.toLowerCase()))))continue;
   for(const show of watchPool){
    if(!request.allowWatchChange&&titleKey(show)!==titleKey(oldShow))continue;

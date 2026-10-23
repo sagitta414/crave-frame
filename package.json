@@ -10,7 +10,8 @@
     "dev": "npm --prefix web run dev",
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:secrets:history": "node scripts/check-secrets.mjs --history",
-    "check:security:tv": "node scripts/audit-tv.mjs"
+    "check:security:tv": "node scripts/audit-tv.mjs",
+    "test:local:http": "node scripts/test-local-http.mjs"
   },
   "engines": {
     "node": ">=24"

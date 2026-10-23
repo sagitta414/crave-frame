@@ -4,7 +4,7 @@ I built Crave Frame around a simple evening: choose something to watch on the TV
 
 This is the friction I actually ran into, including my own messages from testing, failures reproduced during code review, and the workarounds we used. Some problems came from my app, some from the development environment, and some from not knowing which Fire TV setup route applied. I have kept those distinctions visible.
 
-Updated from the development record through 22 October 2026. Earlier observations without a recorded date are marked accordingly. Time lost, reproduction frequency, device model and OS version were not measured consistently and are not estimated here.
+Updated from the development record through 23 October 2026. Earlier observations without a recorded date are marked accordingly. Time lost, reproduction frequency, device model and OS version were not measured consistently and are not estimated here.
 
 ## Summary
 
@@ -13,6 +13,18 @@ The largest practical obstacle was turning a desktop interface into something co
 The strongest improvements would be a clearer device-to-installation guide, a remote-navigation test example, and more dependable dependency remediation for the TV framework stack. Product-side lessons were to share schedule calculations across screens and make cross-device confirmations safe to retry.
 
 Historical checkpoint: source fixes through commit 0ce2d25 were on GitHub main on 18 October. The 22 October local remediation workspace passed 211 web, 55 TV and 10 AWS tests (276 total), TV type checking, remote/paging regressions, a production build and the configured secret-pattern scan. The latest application repairs are now included in the source update for main. All 276 tests and the production build were rerun before publication. Publishing source does not deploy it. Physical-device acceptance remains open.
+
+## 23 October follow-up: delivery and memory lifecycle
+
+**Status: fixed locally; not pushed or deployed.** Delivery arrival now updates the shared schedule state, early arrivals stay chronological, and TV and phone both require arrival confirmation before starting viewing.
+
+Testing beyond the first memory save exposed stale titles across screens, deleted editions that could not be recreated, and hidden panels that kept polling. Open panels now refresh without discarding typed titles, reject stale saves and changed partner answers, and stop polling when closed. Explicit recreation rotates collection, photo and editor access. Repeated delete/recreate tests verify that previous sharing and editor links remain invalid.
+
+The broader AWS test caught an adapter gap: the new deleted-record filter worked in SQLite but failed in PostgreSQL. The SQL adapter now supports the field, and an AWS integration regression verifies recreation and conflict handling.
+
+**Verification:** 243 web, 91 TV, 11 AWS, and 7 Python deployment tests passed, plus type checking, remote/paging checks, production exports, AWS packaging, CDK synthesis, source/history secret scans and configured security gates. Web/AWS audits reported zero vulnerabilities. Two upstream TV advisories remain under tested mitigations expiring November 5.
+
+**Still unverified:** latest source on physical Fire TV, real two-phone disconnect/reconnect, and the deployed AWS release. Automated checks do not establish couch-distance readability or device-specific remote behavior.
 
 ## Status definitions
 
@@ -330,3 +342,32 @@ Before marking these entries released: commit the app repairs, record the tested
 - **Suggested improvement for the tool or platform:**
 
 This log is project feedback material, not a statement that an official submission requirement or bonus has been satisfied. Nothing in this document has been sent to Devpost.
+
+
+## 23 October: phone completion and release polish
+
+Local fixes: phone cooking can mark viewing started after dinner is ready; memories restore previous answers, retain drafts during background failures, skip hidden/offline polling, and let the scoped phone link stop sharing before editing. Unsharing rotates public/photo/editor grants and uses revision checks. Delivery keepsakes use the delivery query rather than a recipe photograph. Native default origin now points to AWS. Silk typography retains a 28px minimum even below 900px; captions use the shared text component. Taste panels use the evening palette. Editorial coverage is 30 pairings, with three choices per built-in title and exact imported first-episode matching.
+
+Open limits: adapted photos remain explicitly illustrative, unknown titles still use honest practical matching, physical remote/two-device acceptance is pending, and the two upstream advisories remain locally mitigated until November 5. These changes require publication before they affect AWS.
+
+
+### Follow-up: four review findings closed locally
+
+Cross-device memory answers refresh clean fields and retain dirty drafts behind an explicit review action. Phone and household writes carry a reviewed-answer guard; stale writes return 409. Recovered polling clears the connection warning without clearing other messages. The saved-evening dashboard now provides the same load/save/unshare callbacks as cooking. Collections persist delivery metadata, recover it from the source evening for older cards, suppress recipe artwork for takeout, and pass adaptation flags for cooked meals. Private, shared and edited legacy cards are covered by regressions. No deployment was performed.
+
+
+### Focused presentation refinements
+
+Featured pairings now lead with a brief explanation, with full editorial interpretation in details. The phone connection confirmation and optional memory card use a single 320ms entrance, respect reduced motion, and do not move focus. The saved-evening primary action progresses through phone handoff, cooking and viewing; cooking on TV remains available. Delay previews highlight dinner and viewing before/after times and retain explicit confirmation. Regression coverage checks state-dependent actions, delay non-mutation, brief copy, animation cleanup and reduced motion. Local verification: 244 web tests, 102 TV tests, type checking, remote/paging checks, production build and current-source secret scan passed. Physical-device acceptance and publication remain pending.
+
+
+### 23 October — personal recommendations and easier repeat evenings
+
+Added evidence-based fit reasons, strictly lower-effort dinner previews, explicit swap summaries, and expandable repeat choices for loved evenings. Repeating keeps current food preferences while reusing prior planning settings; users can adjust servings and cooking guidance before saving. Adapted recipe artwork is passed through review and change previews. Four added regressions cover factual reasons, current restrictions, honest swap summaries, and lower-effort suggestions preserving title/portions/exclusions without mutating the saved night. Full local verification: 244 web + 106 TV tests, type checking, remote/paging checks, production build, and current-source secret scan passed. No deployment or physical-device test performed.
+
+
+### 23 October — local runtime acceptance check
+
+Found and fixed a local startup regression: the build removes static HTML after embedding documents into the server bundle, but dev.mjs loaded the unbundled worker, returning 404 for the entry pages. The dev server now loads the built worker after the build completes. Added `npm run test:local:http` (requires `npm run dev` separately) to exercise the real local HTTP boundary. Its 24 checks cover entry documents/assets, error headers, authentication, household isolation, saved plans, scoped phone updates, completion/viewing, revoked links, and cleanup. It creates disposable local test households and removes its test evening; empty households remain.
+
+Fresh checks: 244 web tests, 106 TV tests, 11 AWS tests, remote/paging checks, type checking, and current-source secret scan passed. The registry security gate passes with verified local mitigations; 14 high-severity dependency entries remain under documented exceptions expiring November 5. Browser UI walkthrough was blocked by the tool URL policy; no rendered layout, actual remote, or physical-phone claim is made. No deployment performed.

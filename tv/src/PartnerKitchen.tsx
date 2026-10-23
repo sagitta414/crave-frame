@@ -7,7 +7,7 @@ import {TVButton as Button} from './TVButton';
 import {partnerTasks} from './catalog/together-features';
 import {showById} from './catalog/catalog';
 import {projectEvening} from './schedule';
-export function PartnerKitchen({night,meal,onUpdate,busy,tick,onRoleChange,onSaveEdition,phone=false}:any){
+export function PartnerKitchen({night,meal,onUpdate,busy,tick,onRoleChange,onSaveEdition,onLoadEdition,phone=false}:any){
  const [person,setPerson]=useState(0),[role,setRole]=useState(0),[error,setError]=useState(''),lock=useRef(false),selection=useRef(0);
  useEffect(()=>{onRoleChange?.(role);},[role,onRoleChange]);
  useEffect(()=>{let live=true;const version=++selection.current;setPerson(0);setRole(0);Promise.all([AsyncStorage.getItem('cf-partner-person-'+night.id),AsyncStorage.getItem('cf-cook-role-'+night.id)]).then(([person,role])=>{if(live&&version===selection.current){if(['1','2'].includes(person||''))setPerson(Number(person));if(['1','2'].includes(role||''))setRole(Number(role));}}).catch(()=>{});return()=>{live=false;};},[night.id]);
@@ -21,7 +21,7 @@ export function PartnerKitchen({night,meal,onUpdate,busy,tick,onRoleChange,onSav
  {!ready&&role===1&&<Text style={{fontSize:20,color:'#CEE6DF'}}>{tasks.filter(t=>night.partnerTasks?.[t.id]).length} of {tasks.length} partner preparation tasks done.</Text>}
  {ready&&person>0&&<PartnerResponse key={person} person={person} feedback={feedback} watchStarted={!!night.watchStarted} busy={busy} onWrite={write}/>}
 
- {ready&&person>0&&<TonightsEdition key={night.id+person} night={night} person={person} phone={phone} onSaveEdition={onSaveEdition} onUpdate={onUpdate} busy={busy}/>}
+ {ready&&person>0&&<TonightsEdition key={night.id+person} night={night} person={person} phone={phone} onLoadEdition={onLoadEdition} onSaveEdition={onSaveEdition} onUpdate={onUpdate} busy={busy}/>}
  {!!error&&<Text accessibilityLiveRegion="polite" style={{fontSize:20,color:'#FFD0B9'}}>{error}</Text>}</View>;
 }
 

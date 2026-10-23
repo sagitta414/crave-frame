@@ -14,7 +14,7 @@ import {RecipeArt} from './RecipeArt';
 import {ingredients,recipeSteps} from './catalog/engine';
 import {mealById} from './catalog/catalog';
 import {cookingProgress} from './cooking-state';
-export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onStart,onUpdate,onSaveEdition,onBack,onHelp,tick,busy,syncError,helpRequest=0}:any){
+export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onStart,onUpdate,onSaveEdition,onLoadEdition,onPhone,onBack,onHelp,tick,busy,syncError,helpRequest=0}:any){
  preview=!!preview&&night.status==='planned';
  const {width}=useWindowDimensions(),small=width<900,[details,setDetails]=useState(false),m=mealById(night.mealId),steps=recipeSteps(m,night.adapted,night.prefs.cookLevel||'Regular',night.prefs.people),index=Math.max(0,Math.min(steps.length-1,Number.isInteger(preview?previewStep:night.step)?(preview?previewStep:night.step):0)),step=steps[index],ready=['ready','complete'].includes(night.status),progress=cookingProgress(night,steps.length,preview),left=Math.max(0,Math.ceil(((night.timer||0)-tick)/1000));
  const scroll=useRef<ScrollView>(null);
@@ -24,13 +24,14 @@ export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onS
  useEffect(()=>setChecked(false),[night.id,night.mealId,night.prefs.people,night.adapted,night.prefs.cookLevel]);
  useEffect(()=>setShowCoaching(false),[night.id,index,preview]);
  useEffect(()=>{if(helpRequest){setDetails(true);setShowCoaching(true);}},[helpRequest]);
- if(night.fulfillment==='delivery')return <DeliveryCompanion night={night} phone={phone} onBack={onBack} onUpdate={onUpdate} busy={busy} syncError={syncError}/>;
+ if(night.fulfillment==='delivery')return <DeliveryCompanion onPhone={onPhone} onLoadEdition={onLoadEdition} onSaveEdition={onSaveEdition} night={night} phone={phone} onBack={onBack} onUpdate={onUpdate} busy={busy} syncError={syncError}/>;
  const baseStep=recipeSteps(m,night.adapted,'Confident',night.prefs.people)[index];
  const copy=cookingCopy(step.instruction,baseStep.instruction);
  return <ScrollView ref={scroll} testID="main-scroll" contentContainerStyle={{padding:small?20:40,paddingBottom:90,gap:20,maxWidth:1200,width:'100%',alignSelf:'center'}}>
  <Text style={s.kicker}>{preview?'RECIPE PREVIEW':phone?'YOUR KITCHEN COMPANION':'COOK AT YOUR PACE'}</Text><Text style={[s.title,{fontSize:small?32:44}]}>{m.name}</Text>
- {ready&&!preview&&<><DinnerReady night={night} phone={phone} onBack={onBack}/><CoupleMoment key={night.id} night={night}/></>}
- {night.prefs.people===2&&!preview&&<PartnerKitchen onSaveEdition={onSaveEdition} phone={phone} night={night} meal={m} onUpdate={onUpdate} busy={busy} tick={tick} onRoleChange={setPartnerRole}/>}
+ {!phone&&onPhone&&<View style={s.row}><Button disabled={busy} focusKey="cooking-send-phone" onPress={onPhone}>Send to phone</Button><Text style={s.meta}>Scan a QR code to review the recipe and share cooking progress.</Text></View>}
+ {ready&&!preview&&<><DinnerReady night={night} phone={phone} onBack={onBack} onUpdate={onUpdate} busy={busy}/><CoupleMoment key={night.id} night={night}/></>}
+ {night.prefs.people===2&&!preview&&<PartnerKitchen onLoadEdition={onLoadEdition} onSaveEdition={onSaveEdition} phone={phone} night={night} meal={m} onUpdate={onUpdate} busy={busy} tick={tick} onRoleChange={setPartnerRole}/>}
  {preview&&<CookingChecklist key={JSON.stringify([night.id,night.mealId,night.prefs.people,night.adapted,night.prefs.cookLevel])} night={night} meal={m} onReady={setChecked}/>}
  {partnerRole===2&&!preview&&!ready&&<Button quiet selected={showSharedRecipe} onPress={()=>setShowSharedRecipe(!showSharedRecipe)}>{showSharedRecipe?'Hide shared recipe':'Check the full recipe'}</Button>}
  {(partnerRole!==2||preview||ready||showSharedRecipe)&&<View style={{flexDirection:small?'column':'row',gap:24}}><View style={{width:small?'100%':'32%',gap:12}}><RecipeArt adapted={night.adapted} meal={m} resizeMode="cover" style={{width:'100%',height:small?180:260,borderRadius:20}}/><Text style={s.meta}>{night.prefs.people} servings · {night.prefs.cookLevel||'Regular'} guidance</Text><Text style={s.meta}>Later tonight · {night.show?.name||'Your selected story'}</Text></View>
@@ -44,7 +45,7 @@ export function CookingScreen({night,phone,preview,previewStep,onPreviewStep,onS
 
  {!!syncError&&<Text accessibilityLiveRegion="polite" style={s.warning}>{syncError}</Text>}
  <Button compact quiet selected={details} onPress={()=>setDetails(!details)}>{details?'Hide ingredients':'Ingredients & recipe details'}</Button>{details&&<View style={{gap:12}}>{ingredients(m,night.prefs.people,night.adapted).map((i:any)=><Text key={i.name+i.unit} style={s.body}>{i.amount} {i.unit} · {i.name}</Text>)}<Text style={s.meta}>Cooking times are estimates. Recipes have not yet been kitchen-tested.</Text></View>}{!phone&&<Button compact quiet onPress={onHelp}>Recipe help</Button>}
- <Text style={s.meta}>{phone?'Progress is shared with your TV. Keep this private link within your household.':'Use Send to phone from your evening plan to cook in the kitchen.'}</Text>
+ <Text style={s.meta}>{phone?'Progress is shared with your TV. Keep this private link within your household.':'Use Send to phone above to take this recipe to the kitchen.'}</Text>
  </LinearGradient></View>}</ScrollView>;
 }
 const s=StyleSheet.create({panel:{padding:24,borderRadius:24,borderWidth:1,borderColor:eveningTheme.border,gap:20},title:{color:'#FFF6EE',fontWeight:'800',lineHeight:46},kicker:{fontSize:17,color:'#FFCA9F',fontWeight:'800',letterSpacing:1.4},meta:{color:eveningTheme.muted,fontSize:18,lineHeight:28},body:{color:'#EAF0F8',fontSize:23,lineHeight:34},encourage:{color:'#FFCA9F',fontSize:20,lineHeight:29,fontWeight:'600'},row:{flexDirection:'row',flexWrap:'wrap',gap:12},timer:{padding:20,gap:12,borderRadius:18,backgroundColor:eveningTheme.deep},digits:{fontSize:44,color:'#FFF',fontWeight:'800',fontVariant:['tabular-nums']},ready:{padding:20,gap:12,borderRadius:18,backgroundColor:'#14392E'},warning:{color:'#FFD3AA',fontSize:20,lineHeight:28}});

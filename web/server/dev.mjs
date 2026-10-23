@@ -5,7 +5,8 @@ import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
 import {openDb} from './local-db.js';
-import worker from './worker.js';
+// The build embeds document HTML in this bundle and removes it from static assets.
+const {default:worker}=await import('../dist/server/index.js');
 const root=resolve('dist/client'),DB=openDb('.local/supper.sqlite');
 const mime={'.jpg':'image/jpeg','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.html':'text/html; charset=utf-8','.json':'application/json'};
 const ASSETS={async fetch(req){try{let p=decodeURIComponent(new URL(req.url).pathname);if(p.endsWith('/'))p+='index.html';const file=resolve(root,'.'+p);if(!file.startsWith(root+sep))return new Response('Forbidden',{status:403});return new Response(await readFile(file),{headers:{'content-type':mime[extname(file)]||'application/octet-stream'}});}catch{return new Response('Not found',{status:404});}}};

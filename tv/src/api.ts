@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {createRecoveredHousehold} from './household-recovery';
-export const API_ORIGIN=process.env.EXPO_PUBLIC_API_ORIGIN||(typeof window!=='undefined'&&window.location?.origin?window.location.origin:'https://screen-to-supper-storyboard.sagitta107.chatgpt.site');
+export const API_ORIGIN=process.env.EXPO_PUBLIC_API_ORIGIN||(typeof window!=='undefined'&&window.location?.origin?window.location.origin:'https://dcp5jtiiw3gji.cloudfront.net');
 import {mayCancelRequest,cancelPending} from './request-policy';
 let householdKey='';
 const pending=new Map<AbortController,boolean>();

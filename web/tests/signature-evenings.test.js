@@ -4,7 +4,7 @@ import {signatureEvenings,signatureFor} from '../product/signature-evenings.js';
 import {mealById,showById,shows,defaults} from '../product/catalog.js';
 import {curate,connection} from '../product/curation.js';
 test('editorial evenings resolve real recipes and canonical title identities',()=>{
- assert.equal(signatureEvenings.length,20);
+ assert.equal(signatureEvenings.length,30);
  for(const s of signatureEvenings){const meal=mealById(s.meal),show=showById(s.show);assert.ok(meal);assert.ok(show);assert.equal(signatureFor(meal,show),s);assert.ok(meal.minutes<=45);assert.ok(s.line.length<190);}
 });
 test('signature promotion never bypasses time or ingredient exclusions',()=>{
@@ -23,4 +23,4 @@ test('title-specific dinners respect the cooking budget and exclusions',()=>{
  assert.ok(!picks('grand-budapest',30,{dislikedMeals:['mushroom-toast']}).some(p=>p.meal.id==='mushroom-toast'));
 });
 
-test('every built-in real title has at least two distinct editorial dinners',()=>{for(const show of shows.filter(s=>s.source)){const entries=signatureEvenings.filter(s=>signatureFor(mealById(s.meal),show)===s);assert.ok(new Set(entries.map(s=>s.meal)).size>=2,show.name);}});
+test('every built-in real title has at least three distinct editorial dinners',()=>{for(const show of shows.filter(s=>s.source)){const entries=signatureEvenings.filter(s=>signatureFor(mealById(s.meal),show)===s);assert.ok(new Set(entries.map(s=>s.meal)).size>=3,show.name);}});
